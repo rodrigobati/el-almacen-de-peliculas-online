@@ -12,17 +12,16 @@ class PeliculaTest {
     @DisplayName("El detalle completo de la película contiene todos los datos relevantes")
     void detalleCompleto_devuelveDatosEsperados() {
         var pelicula = new Pelicula(
-            "Matrix",
-            "nuevo",
-            List.of("Lana Wachowski", "Lilly Wachowski"),
-            1500.0,
-            "Blu-ray",
-            "Ciencia Ficción",
-            "Un hacker descubre la verdad sobre su realidad.",
-            List.of("Keanu Reeves", "Carrie-Anne Moss"),
-            "https://ejemplo.com/matrix.jpg",
-            LocalDate.of(1999, 3, 31)
-        );
+                "Matrix",
+                "nuevo",
+                List.of("Lana Wachowski", "Lilly Wachowski"),
+                1500.0,
+                "Blu-ray",
+                "Ciencia Ficción",
+                "Un hacker descubre la verdad sobre su realidad.",
+                List.of("Keanu Reeves", "Carrie-Anne Moss"),
+                "https://ejemplo.com/matrix.jpg",
+                LocalDate.of(1999, 3, 31));
         var detalle = pelicula.detalleCompleto();
         assertEquals("Matrix", detalle.titulo);
         assertEquals("nuevo", detalle.condicion);
@@ -40,50 +39,47 @@ class PeliculaTest {
     @DisplayName("No permite crear película con título vacío")
     void constructor_tituloVacio_lanzaExcepcion() {
         assertThrows(RuntimeException.class, () -> new Pelicula(
-            "",
-            "nuevo",
-            List.of("Director"),
-            1000.0,
-            "DVD",
-            "Acción",
-            "Sinopsis",
-            List.of("Actor"),
-            "url",
-            LocalDate.now()
-        ));
+                "",
+                "nuevo",
+                List.of("Director"),
+                1000.0,
+                "DVD",
+                "Acción",
+                "Sinopsis",
+                List.of("Actor"),
+                "url",
+                LocalDate.now()));
     }
 
     @Test
     @DisplayName("No permite crear película con precio negativo")
     void constructor_precioNegativo_lanzaExcepcion() {
         assertThrows(RuntimeException.class, () -> new Pelicula(
-            "Titulo",
-            "nuevo",
-            List.of("Director"),
-            -10.0,
-            "DVD",
-            "Acción",
-            "Sinopsis",
-            List.of("Actor"),
-            "url",
-            LocalDate.now()
-        ));
+                "Titulo",
+                "nuevo",
+                List.of("Director"),
+                -10.0,
+                "DVD",
+                "Acción",
+                "Sinopsis",
+                List.of("Actor"),
+                "url",
+                LocalDate.now()));
     }
 
     @Test
     @DisplayName("No permite crear película con condición inválida")
     void constructor_condicionInvalida_lanzaExcepcion() {
         assertThrows(RuntimeException.class, () -> new Pelicula(
-            "Titulo",
-            "reparado",
-            List.of("Director"),
-            1000.0,
-            "DVD",
-            "Acción",
-            "Sinopsis",
-            List.of("Actor"),
-            "url",
-            LocalDate.now()
-        ));
+                "Titulo",
+                "reparado",
+                List.of("Director"),
+                1000.0,
+                "DVD",
+                "Acción",
+                "Sinopsis",
+                List.of("Actor"),
+                "url",
+                LocalDate.now()));
     }
 }

@@ -2,11 +2,6 @@ package unrn.model;
 
 import java.time.LocalDate;
 import java.util.List;
-import unrn.model.Actor;
-import unrn.model.Director;
-import unrn.model.Formato;
-import unrn.model.Genero;
-import unrn.model.Condicion;
 
 public class Pelicula {
     static final String ERROR_TITULO = "El título no puede ser vacío";
@@ -29,23 +24,7 @@ public class Pelicula {
     private final String imagenUrl;
     private final LocalDate fechaSalida;
 
-    /**
-     * Devuelve el detalle completo de la película para mostrar en la vista.
-     * Retorna un objeto inmutable con todos los datos relevantes.
-     */
-    public DetallePelicula detalleCompleto() {
-        return new DetallePelicula(
-                titulo,
-                condicion,
-                List.copyOf(directores),
-                precio,
-                formato,
-                genero,
-                sinopsis,
-                List.copyOf(actores),
-                imagenUrl,
-                fechaSalida);
-    }
+    // El método que devolvía el DTO se eliminó para mantener el modelo desacoplado
 
     public Pelicula(String titulo, Condicion condicion, List<Director> directores, double precio, Formato formato,
             Genero genero, String sinopsis, List<Actor> actores, String imagenUrl, LocalDate fechaSalida) {
@@ -117,31 +96,17 @@ public class Pelicula {
         }
     }
 
-    /** Value Object para el detalle completo de la película */
-    public static final class DetallePelicula {
-        public final String titulo;
-        public final Condicion condicion;
-        public final List<Director> directores;
-        public final double precio;
-        public final Formato formato;
-        public final Genero genero;
-        public final String sinopsis;
-        public final List<Actor> actores;
-        public final String imagenUrl;
-        public final LocalDate fechaSalida;
+    // Métodos de lectura intencionales para uso por capas superiores (DTOs, vistas, etc.)
+    public String titulo() { return titulo; }
+    public Condicion condicion() { return condicion; }
+    public List<Director> directores() { return List.copyOf(directores); }
+    public double precio() { return precio; }
+    public Formato formato() { return formato; }
+    public Genero genero() { return genero; }
+    public String sinopsis() { return sinopsis; }
+    public List<Actor> actores() { return List.copyOf(actores); }
+    public String imagenUrl() { return imagenUrl; }
+    public LocalDate fechaSalida() { return fechaSalida; }
 
-        public DetallePelicula(String titulo, Condicion condicion, List<Director> directores, double precio, Formato formato,
-                Genero genero, String sinopsis, List<Actor> actores, String imagenUrl, LocalDate fechaSalida) {
-            this.titulo = titulo;
-            this.condicion = condicion;
-            this.directores = List.copyOf(directores);
-            this.precio = precio;
-            this.formato = formato;
-            this.genero = genero;
-            this.sinopsis = sinopsis;
-            this.actores = List.copyOf(actores);
-            this.imagenUrl = imagenUrl;
-            this.fechaSalida = fechaSalida;
-        }
-    }
+    // El DTO se movió a la capa `unrn.dto` y el modelo ya no lo contiene
 }
