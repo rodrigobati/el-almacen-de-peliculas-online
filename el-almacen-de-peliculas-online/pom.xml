@@ -22,6 +22,62 @@
       <version>${junit.version}</version>
       <scope>test</scope>
     </dependency>
+
+      <!-- tests -->
+      <dependency>
+          <groupId>org.junit.jupiter</groupId>
+          <artifactId>junit-jupiter</artifactId>
+          <version>5.13.4</version>
+          <scope>test</scope>
+      </dependency>
+
+      <dependency>
+          <groupId>org.junit.jupiter</groupId>
+          <artifactId>junit-jupiter-params</artifactId>
+          <version>5.13.4</version>
+          <scope>test</scope>
+      </dependency>
+
+      <!-- Hibernate -->
+      <dependency>
+          <groupId>org.hibernate.orm</groupId>
+          <artifactId>hibernate-core</artifactId>
+          <version>7.0.7.Final</version>
+      </dependency>
+      <dependency>
+          <groupId>org.hibernate.orm</groupId>
+          <artifactId>hibernate-community-dialects</artifactId>
+          <version>7.0.7.Final</version>
+      </dependency>
+
+      <dependency>
+          <groupId>jakarta.persistence</groupId>
+          <artifactId>jakarta.persistence-api</artifactId>
+          <version>3.2.0</version>
+      </dependency>
+      <!-- Lombok -->
+      <dependency>
+          <groupId>org.projectlombok</groupId>
+          <artifactId>lombok</artifactId>
+          <version>1.18.38</version>
+          <scope>compile</scope>
+      </dependency>
+      <!-- Derby DB -->
+      <dependency>
+          <groupId>org.apache.derby</groupId>
+          <artifactId>derby</artifactId>
+          <version>10.17.1.0</version>
+      </dependency>
+      <dependency>
+          <groupId>org.apache.derby</groupId>
+          <artifactId>derbytools</artifactId>
+          <version>10.17.1.0</version>
+      </dependency>
+      <dependency>
+          <groupId>org.apache.derby</groupId>
+          <artifactId>derbyclient</artifactId>
+          <version>10.17.1.0</version>
+      </dependency>
   </dependencies>
 
   <build>
