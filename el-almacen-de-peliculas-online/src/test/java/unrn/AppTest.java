@@ -1,34 +1,20 @@
 package unrn;
 
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.DisplayName;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Unit test for simple App.
  */
-public class AppTest
-        extends TestCase {
-    /**
-     * Create the test case
-     *
-     * @param testName name of the test case
-     */
-    public AppTest(String testName) {
-        super(testName);
-    }
+public class AppTest {
 
-    /**
-     * @return the suite of tests being tested
-     */
-    public static Test suite() {
-        return new TestSuite(AppTest.class);
-    }
-
-    /**
-     * Rigourous Test :-)
-     */
-    public void testApp() {
-        assertTrue(true);
+    @Test
+    @DisplayName("El test siempre debe pasar")
+    void testAppSiempreTrue() {
+        // Setup: No se requiere preparación para este test
+        // Ejercitación: No hay acción a probar, solo se verifica true
+        // Verificación: El resultado esperado es true
+        assertTrue(true, "El valor esperado es true");
     }
 }

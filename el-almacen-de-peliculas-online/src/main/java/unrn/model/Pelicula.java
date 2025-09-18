@@ -96,17 +96,47 @@ public class Pelicula {
         }
     }
 
-    // Métodos de lectura intencionales para uso por capas superiores (DTOs, vistas, etc.)
-    public String titulo() { return titulo; }
-    public Condicion condicion() { return condicion; }
-    public List<Director> directores() { return List.copyOf(directores); }
-    public double precio() { return precio; }
-    public Formato formato() { return formato; }
-    public Genero genero() { return genero; }
-    public String sinopsis() { return sinopsis; }
-    public List<Actor> actores() { return List.copyOf(actores); }
-    public String imagenUrl() { return imagenUrl; }
-    public LocalDate fechaSalida() { return fechaSalida; }
+    // Métodos de lectura intencionales para uso por capas superiores (DTOs, vistas,
+    // etc.)
+    public String titulo() {
+        return titulo;
+    }
+
+    public Condicion condicion() {
+        return condicion;
+    }
+
+    public List<Director> directores() {
+        return List.copyOf(directores);
+    }
+
+    public double precio() {
+        return precio;
+    }
+
+    public Formato formato() {
+        return formato;
+    }
+
+    public Genero genero() {
+        return genero;
+    }
+
+    public String sinopsis() {
+        return sinopsis;
+    }
+
+    public List<Actor> actores() {
+        return List.copyOf(actores);
+    }
+
+    public String imagenUrl() {
+        return imagenUrl;
+    }
+
+    public LocalDate fechaSalida() {
+        return fechaSalida;
+    }
 
     // El DTO se movió a la capa `unrn.dto` y el modelo ya no lo contiene
 }
