@@ -47,7 +47,7 @@ class PeliculaTest {
     @DisplayName("No permite crear película con título vacío")
     void constructor_tituloVacio_lanzaExcepcion() {
         // Setup: parámetros válidos excepto el título
-        assertThrows(RuntimeException.class, () -> new Pelicula(
+        var ex = assertThrows(RuntimeException.class, () -> new Pelicula(
                 "",
                 new Condicion("nuevo"),
                 List.of(new Director("Director")),
@@ -59,12 +59,13 @@ class PeliculaTest {
                 "url",
                 LocalDate.now(),
                 5));
+        assertEquals(Pelicula.ERROR_TITULO, ex.getMessage());
     }
 
     @Test
     @DisplayName("No permite crear película con precio negativo")
     void constructor_precioNegativo_lanzaExcepcion() {
-        assertThrows(RuntimeException.class, () -> new Pelicula(
+        var ex = assertThrows(RuntimeException.class, () -> new Pelicula(
                 "Titulo",
                 new Condicion("nuevo"),
                 List.of(new Director("Director")),
@@ -76,6 +77,7 @@ class PeliculaTest {
                 "url",
                 LocalDate.now(),
                 5));
+        assertEquals(Pelicula.ERROR_PRECIO, ex.getMessage());
     }
 
     @Test
