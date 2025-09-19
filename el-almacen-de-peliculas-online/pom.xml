@@ -17,11 +17,11 @@
     <maven.compiler.source>23</maven.compiler.source>
     <maven.compiler.target>23</maven.compiler.target>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <junit.version>5.13.0</junit.version>
+    <junit.version>5.13.4</junit.version>
   </properties>
 
   <dependencies>
-    <!-- JUnit 5.13 -->
+    <!-- JUnit 5 -->
     <dependency>
       <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter</artifactId>
@@ -29,20 +29,12 @@
       <scope>test</scope>
     </dependency>
 
-      <!-- tests -->
-      <dependency>
-          <groupId>org.junit.jupiter</groupId>
-          <artifactId>junit-jupiter</artifactId>
-          <version>5.13.4</version>
-          <scope>test</scope>
-      </dependency>
-
-      <dependency>
-          <groupId>org.junit.jupiter</groupId>
-          <artifactId>junit-jupiter-params</artifactId>
-          <version>5.13.4</version>
-          <scope>test</scope>
-      </dependency>
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter-params</artifactId>
+      <version>${junit.version}</version>
+      <scope>test</scope>
+    </dependency>
 
       <!-- Hibernate -->
       <!-- Spring Boot starters provide a compatible Hibernate/JPA stack -> use Spring Data JPA -->
@@ -89,6 +81,12 @@
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-test</artifactId>
       <scope>test</scope>
+    </dependency>
+
+    <!-- Web starter (Spring MVC, Jackson, etc.) -->
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-web</artifactId>
     </dependency>
 
   </dependencies>
@@ -147,6 +145,10 @@
       <mainClass>unrn.app.DemoConsultas</mainClass>
     </configuration>
   </plugin>
-</plugins>
-  </build>
+    <plugin>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-maven-plugin</artifactId>
+    </plugin>
+  </plugins>
+</build>
 </project>

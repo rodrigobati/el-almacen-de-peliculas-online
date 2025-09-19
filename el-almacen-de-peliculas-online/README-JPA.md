@@ -46,3 +46,18 @@ Podés cambiarlo a `DemoPersist` desde el `pom.xml` si querés probar inserción
 ## Próximos pasos (opcional)
 - Integrar **Spring Boot + Spring Data JPA** para repositorios `JpaRepository`, `Pageable`, `Sort`.
 - Endpoints REST para búsquedas (título/género/actor/director), paginado y filtros.
+
+## REST API
+Se agregó una capa REST con **Spring Boot Web**:
+
+- `GET /api/peliculas/{id}` → `DetallePeliculaDTO` (detalle para React)
+- `GET /api/peliculas` con filtros opcionales `q, genero, formato, condicion, actor, director, minPrecio, maxPrecio, desde, hasta, page, size, sort, asc`
+
+CORS habilitado para `/api/**`.
+
+Ejecutar:
+```bash
+mvn -q -DskipTests spring-boot:run
+# o
+mvn -q -DskipTests package && java -jar target/el-almacen-de-peliculas-online-1.0-SNAPSHOT.jar
+```
