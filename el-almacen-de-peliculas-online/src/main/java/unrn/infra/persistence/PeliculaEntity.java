@@ -55,12 +55,15 @@ public class PeliculaEntity {
     @JoinTable(name = "pelicula_actor", joinColumns = @JoinColumn(name = "pelicula_id"), inverseJoinColumns = @JoinColumn(name = "actor_id"))
     List<ActorEntity> actores = new ArrayList<>();
 
+    @Column(name = "rating", nullable = false)
+    int rating;
+
     protected PeliculaEntity() {
     } // JPA
 
     public PeliculaEntity(String titulo, String condicion, BigDecimal precio, String formato, String genero,
             String sinopsis, String imagenUrl, LocalDate fechaSalida,
-            List<DirectorEntity> directores, List<ActorEntity> actores) {
+            List<DirectorEntity> directores, List<ActorEntity> actores, int rating) {
         this.titulo = titulo;
         this.condicion = condicion;
         this.precio = precio;
@@ -73,6 +76,7 @@ public class PeliculaEntity {
             this.directores.addAll(directores);
         if (actores != null)
             this.actores.addAll(actores);
+        this.rating = rating;
     }
 
     public unrn.model.Pelicula asDomain() {
@@ -92,6 +96,7 @@ public class PeliculaEntity {
                 this.sinopsis,
                 a,
                 this.imagenUrl,
-                this.fechaSalida);
+                this.fechaSalida,
+                this.rating);
     }
 }

@@ -17,7 +17,8 @@ public record DetallePeliculaDTO(
                 String sinopsis,
                 List<String> actores,
                 String imagenUrl,
-                LocalDate fechaSalida) {
+                LocalDate fechaSalida,
+                int rating) {
 
         public static DetallePeliculaDTO from(Pelicula p) {
                 return new DetallePeliculaDTO(
@@ -30,6 +31,7 @@ public record DetallePeliculaDTO(
                                 p.sinopsis(),
                                 p.actores().stream().map(Actor::nombre).collect(Collectors.toUnmodifiableList()),
                                 p.imagenUrl(),
-                                p.fechaSalida());
+                                p.fechaSalida(),
+                                p.rating());
         }
 }
