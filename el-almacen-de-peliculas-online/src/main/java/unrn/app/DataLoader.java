@@ -35,8 +35,9 @@ public class DataLoader implements CommandLineRunner {
                     new Genero("Ciencia Ficción"),
                     "Neo-noir sci-fi classic",
                     List.of(new Actor("Harrison Ford"), new Actor("Rutger Hauer")),
-                    "https://example.com/br.jpg",
-                    LocalDate.of(1982, 6, 25));
+                    "https://pics.filmaffinity.com/blade_runner-351607743-large.jpg",
+                    LocalDate.of(1982, 6, 25),
+                    5);
             var id1 = repo.guardar(br);
             System.out.println("DataLoader: insertada 'Blade Runner' id=" + id1);
 
@@ -49,8 +50,9 @@ public class DataLoader implements CommandLineRunner {
                     new Genero("Drama"),
                     "Hope and friendship in prison",
                     List.of(new Actor("Tim Robbins"), new Actor("Morgan Freeman")),
-                    "https://example.com/shaw.jpg",
-                    LocalDate.of(1994, 9, 23));
+                    "https://pics.filmaffinity.com/the_shawshank_redemption-576140557-large.jpg",
+                    LocalDate.of(1994, 9, 23),
+                    3);
             var id2 = repo.guardar(shaw);
             System.out.println("DataLoader: insertada 'The Shawshank Redemption' id=" + id2);
 
@@ -63,8 +65,9 @@ public class DataLoader implements CommandLineRunner {
                     new Genero("Crimen"),
                     "Family, power and crime",
                     List.of(new Actor("Marlon Brando"), new Actor("Al Pacino")),
-                    "https://example.com/godf.jpg",
-                    LocalDate.of(1972, 3, 24));
+                    "https://pics.filmaffinity.com/the_godfather-488102675-large.jpg",
+                    LocalDate.of(1972, 3, 24),
+                    4);
             var id3 = repo.guardar(godf);
             System.out.println("DataLoader: insertada 'The Godfather' id=" + id3);
 
@@ -78,8 +81,9 @@ public class DataLoader implements CommandLineRunner {
                     new Genero("Ciencia Ficción"),
                     "Reality and choice",
                     List.of(new Actor("Keanu Reeves"), new Actor("Laurence Fishburne")),
-                    "https://example.com/matrix.jpg",
-                    LocalDate.of(1999, 3, 31));
+                    "https://pics.filmaffinity.com/the_matrix-155050517-large.jpg",
+                    LocalDate.of(1999, 3, 31),
+                    0);
             var id4 = repo.guardar(matrix);
             System.out.println("DataLoader: insertada 'The Matrix' id=" + id4);
 
@@ -92,8 +96,9 @@ public class DataLoader implements CommandLineRunner {
                     new Genero("Accion"),
                     "Hero vs villain in Gotham",
                     List.of(new Actor("Christian Bale"), new Actor("Heath Ledger")),
-                    "https://example.com/dark.jpg",
-                    LocalDate.of(2008, 7, 18));
+                    "https://pics.filmaffinity.com/the_dark_knight-102763119-large.jpg",
+                    LocalDate.of(2008, 7, 18),
+                    2);
             var id5 = repo.guardar(dark);
             System.out.println("DataLoader: insertada 'Dark Knight' id=" + id5);
 
@@ -106,8 +111,9 @@ public class DataLoader implements CommandLineRunner {
                     new Genero("Drama"),
                     "Identity and chaos",
                     List.of(new Actor("Brad Pitt"), new Actor("Edward Norton")),
-                    "https://example.com/fc.jpg",
-                    LocalDate.of(1999, 10, 15));
+                    "https://pics.filmaffinity.com/fight_club-320750671-large.jpg",
+                    LocalDate.of(1999, 10, 15),
+                    1);
             var id6 = repo.guardar(fight);
             System.out.println("DataLoader: insertada 'Fight Club' id=" + id6);
 
@@ -120,8 +126,9 @@ public class DataLoader implements CommandLineRunner {
                     new Genero("Ciencia Ficción"),
                     "Dream heist",
                     List.of(new Actor("Leonardo DiCaprio"), new Actor("Joseph Gordon-Levitt")),
-                    "https://example.com/inception.jpg",
-                    LocalDate.of(2010, 7, 16));
+                    "https://pics.filmaffinity.com/inception-652954101-large.jpg",
+                    LocalDate.of(2010, 7, 16),
+                    5);
             var id7 = repo.guardar(inception);
             System.out.println("DataLoader: insertada 'Inception' id=" + id7);
 

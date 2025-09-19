@@ -23,11 +23,12 @@ public class Pelicula {
     private final List<Actor> actores;
     private final String imagenUrl;
     private final LocalDate fechaSalida;
+    private final int rating; // Nuevo campo rating con valor por defecto 0
 
     // El método que devolvía el DTO se eliminó para mantener el modelo desacoplado
 
     public Pelicula(String titulo, Condicion condicion, List<Director> directores, double precio, Formato formato,
-            Genero genero, String sinopsis, List<Actor> actores, String imagenUrl, LocalDate fechaSalida) {
+            Genero genero, String sinopsis, List<Actor> actores, String imagenUrl, LocalDate fechaSalida, int rating) {
         assertTitulo(titulo);
         assertCondicion(condicion);
         assertDirectores(directores);
@@ -46,6 +47,7 @@ public class Pelicula {
         this.actores = List.copyOf(actores);
         this.imagenUrl = imagenUrl;
         this.fechaSalida = fechaSalida;
+        this.rating = rating; // Inicialización del nuevo campo rating
     }
 
     private void assertTitulo(String titulo) {
@@ -136,6 +138,10 @@ public class Pelicula {
 
     public LocalDate fechaSalida() {
         return fechaSalida;
+    }
+
+    public int rating() {
+        return rating;
     }
 
     // El DTO se movió a la capa `unrn.dto` y el modelo ya no lo contiene

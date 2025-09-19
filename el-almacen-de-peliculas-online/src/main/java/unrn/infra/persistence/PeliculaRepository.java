@@ -62,7 +62,8 @@ public class PeliculaRepository {
                 p.imagenUrl(),
                 p.fechaSalida(),
                 directores,
-                actores);
+                actores,
+                p.rating());
 
         em.persist(pe);
         // id is package-private field on PeliculaEntity

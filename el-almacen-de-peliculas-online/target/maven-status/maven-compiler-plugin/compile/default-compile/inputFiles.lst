@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 C:\Users\pelud\OneDrive\Documentos\UNRN\Taller de Tecnologías y Producción de Software\el-almacen-de-peliculas-online\el-almacen-de-peliculas-online\src\main\java\unrn\api\WebCorsConfig.java
 C:\Users\pelud\OneDrive\Documentos\UNRN\Taller de Tecnologías y Producción de Software\el-almacen-de-peliculas-online\el-almacen-de-peliculas-online\src\main\java\unrn\infra\persistence\CondicionEntity.java
 C:\Users\pelud\OneDrive\Documentos\UNRN\Taller de Tecnologías y Producción de Software\el-almacen-de-peliculas-online\el-almacen-de-peliculas-online\src\main\java\unrn\infra\persistence\PeliculaEntity.java
@@ -27,3 +28,29 @@ C:\Users\pelud\OneDrive\Documentos\UNRN\Taller de Tecnologías y Producción de 
 C:\Users\pelud\OneDrive\Documentos\UNRN\Taller de Tecnologías y Producción de Software\el-almacen-de-peliculas-online\el-almacen-de-peliculas-online\src\main\java\unrn\infra\persistence\GeneroEntity.java
 C:\Users\pelud\OneDrive\Documentos\UNRN\Taller de Tecnologías y Producción de Software\el-almacen-de-peliculas-online\el-almacen-de-peliculas-online\src\main\java\unrn\infra\persistence\ActorEntity.java
 C:\Users\pelud\OneDrive\Documentos\UNRN\Taller de Tecnologías y Producción de Software\el-almacen-de-peliculas-online\el-almacen-de-peliculas-online\src\main\java\unrn\model\Pelicula.java
+=======
+/home/agustin/workspace/el-almacen-de-peliculas-online-peliculas/el-almacen-de-peliculas-online/src/main/java/unrn/api/PeliculaController.java
+/home/agustin/workspace/el-almacen-de-peliculas-online-peliculas/el-almacen-de-peliculas-online/src/main/java/unrn/dto/DetallePeliculaDTO.java
+/home/agustin/workspace/el-almacen-de-peliculas-online-peliculas/el-almacen-de-peliculas-online/src/main/java/unrn/dto/ActorDTO.java
+/home/agustin/workspace/el-almacen-de-peliculas-online-peliculas/el-almacen-de-peliculas-online/src/main/java/unrn/model/Genero.java
+/home/agustin/workspace/el-almacen-de-peliculas-online-peliculas/el-almacen-de-peliculas-online/src/main/java/unrn/infra/persistence/DirectorEntity.java
+/home/agustin/workspace/el-almacen-de-peliculas-online-peliculas/el-almacen-de-peliculas-online/src/main/java/unrn/infra/persistence/PeliculaEntity.java
+/home/agustin/workspace/el-almacen-de-peliculas-online-peliculas/el-almacen-de-peliculas-online/src/main/java/unrn/api/ApiErrorHandler.java
+/home/agustin/workspace/el-almacen-de-peliculas-online-peliculas/el-almacen-de-peliculas-online/src/main/java/unrn/app/DemoPersist.java
+/home/agustin/workspace/el-almacen-de-peliculas-online-peliculas/el-almacen-de-peliculas-online/src/main/java/unrn/App.java
+/home/agustin/workspace/el-almacen-de-peliculas-online-peliculas/el-almacen-de-peliculas-online/src/main/java/unrn/infra/persistence/ActorEntity.java
+/home/agustin/workspace/el-almacen-de-peliculas-online-peliculas/el-almacen-de-peliculas-online/src/main/java/unrn/model/Formato.java
+/home/agustin/workspace/el-almacen-de-peliculas-online-peliculas/el-almacen-de-peliculas-online/src/main/java/unrn/app/DemoConsultas.java
+/home/agustin/workspace/el-almacen-de-peliculas-online-peliculas/el-almacen-de-peliculas-online/src/main/java/unrn/infra/persistence/PeliculaRepository.java
+/home/agustin/workspace/el-almacen-de-peliculas-online-peliculas/el-almacen-de-peliculas-online/src/main/java/unrn/infra/persistence/PageResult.java
+/home/agustin/workspace/el-almacen-de-peliculas-online-peliculas/el-almacen-de-peliculas-online/src/main/java/unrn/model/Condicion.java
+/home/agustin/workspace/el-almacen-de-peliculas-online-peliculas/el-almacen-de-peliculas-online/src/main/java/unrn/dto/DirectorDTO.java
+/home/agustin/workspace/el-almacen-de-peliculas-online-peliculas/el-almacen-de-peliculas-online/src/main/java/unrn/app/Application.java
+/home/agustin/workspace/el-almacen-de-peliculas-online-peliculas/el-almacen-de-peliculas-online/src/main/java/unrn/app/DataLoader.java
+/home/agustin/workspace/el-almacen-de-peliculas-online-peliculas/el-almacen-de-peliculas-online/src/main/java/unrn/api/WebCorsConfig.java
+/home/agustin/workspace/el-almacen-de-peliculas-online-peliculas/el-almacen-de-peliculas-online/src/main/java/unrn/model/Actor.java
+/home/agustin/workspace/el-almacen-de-peliculas-online-peliculas/el-almacen-de-peliculas-online/src/main/java/unrn/model/Director.java
+/home/agustin/workspace/el-almacen-de-peliculas-online-peliculas/el-almacen-de-peliculas-online/src/main/java/unrn/dto/GeneroDTO.java
+/home/agustin/workspace/el-almacen-de-peliculas-online-peliculas/el-almacen-de-peliculas-online/src/main/java/unrn/api/PageResponse.java
+/home/agustin/workspace/el-almacen-de-peliculas-online-peliculas/el-almacen-de-peliculas-online/src/main/java/unrn/model/Pelicula.java
+>>>>>>> 6ffc83e7cadeaf63a9e8d240895c65c8e6ca8c80

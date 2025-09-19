@@ -1,4 +1,10 @@
+<<<<<<< HEAD
 C:\Users\pelud\OneDrive\Documentos\UNRN\Taller de Tecnologías y Producción de Software\el-almacen-de-peliculas-online\el-almacen-de-peliculas-online\src\test\java\unrn\AppTest.java
 C:\Users\pelud\OneDrive\Documentos\UNRN\Taller de Tecnologías y Producción de Software\el-almacen-de-peliculas-online\el-almacen-de-peliculas-online\src\test\java\unrn\model\PeliculaTest.java
 C:\Users\pelud\OneDrive\Documentos\UNRN\Taller de Tecnologías y Producción de Software\el-almacen-de-peliculas-online\el-almacen-de-peliculas-online\src\test\java\unrn\infra\persistence\DbInspect.java
 C:\Users\pelud\OneDrive\Documentos\UNRN\Taller de Tecnologías y Producción de Software\el-almacen-de-peliculas-online\el-almacen-de-peliculas-online\src\test\java\unrn\infra\persistence\PeliculaRepositoryIntegrationTest.java
+=======
+/home/agustin/workspace/el-almacen-de-peliculas-online-peliculas/el-almacen-de-peliculas-online/src/test/java/unrn/model/PeliculaTest.java
+/home/agustin/workspace/el-almacen-de-peliculas-online-peliculas/el-almacen-de-peliculas-online/src/test/java/unrn/infra/persistence/PeliculaRepositoryIntegrationTest.java
+/home/agustin/workspace/el-almacen-de-peliculas-online-peliculas/el-almacen-de-peliculas-online/src/test/java/unrn/AppTest.java
+>>>>>>> 6ffc83e7cadeaf63a9e8d240895c65c8e6ca8c80

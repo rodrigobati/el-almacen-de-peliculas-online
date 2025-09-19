@@ -24,7 +24,8 @@ class PeliculaTest {
                 "Un hacker descubre la verdad sobre su realidad.",
                 List.of(new Actor("Keanu Reeves"), new Actor("Carrie-Anne Moss")),
                 "https://ejemplo.com/matrix.jpg",
-                LocalDate.of(1999, 3, 31));
+                LocalDate.of(1999, 3, 31),
+                5);
 
         // Ejercitación: transformar a DTO
         var detalle = DetallePeliculaDTO.from(pelicula);
@@ -56,7 +57,8 @@ class PeliculaTest {
                 "Sinopsis",
                 List.of(new Actor("Actor")),
                 "url",
-                LocalDate.now()));
+                LocalDate.now(),
+                5));
     }
 
     @Test
@@ -72,7 +74,8 @@ class PeliculaTest {
                 "Sinopsis",
                 List.of(new Actor("Actor")),
                 "url",
-                LocalDate.now()));
+                LocalDate.now(),
+                5));
     }
 
     @Test
