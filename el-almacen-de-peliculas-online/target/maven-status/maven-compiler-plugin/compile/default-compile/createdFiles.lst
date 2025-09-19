@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 unrn\api\ApiErrorHandler.class
 unrn\model\Pelicula.class
 unrn\infra\persistence\FormatoEntity.class
@@ -30,5 +29,3 @@ unrn\App.class
 unrn\app\DemoPersist.class
 unrn\infra\persistence\GeneroEntity.class
 unrn\app\Application.class
-=======
->>>>>>> 6ffc83e7cadeaf63a9e8d240895c65c8e6ca8c80

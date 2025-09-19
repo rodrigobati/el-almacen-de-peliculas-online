@@ -1,7 +1,4 @@
-<<<<<<< HEAD
 unrn\AppTest.class
 unrn\infra\persistence\DbInspect.class
 unrn\infra\persistence\PeliculaRepositoryIntegrationTest.class
 unrn\model\PeliculaTest.class
-=======
->>>>>>> 6ffc83e7cadeaf63a9e8d240895c65c8e6ca8c80
