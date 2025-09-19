@@ -20,7 +20,8 @@ public class DemoPersist {
                 "Neo-noir sci-fi classic",
                 List.of(new Actor("Harrison Ford"), new Actor("Rutger Hauer")),
                 "https://example.com/br.jpg",
-                LocalDate.of(1982, 6, 25));
+                LocalDate.of(1982, 6, 25),
+                5);
 
         Long id = repo.guardar(peli);
         System.out.println("Guardada Pelicula con id=" + id);

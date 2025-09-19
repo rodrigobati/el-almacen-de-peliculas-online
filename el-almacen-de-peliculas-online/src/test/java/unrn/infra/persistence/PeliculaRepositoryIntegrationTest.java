@@ -44,6 +44,7 @@ class PeliculaRepositoryIntegrationTest {
                 "Una sinopsis",
                 a,
                 "http://example.com/img.jpg",
-                LocalDate.now());
+                LocalDate.now(),
+                4);
     }
 }
