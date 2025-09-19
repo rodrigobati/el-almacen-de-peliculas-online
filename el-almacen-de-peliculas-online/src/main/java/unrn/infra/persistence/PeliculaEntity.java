@@ -26,17 +26,20 @@ public class PeliculaEntity {
     @Column(nullable = false)
     String titulo;
 
-    @Column(nullable = false, length = 20)
-    String condicion; // 'nuevo' / 'usado'
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "condicion_id", nullable = false)
+    CondicionEntity condicion;
 
     @Column(nullable = false, precision = 12, scale = 2)
     BigDecimal precio;
 
-    @Column(nullable = false, length = 50)
-    String formato;
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "formato_id", nullable = false)
+    FormatoEntity formato;
 
-    @Column(nullable = false, length = 50)
-    String genero;
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "genero_id", nullable = false)
+    GeneroEntity genero;
 
     @Lob
     String sinopsis;
@@ -58,7 +61,8 @@ public class PeliculaEntity {
     protected PeliculaEntity() {
     } // JPA
 
-    public PeliculaEntity(String titulo, String condicion, BigDecimal precio, String formato, String genero,
+    public PeliculaEntity(String titulo, CondicionEntity condicion, BigDecimal precio, FormatoEntity formato,
+            GeneroEntity genero,
             String sinopsis, String imagenUrl, LocalDate fechaSalida,
             List<DirectorEntity> directores, List<ActorEntity> actores) {
         this.titulo = titulo;
@@ -84,11 +88,11 @@ public class PeliculaEntity {
             a.add(new unrn.model.Actor(ae.nombre));
         return new unrn.model.Pelicula(
                 this.titulo,
-                new unrn.model.Condicion(this.condicion),
+                new unrn.model.Condicion(this.condicion.nombre),
                 d,
                 this.precio.doubleValue(),
-                new unrn.model.Formato(this.formato),
-                new unrn.model.Genero(this.genero),
+                new unrn.model.Formato(this.formato.nombre),
+                new unrn.model.Genero(this.genero.nombre),
                 this.sinopsis,
                 a,
                 this.imagenUrl,

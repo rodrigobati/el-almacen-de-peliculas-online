@@ -35,12 +35,29 @@ public class PeliculaRepository {
             actores.add(ae);
         }
 
+        // find or create catalog entries
+        CondicionEntity ce = findCondicionPorNombre(p.condicion().toString());
+        if (ce == null) {
+            ce = new CondicionEntity(p.condicion().toString());
+            em.persist(ce);
+        }
+        FormatoEntity fe = findFormatoPorNombre(p.formato().tipo());
+        if (fe == null) {
+            fe = new FormatoEntity(p.formato().tipo());
+            em.persist(fe);
+        }
+        GeneroEntity ge = findGeneroPorNombre(p.genero().nombre());
+        if (ge == null) {
+            ge = new GeneroEntity(p.genero().nombre());
+            em.persist(ge);
+        }
+
         PeliculaEntity pe = new PeliculaEntity(
                 p.titulo(),
-                p.condicion().toString(),
+                ce,
                 BigDecimal.valueOf(p.precio()),
-                p.formato().tipo(),
-                p.genero().nombre(),
+                fe,
+                ge,
                 p.sinopsis(),
                 p.imagenUrl(),
                 p.fechaSalida(),
@@ -178,6 +195,33 @@ public class PeliculaRepository {
         var cb = em.getCriteriaBuilder();
         var cq = cb.createQuery(ActorEntity.class);
         var root = cq.from(ActorEntity.class);
+        cq.select(root).where(cb.equal(root.get("nombre"), nombre));
+        var list = em.createQuery(cq).getResultList();
+        return list.isEmpty() ? null : list.get(0);
+    }
+
+    private CondicionEntity findCondicionPorNombre(String nombre) {
+        var cb = em.getCriteriaBuilder();
+        var cq = cb.createQuery(CondicionEntity.class);
+        var root = cq.from(CondicionEntity.class);
+        cq.select(root).where(cb.equal(root.get("nombre"), nombre));
+        var list = em.createQuery(cq).getResultList();
+        return list.isEmpty() ? null : list.get(0);
+    }
+
+    private FormatoEntity findFormatoPorNombre(String nombre) {
+        var cb = em.getCriteriaBuilder();
+        var cq = cb.createQuery(FormatoEntity.class);
+        var root = cq.from(FormatoEntity.class);
+        cq.select(root).where(cb.equal(root.get("nombre"), nombre));
+        var list = em.createQuery(cq).getResultList();
+        return list.isEmpty() ? null : list.get(0);
+    }
+
+    private GeneroEntity findGeneroPorNombre(String nombre) {
+        var cb = em.getCriteriaBuilder();
+        var cq = cb.createQuery(GeneroEntity.class);
+        var root = cq.from(GeneroEntity.class);
         cq.select(root).where(cb.equal(root.get("nombre"), nombre));
         var list = em.createQuery(cq).getResultList();
         return list.isEmpty() ? null : list.get(0);

@@ -1,9 +1,12 @@
 unrn\api\ApiErrorHandler.class
 unrn\model\Pelicula.class
+unrn\infra\persistence\FormatoEntity.class
 unrn\dto\DetallePeliculaDTO.class
 unrn\api\PageResponse.class
 unrn\infra\persistence\PageResult.class
 unrn\infra\persistence\PeliculaEntity.class
+unrn\app\SchemaInspector.class
+unrn\infra\persistence\CondicionEntity.class
 unrn\api\WebCorsConfig.class
 unrn\model\Director.class
 unrn\api\PeliculaController.class
@@ -15,6 +18,7 @@ unrn\dto\DirectorDTO.class
 unrn\api\ApiErrorHandler$ApiError.class
 unrn\api\NotFound.class
 unrn\infra\persistence\DirectorEntity.class
+unrn\app\SchemaMigrator.class
 unrn\model\Genero.class
 unrn\app\DemoConsultas.class
 unrn\dto\ActorDTO.class
@@ -23,4 +27,5 @@ unrn\infra\persistence\PeliculaRepository.class
 unrn\app\DataLoader.class
 unrn\App.class
 unrn\app\DemoPersist.class
+unrn\infra\persistence\GeneroEntity.class
 unrn\app\Application.class
