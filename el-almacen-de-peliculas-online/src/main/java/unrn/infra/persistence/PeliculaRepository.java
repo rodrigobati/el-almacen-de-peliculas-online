@@ -183,6 +183,15 @@ public class PeliculaRepository {
         return results.stream().map(PeliculaEntity::asDomain).toList();
     }
 
+    public java.util.List<String> listarGeneros() {
+        var cb = em.getCriteriaBuilder();
+        var cq = cb.createQuery(GeneroEntity.class);
+        var root = cq.from(GeneroEntity.class);
+        cq.select(root).orderBy(cb.asc(root.get("nombre")));
+        var list = em.createQuery(cq).getResultList();
+        return list.stream().map(g -> g.nombre).toList();
+    }
+
     private DirectorEntity findDirectorPorNombre(String nombre) {
         var cb = em.getCriteriaBuilder();
         var cq = cb.createQuery(DirectorEntity.class);

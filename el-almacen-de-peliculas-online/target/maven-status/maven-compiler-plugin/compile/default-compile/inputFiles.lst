@@ -1,5 +1,6 @@
 C:\Users\pelud\OneDrive\Documentos\UNRN\Taller de Tecnologías y Producción de Software\el-almacen-de-peliculas-online\el-almacen-de-peliculas-online\src\main\java\unrn\api\WebCorsConfig.java
 C:\Users\pelud\OneDrive\Documentos\UNRN\Taller de Tecnologías y Producción de Software\el-almacen-de-peliculas-online\el-almacen-de-peliculas-online\src\main\java\unrn\infra\persistence\CondicionEntity.java
+C:\Users\pelud\OneDrive\Documentos\UNRN\Taller de Tecnologías y Producción de Software\el-almacen-de-peliculas-online\el-almacen-de-peliculas-online\src\main\java\unrn\model\Catalogo.java
 C:\Users\pelud\OneDrive\Documentos\UNRN\Taller de Tecnologías y Producción de Software\el-almacen-de-peliculas-online\el-almacen-de-peliculas-online\src\main\java\unrn\infra\persistence\PeliculaEntity.java
 C:\Users\pelud\OneDrive\Documentos\UNRN\Taller de Tecnologías y Producción de Software\el-almacen-de-peliculas-online\el-almacen-de-peliculas-online\src\main\java\unrn\api\PageResponse.java
 C:\Users\pelud\OneDrive\Documentos\UNRN\Taller de Tecnologías y Producción de Software\el-almacen-de-peliculas-online\el-almacen-de-peliculas-online\src\main\java\unrn\dto\DetallePeliculaDTO.java
@@ -10,6 +11,7 @@ C:\Users\pelud\OneDrive\Documentos\UNRN\Taller de Tecnologías y Producción de 
 C:\Users\pelud\OneDrive\Documentos\UNRN\Taller de Tecnologías y Producción de Software\el-almacen-de-peliculas-online\el-almacen-de-peliculas-online\src\main\java\unrn\app\SchemaInspector.java
 C:\Users\pelud\OneDrive\Documentos\UNRN\Taller de Tecnologías y Producción de Software\el-almacen-de-peliculas-online\el-almacen-de-peliculas-online\src\main\java\unrn\infra\persistence\FormatoEntity.java
 C:\Users\pelud\OneDrive\Documentos\UNRN\Taller de Tecnologías y Producción de Software\el-almacen-de-peliculas-online\el-almacen-de-peliculas-online\src\main\java\unrn\infra\persistence\DirectorEntity.java
+C:\Users\pelud\OneDrive\Documentos\UNRN\Taller de Tecnologías y Producción de Software\el-almacen-de-peliculas-online\el-almacen-de-peliculas-online\src\main\java\unrn\api\CategoriaController.java
 C:\Users\pelud\OneDrive\Documentos\UNRN\Taller de Tecnologías y Producción de Software\el-almacen-de-peliculas-online\el-almacen-de-peliculas-online\src\main\java\unrn\App.java
 C:\Users\pelud\OneDrive\Documentos\UNRN\Taller de Tecnologías y Producción de Software\el-almacen-de-peliculas-online\el-almacen-de-peliculas-online\src\main\java\unrn\app\SchemaMigrator.java
 C:\Users\pelud\OneDrive\Documentos\UNRN\Taller de Tecnologías y Producción de Software\el-almacen-de-peliculas-online\el-almacen-de-peliculas-online\src\main\java\unrn\app\Application.java
@@ -20,6 +22,7 @@ C:\Users\pelud\OneDrive\Documentos\UNRN\Taller de Tecnologías y Producción de 
 C:\Users\pelud\OneDrive\Documentos\UNRN\Taller de Tecnologías y Producción de Software\el-almacen-de-peliculas-online\el-almacen-de-peliculas-online\src\main\java\unrn\dto\DirectorDTO.java
 C:\Users\pelud\OneDrive\Documentos\UNRN\Taller de Tecnologías y Producción de Software\el-almacen-de-peliculas-online\el-almacen-de-peliculas-online\src\main\java\unrn\infra\persistence\PageResult.java
 C:\Users\pelud\OneDrive\Documentos\UNRN\Taller de Tecnologías y Producción de Software\el-almacen-de-peliculas-online\el-almacen-de-peliculas-online\src\main\java\unrn\dto\GeneroDTO.java
+C:\Users\pelud\OneDrive\Documentos\UNRN\Taller de Tecnologías y Producción de Software\el-almacen-de-peliculas-online\el-almacen-de-peliculas-online\src\main\java\unrn\model\Categoria.java
 C:\Users\pelud\OneDrive\Documentos\UNRN\Taller de Tecnologías y Producción de Software\el-almacen-de-peliculas-online\el-almacen-de-peliculas-online\src\main\java\unrn\model\Condicion.java
 C:\Users\pelud\OneDrive\Documentos\UNRN\Taller de Tecnologías y Producción de Software\el-almacen-de-peliculas-online\el-almacen-de-peliculas-online\src\main\java\unrn\infra\persistence\PeliculaRepository.java
 C:\Users\pelud\OneDrive\Documentos\UNRN\Taller de Tecnologías y Producción de Software\el-almacen-de-peliculas-online\el-almacen-de-peliculas-online\src\main\java\unrn\api\ApiErrorHandler.java

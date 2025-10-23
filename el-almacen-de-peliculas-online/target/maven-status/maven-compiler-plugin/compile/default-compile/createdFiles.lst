@@ -1,5 +1,6 @@
 unrn\api\ApiErrorHandler.class
 unrn\model\Pelicula.class
+unrn\model\Categoria.class
 unrn\infra\persistence\FormatoEntity.class
 unrn\dto\DetallePeliculaDTO.class
 unrn\api\PageResponse.class
@@ -12,6 +13,7 @@ unrn\model\Director.class
 unrn\api\PeliculaController.class
 unrn\model\Condicion.class
 unrn\infra\persistence\ActorEntity.class
+unrn\model\Catalogo.class
 unrn\model\Formato.class
 unrn\model\Actor.class
 unrn\dto\DirectorDTO.class
