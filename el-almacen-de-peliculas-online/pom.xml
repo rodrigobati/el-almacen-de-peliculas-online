@@ -14,12 +14,16 @@
     <relativePath/>
   </parent>
   <properties>
-    <maven.compiler.source>23</maven.compiler.source>
-    <maven.compiler.target>23</maven.compiler.target>
+    <!-- Use Java 21 to match the installed JDK and avoid unsupported release errors -->
+    <java.version>21</java.version>
+    <maven.compiler.source>${java.version}</maven.compiler.source>
+    <maven.compiler.target>${java.version}</maven.compiler.target>
+    <maven.compiler.release>${java.version}</maven.compiler.release>
+    <!-- Removed default spring profile to allow running with H2 by default. -->
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <junit.version>5.13.4</junit.version>
-    <!-- Default profile for mvn spring-boot:run to avoid passing -D in some shells -->
-    <spring-boot.run.profiles>mysql</spring-boot.run.profiles>
+    <!-- No default active profile here; use application.properties (H2) unless overridden at runtime -->
+    <!-- To run with MySQL set -Dspring-boot.run.profiles=mysql or configure environment variables -->
   </properties>
 
   <dependencies>
@@ -115,7 +119,6 @@
         <version>3.3.0</version>
         <configuration>
           <configLocation>google_checks.xml</configLocation>
-          <encoding>UTF-8</encoding>
           <consoleOutput>true</consoleOutput>
           <failsOnError>true</failsOnError>
         </configuration>
