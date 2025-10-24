@@ -99,6 +99,17 @@
 
   <build>
     <plugins>
+      <!-- Compiler: asegurar uso del elemento 'release' en la configuración (evitar caracteres inválidos en comentarios) -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>3.11.0</version>
+        <configuration>
+          <release>${java.version}</release>
+          <encoding>${project.build.sourceEncoding}</encoding>
+        </configuration>
+      </plugin>
+
       <!-- Spotless para formateo -->
       <plugin>
         <groupId>com.diffplug.spotless</groupId>
@@ -137,17 +148,20 @@
       <!-- PMD plugin removed temporarily to avoid build failures when the specific plugin artifact isn't available in the local/remote repo.
            If you want PMD during CI/builds, re-add the plugin with a version available in Maven Central or configure it under pluginManagement. -->
       <plugin>
-    <groupId>org.codehaus.mojo</groupId>
-    <artifactId>exec-maven-plugin</artifactId>
-    <version>3.3.0</version>
-    <configuration>
-      <mainClass>unrn.app.DemoConsultas</mainClass>
-    </configuration>
-  </plugin>
-    <plugin>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-maven-plugin</artifactId>
-    </plugin>
-  </plugins>
-</build>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>exec-maven-plugin</artifactId>
+        <version>3.3.0</version>
+        <configuration>
+          <mainClass>unrn.app.DemoConsultas</mainClass>
+        </configuration>
+      </plugin>
+
+      <!-- Spring Boot plugin con versión explícita para resolver el prefijo spring-boot -->
+      <plugin>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-maven-plugin</artifactId>
+        <version>3.2.4</version>
+      </plugin>
+    </plugins>
+  </build>
 </project>

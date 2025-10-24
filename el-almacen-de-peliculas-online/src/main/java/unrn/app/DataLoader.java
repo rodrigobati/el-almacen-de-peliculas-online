@@ -35,7 +35,7 @@ public class DataLoader implements CommandLineRunner {
                     new Genero("Ciencia Ficción"),
                     "Neo-noir sci-fi classic",
                     List.of(new Actor("Harrison Ford"), new Actor("Rutger Hauer")),
-                    "https://pics.filmaffinity.com/blade_runner-351607743-large.jpg",
+                    "https://www.themoviedb.org/t/p/w600_and_h900_bestv2/63N9uy8nd9j7Eog2axPQ8lbr3Wj.jpg",
                     LocalDate.of(1982, 6, 25),
                     5);
             var id1 = repo.guardar(br);
@@ -50,7 +50,7 @@ public class DataLoader implements CommandLineRunner {
                     new Genero("Drama"),
                     "Hope and friendship in prison",
                     List.of(new Actor("Tim Robbins"), new Actor("Morgan Freeman")),
-                    "https://pics.filmaffinity.com/the_shawshank_redemption-576140557-large.jpg",
+                    "https://www.themoviedb.org/t/p/w600_and_h900_bestv2/9cqNxx0GxF0bflZmeSMuL5tnGzr.jpg",
                     LocalDate.of(1994, 9, 23),
                     3);
             var id2 = repo.guardar(shaw);
@@ -65,7 +65,7 @@ public class DataLoader implements CommandLineRunner {
                     new Genero("Crimen"),
                     "Family, power and crime",
                     List.of(new Actor("Marlon Brando"), new Actor("Al Pacino")),
-                    "https://pics.filmaffinity.com/the_godfather-488102675-large.jpg",
+                    "https://www.themoviedb.org/t/p/w600_and_h900_bestv2/3bhkrj58Vtu7enYsRolD1fZdja1.jpg",
                     LocalDate.of(1972, 3, 24),
                     4);
             var id3 = repo.guardar(godf);
@@ -81,7 +81,7 @@ public class DataLoader implements CommandLineRunner {
                     new Genero("Ciencia Ficción"),
                     "Reality and choice",
                     List.of(new Actor("Keanu Reeves"), new Actor("Laurence Fishburne")),
-                    "https://pics.filmaffinity.com/the_matrix-155050517-large.jpg",
+                    "https://www.themoviedb.org/t/p/w600_and_h900_bestv2/p96dm7sCMn4VYAStA6siNz30G1r.jpg",
                     LocalDate.of(1999, 3, 31),
                     0);
             var id4 = repo.guardar(matrix);
@@ -96,7 +96,7 @@ public class DataLoader implements CommandLineRunner {
                     new Genero("Accion"),
                     "Hero vs villain in Gotham",
                     List.of(new Actor("Christian Bale"), new Actor("Heath Ledger")),
-                    "https://pics.filmaffinity.com/the_dark_knight-102763119-large.jpg",
+                    "https://www.themoviedb.org/t/p/w600_and_h900_bestv2/qJ2tW6WMUDux911r6m7haRef0WH.jpg",
                     LocalDate.of(2008, 7, 18),
                     2);
             var id5 = repo.guardar(dark);
@@ -111,7 +111,7 @@ public class DataLoader implements CommandLineRunner {
                     new Genero("Drama"),
                     "Identity and chaos",
                     List.of(new Actor("Brad Pitt"), new Actor("Edward Norton")),
-                    "https://pics.filmaffinity.com/fight_club-320750671-large.jpg",
+                    "https://www.themoviedb.org/t/p/w600_and_h900_bestv2/pB8BM7pdSp6B6Ih7QZ4DrQ3PmJK.jpg",
                     LocalDate.of(1999, 10, 15),
                     1);
             var id6 = repo.guardar(fight);
@@ -126,7 +126,7 @@ public class DataLoader implements CommandLineRunner {
                     new Genero("Ciencia Ficción"),
                     "Dream heist",
                     List.of(new Actor("Leonardo DiCaprio"), new Actor("Joseph Gordon-Levitt")),
-                    "https://pics.filmaffinity.com/inception-652954101-large.jpg",
+                    "https://www.themoviedb.org/t/p/w600_and_h900_bestv2/ljsZTbVsrQSqZgWeep2B1QiDKuh.jpg",
                     LocalDate.of(2010, 7, 16),
                     5);
             var id7 = repo.guardar(inception);
