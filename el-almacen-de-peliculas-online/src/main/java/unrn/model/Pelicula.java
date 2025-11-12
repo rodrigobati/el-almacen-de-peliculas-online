@@ -13,17 +13,17 @@ public class Pelicula {
     static final String ERROR_FECHA = "La fecha de salida no puede ser nula";
     static final String ERROR_CONDICION = "La condición debe ser 'nuevo' o 'usado'";
 
-    private final String titulo;
-    private final Condicion condicion;
-    private final List<Director> directores;
-    private final double precio;
-    private final Formato formato;
-    private final Genero genero;
-    private final String sinopsis;
-    private final List<Actor> actores;
-    private final String imagenUrl;
-    private final LocalDate fechaSalida;
-    private final int rating; // Nuevo campo rating con valor por defecto 0
+    private String titulo;
+    private List<Director> directores;
+    private Condicion condicion;
+    private double precio;
+    private Formato formato;
+    private Genero genero;
+    private String sinopsis;
+    private List<Actor> actores;
+    private String imagenUrl;
+    private LocalDate fechaSalida;
+    private int rating; // Nuevo campo rating con valor por defecto 0
 
     // El método que devolvía el DTO se eliminó para mantener el modelo desacoplado
 
@@ -142,6 +142,34 @@ public class Pelicula {
 
     public int rating() {
         return rating;
+    }
+
+    public void actualizarDesde(Pelicula nuevaPelicula) {
+        if (nuevaPelicula == null)
+            throw new RuntimeException("La película no puede ser null");
+
+        // Validar todos los campos usando los assert existentes
+        assertTitulo(nuevaPelicula.titulo);
+        assertCondicion(nuevaPelicula.condicion);
+        assertDirectores(nuevaPelicula.directores);
+        assertPrecio(nuevaPelicula.precio);
+        assertFormato(nuevaPelicula.formato);
+        assertGenero(nuevaPelicula.genero);
+        assertActores(nuevaPelicula.actores);
+        assertFecha(nuevaPelicula.fechaSalida);
+
+        // Si todas las validaciones pasan, actualizar los campos
+        this.titulo = nuevaPelicula.titulo;
+        this.condicion = nuevaPelicula.condicion;
+        this.directores = List.copyOf(nuevaPelicula.directores);
+        this.precio = nuevaPelicula.precio;
+        this.formato = nuevaPelicula.formato;
+        this.genero = nuevaPelicula.genero;
+        this.sinopsis = nuevaPelicula.sinopsis;
+        this.actores = List.copyOf(nuevaPelicula.actores);
+        this.imagenUrl = nuevaPelicula.imagenUrl;
+        this.fechaSalida = nuevaPelicula.fechaSalida;
+        this.rating = nuevaPelicula.rating;
     }
 
     // El DTO se movió a la capa `unrn.dto` y el modelo ya no lo contiene

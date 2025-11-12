@@ -9,6 +9,7 @@ import unrn.model.Director;
 import unrn.model.Pelicula;
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.List;
 
 @Repository
 @Transactional(readOnly = true)
@@ -235,5 +236,19 @@ public class PeliculaRepository {
         cq.select(root).where(cb.equal(root.get("nombre"), nombre));
         var list = em.createQuery(cq).getResultList();
         return list.isEmpty() ? null : list.get(0);
+    }
+
+    @Transactional
+    public void eliminar(Long id) {
+        PeliculaEntity pe = em.find(PeliculaEntity.class, id);
+        if (pe != null) {
+            em.remove(pe);
+        }
+    }
+
+    public List<Pelicula> listarTodos() {
+        var list = em.createQuery("SELECT p FROM PeliculaEntity p ORDER BY p.titulo", PeliculaEntity.class)
+                .getResultList();
+        return list.stream().map(PeliculaEntity::asDomain).toList();
     }
 }
