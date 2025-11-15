@@ -251,4 +251,69 @@ public class PeliculaRepository {
                 .getResultList();
         return list.stream().map(PeliculaEntity::asDomain).toList();
     }
+
+    @Transactional
+    public void actualizar(Long id, Pelicula p) {
+        PeliculaEntity pe = em.find(PeliculaEntity.class, id);
+        if (pe == null) {
+            return; // o podés tirar RuntimeException si preferís
+        }
+
+        // Directores
+        var directores = new ArrayList<DirectorEntity>();
+        for (Director d : p.directores()) {
+            DirectorEntity de = findDirectorPorNombre(d.nombre());
+            if (de == null) {
+                de = new DirectorEntity(d.nombre());
+                em.persist(de);
+            }
+            directores.add(de);
+        }
+
+        // Actores
+        var actores = new ArrayList<ActorEntity>();
+        for (Actor a : p.actores()) {
+            ActorEntity ae = findActorPorNombre(a.nombre());
+            if (ae == null) {
+                ae = new ActorEntity(a.nombre());
+                em.persist(ae);
+            }
+            actores.add(ae);
+        }
+
+        // Condición
+        CondicionEntity ce = findCondicionPorNombre(p.condicion().toString());
+        if (ce == null) {
+            ce = new CondicionEntity(p.condicion().toString());
+            em.persist(ce);
+        }
+
+        // Formato
+        FormatoEntity fe = findFormatoPorNombre(p.formato().tipo());
+        if (fe == null) {
+            fe = new FormatoEntity(p.formato().tipo());
+            em.persist(fe);
+        }
+
+        // Género
+        GeneroEntity ge = findGeneroPorNombre(p.genero().nombre());
+        if (ge == null) {
+            ge = new GeneroEntity(p.genero().nombre());
+            em.persist(ge);
+        }
+
+        // Actualizar campos de la entidad existente
+        pe.titulo = p.titulo();
+        pe.condicion = ce;
+        pe.precio = BigDecimal.valueOf(p.precio());
+        pe.formato = fe;
+        pe.genero = ge;
+        pe.sinopsis = p.sinopsis();
+        pe.imagenUrl = p.imagenUrl();
+        pe.fechaSalida = p.fechaSalida();
+        pe.directores = directores;
+        pe.actores = actores;
+        pe.rating = p.rating();
+    }
+
 }

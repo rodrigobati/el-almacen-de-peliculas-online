@@ -15,6 +15,7 @@ public class PeliculaService {
 
     static final String ERROR_DIRECTOR_INEXISTENTE = "Algún director no existe";
     static final String ERROR_ACTOR_INEXISTENTE = "Algún actor no existe";
+    static final String ERROR_PELICULA_INEXISTENTE = "La película no existe";
 
     private final DirectorRepository directorRepository;
     private final ActorRepository actorRepository;
@@ -28,6 +29,9 @@ public class PeliculaService {
         this.peliculaRepository = peliculaRepository;
     }
 
+    // -------------------------
+    // CREAR
+    // -------------------------
     @Transactional
     public void crearPelicula(PeliculaRequest request) {
         var directores = obtenerDirectoresDesdeIds(request.directoresIds());
@@ -46,15 +50,49 @@ public class PeliculaService {
                 request.fechaSalida(),
                 request.rating());
 
-        // 🔴 ANTES (no existe en tu repo)
-        // peliculaRepository.save(pelicula);
-
-        // ✅ AHORA: usar tu método real
         peliculaRepository.guardar(pelicula);
-        // si querés usar el id:
-        // Long id = peliculaRepository.guardar(pelicula);
     }
 
+    // -------------------------
+    // EDITAR
+    // -------------------------
+    @Transactional
+    public void actualizarPelicula(Long id, PeliculaRequest request) {
+        var existente = peliculaRepository.porId(id);
+        if (existente == null) {
+            throw new RuntimeException(ERROR_PELICULA_INEXISTENTE);
+        }
+
+        var directores = obtenerDirectoresDesdeIds(request.directoresIds());
+        var actores = obtenerActoresDesdeIds(request.actoresIds());
+
+        var peliculaActualizada = new Pelicula(
+                request.titulo(),
+                new Condicion(request.condicion()),
+                directores,
+                request.precio(),
+                new Formato(request.formato()),
+                new Genero(request.genero()),
+                request.sinopsis(),
+                actores,
+                request.imagenUrl(),
+                request.fechaSalida(),
+                request.rating());
+
+        peliculaRepository.actualizar(id, peliculaActualizada);
+    }
+
+    // -------------------------
+    // ELIMINAR
+    // -------------------------
+    @Transactional
+    public void eliminar(Long id) {
+        peliculaRepository.eliminar(id);
+    }
+
+    // -------------------------
+    // HELPERS
+    // -------------------------
     private List<Director> obtenerDirectoresDesdeIds(List<Long> directoresIds) {
         if (directoresIds == null || directoresIds.isEmpty()) {
             return List.of();

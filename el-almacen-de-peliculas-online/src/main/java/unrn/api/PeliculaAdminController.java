@@ -16,38 +16,27 @@ public class PeliculaAdminController {
         this.peliculaService = peliculaService;
     }
 
-    // ---------------------
     // CREAR
-    // ---------------------
     @PostMapping
     public ResponseEntity<Void> crear(@RequestBody PeliculaRequest request) {
         peliculaService.crearPelicula(request);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
-    /*
-     * // ---------------------
-     * // EDITAR
-     * // ---------------------
-     * 
-     * @PutMapping("/{id}")
-     * public ResponseEntity<Void> actualizar(
-     * 
-     * @PathVariable Long id,
-     * 
-     * @RequestBody PeliculaRequest request) {
-     * 
-     * peliculaService.actualizarPelicula(id, request);
-     * return ResponseEntity.noContent().build();
-     * }
-     * 
-     * // ---------------------
-     * // ELIMINAR
-     * // ---------------------
-     * 
-     * @DeleteMapping("/{id}")
-     * public ResponseEntity<Void> eliminar(@PathVariable Long id) {
-     * peliculaService.eliminar(id);
-     * return ResponseEntity.noContent().build();
-     * }
-     */
+
+    // EDITAR
+    @PutMapping("/{id}")
+    public ResponseEntity<Void> actualizar(
+            @PathVariable Long id,
+            @RequestBody PeliculaRequest request) {
+
+        peliculaService.actualizarPelicula(id, request);
+        return ResponseEntity.noContent().build();
+    }
+
+    // ELIMINAR
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> eliminar(@PathVariable Long id) {
+        peliculaService.eliminar(id);
+        return ResponseEntity.noContent().build();
+    }
 }
