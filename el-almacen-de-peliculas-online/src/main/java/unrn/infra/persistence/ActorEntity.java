@@ -1,7 +1,7 @@
 package unrn.infra.persistence;
 
 import jakarta.persistence.*;
-import jakarta.persistence.AccessType;
+import unrn.model.Actor;
 
 @Entity
 @Table(name = "actor", uniqueConstraints = @UniqueConstraint(columnNames = "nombre"))
@@ -19,6 +19,10 @@ public class ActorEntity {
 
     public ActorEntity(String nombre) {
         this.nombre = nombre;
+    }
+
+    public Actor asDomain() {
+        return new Actor(this.nombre);
     }
 
     // Sin getters/setters. Se accede por campo (JPA) y desde el mismo paquete.

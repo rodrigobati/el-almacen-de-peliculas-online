@@ -1,7 +1,7 @@
 package unrn.infra.persistence;
 
 import jakarta.persistence.*;
-import jakarta.persistence.AccessType;
+import unrn.model.Director;
 
 @Entity
 @Table(name = "director", uniqueConstraints = @UniqueConstraint(columnNames = "nombre"))
@@ -21,5 +21,8 @@ public class DirectorEntity {
         this.nombre = nombre;
     }
 
-    // Sin getters/setters.
+    public Director asDomain() {
+        return new Director(this.nombre);
+    }
+
 }

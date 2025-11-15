@@ -1,80 +1,85 @@
 package unrn.service;
 
 import org.springframework.stereotype.Service;
-import unrn.model.*;
-import unrn.dto.DetallePeliculaDTO;
+import org.springframework.transaction.annotation.Transactional;
+import unrn.dto.PeliculaRequest;
+import unrn.infra.persistence.ActorRepository;
+import unrn.infra.persistence.DirectorRepository;
 import unrn.infra.persistence.PeliculaRepository;
+import unrn.model.*;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class PeliculaService {
 
+    static final String ERROR_DIRECTOR_INEXISTENTE = "Algún director no existe";
+    static final String ERROR_ACTOR_INEXISTENTE = "Algún actor no existe";
+
+    private final DirectorRepository directorRepository;
+    private final ActorRepository actorRepository;
     private final PeliculaRepository peliculaRepository;
 
-    public PeliculaService(PeliculaRepository peliculaRepository) {
+    public PeliculaService(DirectorRepository directorRepository,
+            ActorRepository actorRepository,
+            PeliculaRepository peliculaRepository) {
+        this.directorRepository = directorRepository;
+        this.actorRepository = actorRepository;
         this.peliculaRepository = peliculaRepository;
     }
 
-    public Long crear(DetallePeliculaDTO dto) {
+    @Transactional
+    public void crearPelicula(PeliculaRequest request) {
+        var directores = obtenerDirectoresDesdeIds(request.directoresIds());
+        var actores = obtenerActoresDesdeIds(request.actoresIds());
+
         var pelicula = new Pelicula(
-                dto.titulo(),
-                new Condicion(dto.condicion()),
-                dto.directores().stream()
-                        .map(Director::new)
-                        .collect(Collectors.toList()),
-                dto.precio(),
-                new Formato(dto.formato()),
-                new Genero(dto.genero()),
-                dto.sinopsis(),
-                dto.actores().stream()
-                        .map(Actor::new)
-                        .collect(Collectors.toList()),
-                dto.imagenUrl(),
-                dto.fechaSalida(),
-                dto.rating());
+                request.titulo(),
+                new Condicion(request.condicion()),
+                directores,
+                request.precio(),
+                new Formato(request.formato()),
+                new Genero(request.genero()),
+                request.sinopsis(),
+                actores,
+                request.imagenUrl(),
+                request.fechaSalida(),
+                request.rating());
 
-        return peliculaRepository.guardar(pelicula);
-    }
+        // 🔴 ANTES (no existe en tu repo)
+        // peliculaRepository.save(pelicula);
 
-    public void editar(Long id, DetallePeliculaDTO dto) {
-        var pelicula = peliculaRepository.porId(id);
-        if (pelicula == null) {
-            throw new RuntimeException("No existe la película con id " + id);
-        }
-
-        var peliculaActualizada = new Pelicula(
-                dto.titulo(),
-                new Condicion(dto.condicion()),
-                dto.directores().stream()
-                        .map(Director::new)
-                        .collect(Collectors.toList()),
-                dto.precio(),
-                new Formato(dto.formato()),
-                new Genero(dto.genero()),
-                dto.sinopsis(),
-                dto.actores().stream()
-                        .map(Actor::new)
-                        .collect(Collectors.toList()),
-                dto.imagenUrl(),
-                dto.fechaSalida(),
-                dto.rating());
-
-        pelicula.actualizarDesde(peliculaActualizada);
+        // ✅ AHORA: usar tu método real
         peliculaRepository.guardar(pelicula);
+        // si querés usar el id:
+        // Long id = peliculaRepository.guardar(pelicula);
     }
 
-    public void eliminar(Long id) {
-        var pelicula = peliculaRepository.porId(id);
-        if (pelicula != null) {
-            peliculaRepository.eliminar(id);
+    private List<Director> obtenerDirectoresDesdeIds(List<Long> directoresIds) {
+        if (directoresIds == null || directoresIds.isEmpty()) {
+            return List.of();
         }
+
+        var directores = directorRepository.findAllById(directoresIds);
+
+        if (directores.size() != directoresIds.size()) {
+            throw new RuntimeException(ERROR_DIRECTOR_INEXISTENTE);
+        }
+
+        return List.copyOf(directores);
     }
 
-    public List<DetallePeliculaDTO> listar() {
-        return peliculaRepository.listarTodos().stream()
-                .map(DetallePeliculaDTO::from)
-                .collect(Collectors.toList());
+    private List<Actor> obtenerActoresDesdeIds(List<Long> actoresIds) {
+        if (actoresIds == null || actoresIds.isEmpty()) {
+            return List.of();
+        }
+
+        var actores = actorRepository.findAllById(actoresIds);
+
+        if (actores.size() != actoresIds.size()) {
+            throw new RuntimeException(ERROR_ACTOR_INEXISTENTE);
+        }
+
+        return List.copyOf(actores);
     }
 }
