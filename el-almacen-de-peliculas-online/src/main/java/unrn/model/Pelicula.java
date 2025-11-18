@@ -172,5 +172,12 @@ public class Pelicula {
         this.rating = nuevaPelicula.rating;
     }
 
+    public void actualizarRating(int nuevoRating) {
+        if (nuevoRating < 0 || nuevoRating > 5) {
+            throw new RuntimeException("El rating debe estar entre 0 y 5");
+        }
+        this.rating = nuevoRating;
+    }
+
     // El DTO se movió a la capa `unrn.dto` y el modelo ya no lo contiene
 }

@@ -1,8 +1,8 @@
-C:\Users\pelud\OneDrive\Documentos\UNRN\Taller de Tecnologías y Producción de Software\el-almacen-de-peliculas-online\el-almacen-de-peliculas-online\src\test\java\unrn\service\PeliculaServiceTest.java
-C:\Users\pelud\OneDrive\Documentos\UNRN\Taller de Tecnologías y Producción de Software\el-almacen-de-peliculas-online\el-almacen-de-peliculas-online\src\test\java\unrn\AppTest.java
-C:\Users\pelud\OneDrive\Documentos\UNRN\Taller de Tecnologías y Producción de Software\el-almacen-de-peliculas-online\el-almacen-de-peliculas-online\src\test\java\unrn\model\PeliculaTest.java
-C:\Users\pelud\OneDrive\Documentos\UNRN\Taller de Tecnologías y Producción de Software\el-almacen-de-peliculas-online\el-almacen-de-peliculas-online\src\test\java\unrn\infra\persistence\DbInspect.java
-C:\Users\pelud\OneDrive\Documentos\UNRN\Taller de Tecnologías y Producción de Software\el-almacen-de-peliculas-online\el-almacen-de-peliculas-online\src\test\java\unrn\model\DirectorGeneroFormatoCondicionTest.java
-C:\Users\pelud\OneDrive\Documentos\UNRN\Taller de Tecnologías y Producción de Software\el-almacen-de-peliculas-online\el-almacen-de-peliculas-online\src\test\java\unrn\infra\persistence\PeliculaRepositoryIntegrationTest.java
-C:\Users\pelud\OneDrive\Documentos\UNRN\Taller de Tecnologías y Producción de Software\el-almacen-de-peliculas-online\el-almacen-de-peliculas-online\src\test\java\unrn\model\ActorTest.java
-C:\Users\pelud\OneDrive\Documentos\UNRN\Taller de Tecnologías y Producción de Software\el-almacen-de-peliculas-online\el-almacen-de-peliculas-online\src\test\java\unrn\model\CatalogoTest.java
+/home/agustin/workspace/el-almacen-de-peliculas-online-peliculas/el-almacen-de-peliculas-online/src/test/java/unrn/model/PeliculaTest.java
+/home/agustin/workspace/el-almacen-de-peliculas-online-peliculas/el-almacen-de-peliculas-online/src/test/java/unrn/model/DirectorGeneroFormatoCondicionTest.java
+/home/agustin/workspace/el-almacen-de-peliculas-online-peliculas/el-almacen-de-peliculas-online/src/test/java/unrn/model/ActorTest.java
+/home/agustin/workspace/el-almacen-de-peliculas-online-peliculas/el-almacen-de-peliculas-online/src/test/java/unrn/model/CatalogoTest.java
+/home/agustin/workspace/el-almacen-de-peliculas-online-peliculas/el-almacen-de-peliculas-online/src/test/java/unrn/infra/persistence/PeliculaRepositoryIntegrationTest.java
+/home/agustin/workspace/el-almacen-de-peliculas-online-peliculas/el-almacen-de-peliculas-online/src/test/java/unrn/infra/persistence/DbInspect.java
+/home/agustin/workspace/el-almacen-de-peliculas-online-peliculas/el-almacen-de-peliculas-online/src/test/java/unrn/AppTest.java
+/home/agustin/workspace/el-almacen-de-peliculas-online-peliculas/el-almacen-de-peliculas-online/src/test/java/unrn/service/PeliculaServiceTest.java

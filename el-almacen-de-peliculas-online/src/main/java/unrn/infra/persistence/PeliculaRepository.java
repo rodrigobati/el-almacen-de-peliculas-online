@@ -71,7 +71,7 @@ public class PeliculaRepository {
         return pe.id;
     }
 
-    public Pelicula porId(Long id) {
+    public static Pelicula porId(Long id) {
         PeliculaEntity pe = em.find(PeliculaEntity.class, id);
         return (pe == null) ? null : pe.asDomain();
     }
@@ -253,7 +253,7 @@ public class PeliculaRepository {
     }
 
     @Transactional
-    public void actualizar(Long id, Pelicula p) {
+    public static void actualizar(Long id, Pelicula p) {
         PeliculaEntity pe = em.find(PeliculaEntity.class, id);
         if (pe == null) {
             return; // o podés tirar RuntimeException si preferís
