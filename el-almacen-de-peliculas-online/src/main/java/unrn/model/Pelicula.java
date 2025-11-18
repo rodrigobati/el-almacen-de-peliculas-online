@@ -12,7 +12,9 @@ public class Pelicula {
     static final String ERROR_ACTORES = "Debe tener al menos un actor";
     static final String ERROR_FECHA = "La fecha de salida no puede ser nula";
     static final String ERROR_CONDICION = "La condición debe ser 'nuevo' o 'usado'";
+    static final String ERROR_ID = "El id no puede ser nulo";
 
+    private Long id;
     private String titulo;
     private List<Director> directores;
     private Condicion condicion;
@@ -26,7 +28,6 @@ public class Pelicula {
     private int rating; // Nuevo campo rating con valor por defecto 0
 
     // El método que devolvía el DTO se eliminó para mantener el modelo desacoplado
-
     public Pelicula(String titulo, Condicion condicion, List<Director> directores, double precio, Formato formato,
             Genero genero, String sinopsis, List<Actor> actores, String imagenUrl, LocalDate fechaSalida, int rating) {
         assertTitulo(titulo);
@@ -48,6 +49,37 @@ public class Pelicula {
         this.imagenUrl = imagenUrl;
         this.fechaSalida = fechaSalida;
         this.rating = rating; // Inicialización del nuevo campo rating
+    }
+
+    public Pelicula(Long id, String titulo, Condicion condicion, List<Director> directores, double precio, Formato formato,
+                    Genero genero, String sinopsis, List<Actor> actores, String imagenUrl, LocalDate fechaSalida, int rating ){
+        aasertId(id);
+        assertTitulo(titulo);
+        assertCondicion(condicion);
+        assertDirectores(directores);
+        assertPrecio(precio);
+        assertFormato(formato);
+        assertGenero(genero);
+        assertActores(actores);
+        assertFecha(fechaSalida);
+        this.id = id;
+        this.titulo = titulo;
+        this.condicion = condicion;
+        this.directores = List.copyOf(directores);
+        this.precio = precio;
+        this.formato = formato;
+        this.genero = genero;
+        this.sinopsis = sinopsis;
+        this.actores = List.copyOf(actores);
+        this.imagenUrl = imagenUrl;
+        this.fechaSalida = fechaSalida;
+        this.rating = rating;
+    }
+
+    private void aasertId(Long id) {
+        if (id == null) {
+            throw new RuntimeException(ERROR_ID);
+        }
     }
 
     private void assertTitulo(String titulo) {
@@ -100,6 +132,10 @@ public class Pelicula {
 
     // Métodos de lectura intencionales para uso por capas superiores (DTOs, vistas,
     // etc.)
+    public Long id() {
+        return id;
+    }
+
     public String titulo() {
         return titulo;
     }

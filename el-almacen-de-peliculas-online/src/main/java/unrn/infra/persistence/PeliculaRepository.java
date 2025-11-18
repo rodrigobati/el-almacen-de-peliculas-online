@@ -67,11 +67,10 @@ public class PeliculaRepository {
                 p.rating());
 
         em.persist(pe);
-        // id is package-private field on PeliculaEntity
         return pe.id;
     }
 
-    public static Pelicula porId(Long id) {
+    public Pelicula porId(Long id) {
         PeliculaEntity pe = em.find(PeliculaEntity.class, id);
         return (pe == null) ? null : pe.asDomain();
     }
@@ -143,8 +142,8 @@ public class PeliculaRepository {
 
     public java.util.List<Pelicula> buscarPorFechaSalidaEntre(java.time.LocalDate desde, java.time.LocalDate hasta) {
         var list = em.createQuery(
-                "SELECT p FROM PeliculaEntity p WHERE p.fechaSalida BETWEEN :d AND :h ORDER BY p.fechaSalida DESC",
-                PeliculaEntity.class)
+                        "SELECT p FROM PeliculaEntity p WHERE p.fechaSalida BETWEEN :d AND :h ORDER BY p.fechaSalida DESC",
+                        PeliculaEntity.class)
                 .setParameter("d", desde)
                 .setParameter("h", hasta)
                 .getResultList();
@@ -152,8 +151,8 @@ public class PeliculaRepository {
     }
 
     public java.util.List<Pelicula> buscarDinamico(String titulo, String genero, String formato, String condicion,
-            java.time.LocalDate desde, java.time.LocalDate hasta,
-            java.math.BigDecimal minPrecio, java.math.BigDecimal maxPrecio) {
+                                                   java.time.LocalDate desde, java.time.LocalDate hasta,
+                                                   java.math.BigDecimal minPrecio, java.math.BigDecimal maxPrecio) {
         var cb = em.getCriteriaBuilder();
         var cq = cb.createQuery(PeliculaEntity.class);
         var root = cq.from(PeliculaEntity.class);
@@ -253,13 +252,12 @@ public class PeliculaRepository {
     }
 
     @Transactional
-    public static void actualizar(Long id, Pelicula p) {
+    public void actualizar(Long id, Pelicula p) {
         PeliculaEntity pe = em.find(PeliculaEntity.class, id);
         if (pe == null) {
-            return; // o podés tirar RuntimeException si preferís
+            return;
         }
 
-        // Directores
         var directores = new ArrayList<DirectorEntity>();
         for (Director d : p.directores()) {
             DirectorEntity de = findDirectorPorNombre(d.nombre());
@@ -270,7 +268,6 @@ public class PeliculaRepository {
             directores.add(de);
         }
 
-        // Actores
         var actores = new ArrayList<ActorEntity>();
         for (Actor a : p.actores()) {
             ActorEntity ae = findActorPorNombre(a.nombre());
@@ -281,28 +278,24 @@ public class PeliculaRepository {
             actores.add(ae);
         }
 
-        // Condición
         CondicionEntity ce = findCondicionPorNombre(p.condicion().toString());
         if (ce == null) {
             ce = new CondicionEntity(p.condicion().toString());
             em.persist(ce);
         }
 
-        // Formato
         FormatoEntity fe = findFormatoPorNombre(p.formato().tipo());
         if (fe == null) {
             fe = new FormatoEntity(p.formato().tipo());
             em.persist(fe);
         }
 
-        // Género
         GeneroEntity ge = findGeneroPorNombre(p.genero().nombre());
         if (ge == null) {
             ge = new GeneroEntity(p.genero().nombre());
             em.persist(ge);
         }
 
-        // Actualizar campos de la entidad existente
         pe.titulo = p.titulo();
         pe.condicion = ce;
         pe.precio = BigDecimal.valueOf(p.precio());

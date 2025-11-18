@@ -2,9 +2,11 @@
 /home/agustin/workspace/el-almacen-de-peliculas-online-peliculas/el-almacen-de-peliculas-online/src/main/java/unrn/model/Genero.java
 /home/agustin/workspace/el-almacen-de-peliculas-online-peliculas/el-almacen-de-peliculas-online/src/main/java/unrn/infra/persistence/DirectorEntity.java
 /home/agustin/workspace/el-almacen-de-peliculas-online-peliculas/el-almacen-de-peliculas-online/src/main/java/unrn/infra/persistence/PeliculaEntity.java
+/home/agustin/workspace/el-almacen-de-peliculas-online-peliculas/el-almacen-de-peliculas-online/src/main/java/unrn/event/Event.java
 /home/agustin/workspace/el-almacen-de-peliculas-online-peliculas/el-almacen-de-peliculas-online/src/main/java/unrn/api/ApiErrorHandler.java
 /home/agustin/workspace/el-almacen-de-peliculas-online-peliculas/el-almacen-de-peliculas-online/src/main/java/unrn/app/DemoPersist.java
 /home/agustin/workspace/el-almacen-de-peliculas-online-peliculas/el-almacen-de-peliculas-online/src/main/java/unrn/infra/persistence/ActorEntity.java
+/home/agustin/workspace/el-almacen-de-peliculas-online-peliculas/el-almacen-de-peliculas-online/src/main/java/unrn/config/RabbitMQConfig.java
 /home/agustin/workspace/el-almacen-de-peliculas-online-peliculas/el-almacen-de-peliculas-online/src/main/java/unrn/model/Formato.java
 /home/agustin/workspace/el-almacen-de-peliculas-online-peliculas/el-almacen-de-peliculas-online/src/main/java/unrn/infra/persistence/PeliculaRepository.java
 /home/agustin/workspace/el-almacen-de-peliculas-online-peliculas/el-almacen-de-peliculas-online/src/main/java/unrn/infra/persistence/PageResult.java
@@ -20,6 +22,7 @@
 /home/agustin/workspace/el-almacen-de-peliculas-online-peliculas/el-almacen-de-peliculas-online/src/main/java/unrn/infra/persistence/PeliculaJpaRepository.java
 /home/agustin/workspace/el-almacen-de-peliculas-online-peliculas/el-almacen-de-peliculas-online/src/main/java/unrn/api/PageResponse.java
 /home/agustin/workspace/el-almacen-de-peliculas-online-peliculas/el-almacen-de-peliculas-online/src/main/java/unrn/model/Pelicula.java
+/home/agustin/workspace/el-almacen-de-peliculas-online-peliculas/el-almacen-de-peliculas-online/src/main/java/unrn/event/MessageListener.java
 /home/agustin/workspace/el-almacen-de-peliculas-online-peliculas/el-almacen-de-peliculas-online/src/main/java/unrn/api/PeliculaController.java
 /home/agustin/workspace/el-almacen-de-peliculas-online-peliculas/el-almacen-de-peliculas-online/src/main/java/unrn/infra/persistence/ActorRepository.java
 /home/agustin/workspace/el-almacen-de-peliculas-online-peliculas/el-almacen-de-peliculas-online/src/main/java/unrn/dto/DetallePeliculaDTO.java

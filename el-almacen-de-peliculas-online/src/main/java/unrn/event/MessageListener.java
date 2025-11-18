@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.DeliverCallback;
-import org.springframework.data.crossstore.ChangeSetPersister;
 import unrn.model.Pelicula;
 import unrn.infra.persistence.PeliculaRepository;
 import jakarta.annotation.PostConstruct;
@@ -13,60 +12,62 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import jakarta.annotation.Nullable;
 
 @Service
 @Slf4j
 public class MessageListener {
 
+    static final String ERROR_PELICULA_NO_ENCONTRADA = "ERROR_PELICULA_NO_ENCONTRADA";
+
     private static final Logger logger = LoggerFactory.getLogger(MessageListener.class);
 
-    // Event
-    @Value("${rabbitmq.event.exchange.name}")
+    @Value("${rabbitmq.event.exchange.name:peliculas.exchange}")
     private String eventExchange;
 
-    // KeyCloak
-    @Value("${rabbitmq.event.catalogo.queue.name}")
+    @Value("${rabbitmq.event.catalogo.queue.name:peliculas.catalogo.queue}")
     private String queueCatalogo;
 
-    @Value("${rabbitmq.event.catalogo.routing.key}")
+    @Value("${rabbitmq.event.catalogo.routing.key:peliculas.catalogo.key}")
     private String routingKeyCatalogo;
 
     private final Connection connection;
-
     private final ObjectMapper objectMapper;
+    private final PeliculaRepository peliculaRepository;
 
-    public MessageListener(Connection connection, ObjectMapper objectMapper) {
+    public MessageListener(@Nullable Connection connection, ObjectMapper objectMapper, PeliculaRepository peliculaRepository) {
         this.connection = connection;
-        this.objectMapper = new ObjectMapper();
+        this.objectMapper = objectMapper;
+        this.peliculaRepository = peliculaRepository;
     }
 
     public void processPelicula(Event<String, Pelicula> eventPelicula) {
-        Long id = eventPelicula.getData().getId();
-        int newRating = eventPelicula.getData().getRating();
+        Long id = eventPelicula.getData().id();
+        int newRating = eventPelicula.getData().rating();
 
-        Pelicula pelicula = PeliculaRepository.porId(id);
+        Pelicula pelicula = peliculaRepository.porId(id);
+        if (pelicula == null) {
+            throw new RuntimeException(ERROR_PELICULA_NO_ENCONTRADA);
+        }
+
         pelicula.actualizarRating(newRating);
-        PeliculaRepository.actualizar(id ,pelicula);
+        peliculaRepository.actualizar(id, pelicula);
     }
-
 
     @PostConstruct
     public void startConsumerCatalogo() {
+        if (connection == null) {
+            logger.warn("RabbitMQ no disponible en el arranque: consumidor de catalogo deshabilitado.");
+            return;
+        }
+
         try {
             Channel channel = connection.createChannel();
-
-            // Declarar el exchange (tipo puede ser "direct", "topic", "fanout", o "headers")
-            //
             channel.exchangeDeclare(eventExchange, "direct", true);
-
-            // Declarar la cola
-            // Durable: false, Exclusive: false, Auto-delete: false
             channel.queueDeclare(queueCatalogo, false, false, false, null);
-
-            // Enlazar la cola con el exchange usando una routing key
             channel.queueBind(queueCatalogo, eventExchange, routingKeyCatalogo);
 
-            System.out.println("Esperando mensajes...");
+            logger.info("Esperando mensajes de catalogo...");
 
             DeliverCallback deliverCallback = (consumerTag, delivery) -> {
                 String message = "";
@@ -74,33 +75,25 @@ public class MessageListener {
                     message = new String(delivery.getBody(), "UTF-8");
                     logger.info("➡️ Mensaje recibido: {}", message);
 
-                    // Lógica de negocio: deserializar y procesar
                     Event<String, Pelicula> eventMovie = objectMapper.readValue(message, Event.class);
-                    processPelicula(eventMovie); // <-- Llama a tu lógica de negocio aquí
+                    processPelicula(eventMovie);
 
-                    // 1. CONFIRMACIÓN MANUAL: Si todo fue bien, confirma el mensaje.
                     channel.basicAck(delivery.getEnvelope().getDeliveryTag(), false);
                     logger.debug("Mensaje procesado y confirmado (ack).");
 
                 } catch (Exception e) {
-                    // 2. RECHAZO: Si algo falló, rechaza el mensaje.
                     logger.error("❌ Error al procesar el mensaje: {}", message, e);
-                    // El tercer parámetro 'requeue' decide si el mensaje vuelve a la cola.
-                    // Ponerlo en 'false' es usualmente más seguro para evitar bucles infinitos
-                    // con mensajes que siempre fallan. Idealmente, se enviaría a una Dead Letter Queue (DLQ).
                     channel.basicNack(delivery.getEnvelope().getDeliveryTag(), false, false);
                 }
             };
 
-            // Iniciar consumo con autoAck = false
             boolean autoAck = false;
             channel.basicConsume(queueCatalogo, autoAck, deliverCallback, consumerTag -> {
                 logger.warn("El consumidor fue cancelado: {}", consumerTag);
             });
 
         } catch (Exception e) {
-            // Este catch ahora es para errores de configuración inicial (ej. no se puede conectar a RabbitMQ)
-            logger.error("🔥 Error crítico al configurar el consumidor de RabbitMQ", e);
+            logger.error("Error al iniciar el consumidor de RabbitMQ", e);
         }
     }
 }

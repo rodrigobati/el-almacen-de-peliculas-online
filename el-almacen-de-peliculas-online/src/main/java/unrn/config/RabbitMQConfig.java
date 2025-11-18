@@ -5,30 +5,32 @@ import com.rabbitmq.client.ConnectionFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Configuration
 public class RabbitMQConfig {
 
-    @Value("${spring.rabbitmq.host}")
-    private String host;
-
-    @Value("${spring.rabbitmq.port}")
-    private Integer port;
-
-    @Value("${spring.rabbitmq.username}")
-    private String username;
-
-    @Value("${spring.rabbitmq.password}")
-    private String password;
-
+    private static final Logger logger = LoggerFactory.getLogger(RabbitMQConfig.class);
 
     @Bean
-    public Connection rabbitConnection() throws Exception {
+    public Connection rabbitConnection(
+            @Value("${rabbitmq.host:localhost}") String host,
+            @Value("${rabbitmq.port:5672}") int port,
+            @Value("${rabbitmq.username:guest}") String username,
+            @Value("${rabbitmq.password:guest}") String password) {
+
         ConnectionFactory factory = new ConnectionFactory();
         factory.setHost(host);
         factory.setPort(port);
         factory.setUsername(username);
         factory.setPassword(password);
-        return factory.newConnection();
+
+        try {
+            return factory.newConnection();
+        } catch (Exception e) {
+            logger.warn("No se pudo conectar a RabbitMQ en {}:{} - consumidor deshabilitado: {}", host, port, e.getMessage());
+            return null;
+        }
     }
 }
