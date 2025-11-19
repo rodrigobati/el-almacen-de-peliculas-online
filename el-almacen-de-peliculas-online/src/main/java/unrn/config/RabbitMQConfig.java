@@ -1,36 +1,57 @@
 package unrn.config;
 
-import com.rabbitmq.client.Connection;
-import com.rabbitmq.client.ConnectionFactory;
+import org.springframework.amqp.core.*;
+import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
+import org.springframework.amqp.support.converter.MessageConverter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 @Configuration
 public class RabbitMQConfig {
 
-    private static final Logger logger = LoggerFactory.getLogger(RabbitMQConfig.class);
+    // Event
+    @Value("${rabbitmq.event.exchange.name}")
+    private String eventExchange;
 
     @Bean
-    public Connection rabbitConnection(
-            @Value("${rabbitmq.host:localhost}") String host,
-            @Value("${rabbitmq.port:5672}") int port,
-            @Value("${rabbitmq.username:guest}") String username,
-            @Value("${rabbitmq.password:guest}") String password) {
+    public TopicExchange exchangeVideoCloub00() {
+        return new TopicExchange(eventExchange);
+    }
 
-        ConnectionFactory factory = new ConnectionFactory();
-        factory.setHost(host);
-        factory.setPort(port);
-        factory.setUsername(username);
-        factory.setPassword(password);
+    @Bean
+    public MessageConverter jsonMessageConverter() {
+        return new Jackson2JsonMessageConverter();
+    }
 
-        try {
-            return factory.newConnection();
-        } catch (Exception e) {
-            logger.warn("No se pudo conectar a RabbitMQ en {}:{} - consumidor deshabilitado: {}", host, port, e.getMessage());
-            return null;
-        }
+    // KeyCloak
+    @Value("${rabbitmq.queue.name}")
+    private String queue;
+
+    @Value("${rabbitmq.exchange.name}")
+    private String exchange;
+
+    @Value("${rabbitmq.routing.key}")
+    private String routingKey;
+
+    // spring bean for rabbitmq queue
+    @Bean
+    public Queue queue(){
+        return new Queue(queue, true);
+    }
+
+    // spring bean for rabbitmq exchange
+    @Bean
+    public TopicExchange exchange(){
+        return new TopicExchange(exchange);
+    }
+
+    // binding between queue and exchange using routing key
+    @Bean
+    public Binding binding(){
+        return BindingBuilder
+                .bind(queue())
+                .to(exchange())
+                .with(routingKey);
     }
 }
