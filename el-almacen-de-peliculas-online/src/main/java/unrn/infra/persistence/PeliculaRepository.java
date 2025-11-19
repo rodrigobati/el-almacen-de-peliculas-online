@@ -142,8 +142,8 @@ public class PeliculaRepository {
 
     public java.util.List<Pelicula> buscarPorFechaSalidaEntre(java.time.LocalDate desde, java.time.LocalDate hasta) {
         var list = em.createQuery(
-                        "SELECT p FROM PeliculaEntity p WHERE p.fechaSalida BETWEEN :d AND :h ORDER BY p.fechaSalida DESC",
-                        PeliculaEntity.class)
+                "SELECT p FROM PeliculaEntity p WHERE p.fechaSalida BETWEEN :d AND :h ORDER BY p.fechaSalida DESC",
+                PeliculaEntity.class)
                 .setParameter("d", desde)
                 .setParameter("h", hasta)
                 .getResultList();
@@ -151,8 +151,8 @@ public class PeliculaRepository {
     }
 
     public java.util.List<Pelicula> buscarDinamico(String titulo, String genero, String formato, String condicion,
-                                                   java.time.LocalDate desde, java.time.LocalDate hasta,
-                                                   java.math.BigDecimal minPrecio, java.math.BigDecimal maxPrecio) {
+            java.time.LocalDate desde, java.time.LocalDate hasta,
+            java.math.BigDecimal minPrecio, java.math.BigDecimal maxPrecio) {
         var cb = em.getCriteriaBuilder();
         var cq = cb.createQuery(PeliculaEntity.class);
         var root = cq.from(PeliculaEntity.class);
@@ -307,6 +307,8 @@ public class PeliculaRepository {
         pe.directores = directores;
         pe.actores = actores;
         pe.rating = p.rating();
+        pe.ratingPromedio = p.ratingPromedio();
+        pe.totalRatings = p.totalRatings();
     }
 
 }

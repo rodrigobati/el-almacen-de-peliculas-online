@@ -1,43 +1,44 @@
-/home/agustin/workspace/el-almacen-de-peliculas-online-peliculas/el-almacen-de-peliculas-online/src/main/java/unrn/dto/ActorDTO.java
-/home/agustin/workspace/el-almacen-de-peliculas-online-peliculas/el-almacen-de-peliculas-online/src/main/java/unrn/model/Genero.java
-/home/agustin/workspace/el-almacen-de-peliculas-online-peliculas/el-almacen-de-peliculas-online/src/main/java/unrn/infra/persistence/DirectorEntity.java
-/home/agustin/workspace/el-almacen-de-peliculas-online-peliculas/el-almacen-de-peliculas-online/src/main/java/unrn/infra/persistence/PeliculaEntity.java
-/home/agustin/workspace/el-almacen-de-peliculas-online-peliculas/el-almacen-de-peliculas-online/src/main/java/unrn/event/Event.java
-/home/agustin/workspace/el-almacen-de-peliculas-online-peliculas/el-almacen-de-peliculas-online/src/main/java/unrn/api/ApiErrorHandler.java
-/home/agustin/workspace/el-almacen-de-peliculas-online-peliculas/el-almacen-de-peliculas-online/src/main/java/unrn/app/DemoPersist.java
-/home/agustin/workspace/el-almacen-de-peliculas-online-peliculas/el-almacen-de-peliculas-online/src/main/java/unrn/infra/persistence/ActorEntity.java
-/home/agustin/workspace/el-almacen-de-peliculas-online-peliculas/el-almacen-de-peliculas-online/src/main/java/unrn/config/RabbitMQConfig.java
-/home/agustin/workspace/el-almacen-de-peliculas-online-peliculas/el-almacen-de-peliculas-online/src/main/java/unrn/model/Formato.java
-/home/agustin/workspace/el-almacen-de-peliculas-online-peliculas/el-almacen-de-peliculas-online/src/main/java/unrn/infra/persistence/PeliculaRepository.java
-/home/agustin/workspace/el-almacen-de-peliculas-online-peliculas/el-almacen-de-peliculas-online/src/main/java/unrn/infra/persistence/PageResult.java
-/home/agustin/workspace/el-almacen-de-peliculas-online-peliculas/el-almacen-de-peliculas-online/src/main/java/unrn/model/Condicion.java
-/home/agustin/workspace/el-almacen-de-peliculas-online-peliculas/el-almacen-de-peliculas-online/src/main/java/unrn/dto/DirectorDTO.java
-/home/agustin/workspace/el-almacen-de-peliculas-online-peliculas/el-almacen-de-peliculas-online/src/main/java/unrn/app/DataLoader.java
-/home/agustin/workspace/el-almacen-de-peliculas-online-peliculas/el-almacen-de-peliculas-online/src/main/java/unrn/model/Categoria.java
-/home/agustin/workspace/el-almacen-de-peliculas-online-peliculas/el-almacen-de-peliculas-online/src/main/java/unrn/infra/persistence/GeneroEntity.java
-/home/agustin/workspace/el-almacen-de-peliculas-online-peliculas/el-almacen-de-peliculas-online/src/main/java/unrn/app/SchemaInspector.java
-/home/agustin/workspace/el-almacen-de-peliculas-online-peliculas/el-almacen-de-peliculas-online/src/main/java/unrn/model/Actor.java
-/home/agustin/workspace/el-almacen-de-peliculas-online-peliculas/el-almacen-de-peliculas-online/src/main/java/unrn/app/SchemaMigrator.java
-/home/agustin/workspace/el-almacen-de-peliculas-online-peliculas/el-almacen-de-peliculas-online/src/main/java/unrn/dto/PeliculaRequest.java
-/home/agustin/workspace/el-almacen-de-peliculas-online-peliculas/el-almacen-de-peliculas-online/src/main/java/unrn/infra/persistence/PeliculaJpaRepository.java
-/home/agustin/workspace/el-almacen-de-peliculas-online-peliculas/el-almacen-de-peliculas-online/src/main/java/unrn/api/PageResponse.java
-/home/agustin/workspace/el-almacen-de-peliculas-online-peliculas/el-almacen-de-peliculas-online/src/main/java/unrn/model/Pelicula.java
-/home/agustin/workspace/el-almacen-de-peliculas-online-peliculas/el-almacen-de-peliculas-online/src/main/java/unrn/event/MessageListener.java
-/home/agustin/workspace/el-almacen-de-peliculas-online-peliculas/el-almacen-de-peliculas-online/src/main/java/unrn/api/PeliculaController.java
-/home/agustin/workspace/el-almacen-de-peliculas-online-peliculas/el-almacen-de-peliculas-online/src/main/java/unrn/infra/persistence/ActorRepository.java
-/home/agustin/workspace/el-almacen-de-peliculas-online-peliculas/el-almacen-de-peliculas-online/src/main/java/unrn/dto/DetallePeliculaDTO.java
-/home/agustin/workspace/el-almacen-de-peliculas-online-peliculas/el-almacen-de-peliculas-online/src/main/java/unrn/infra/persistence/CondicionEntity.java
-/home/agustin/workspace/el-almacen-de-peliculas-online-peliculas/el-almacen-de-peliculas-online/src/main/java/unrn/model/Catalogo.java
-/home/agustin/workspace/el-almacen-de-peliculas-online-peliculas/el-almacen-de-peliculas-online/src/main/java/unrn/service/PeliculaService.java
-/home/agustin/workspace/el-almacen-de-peliculas-online-peliculas/el-almacen-de-peliculas-online/src/main/java/unrn/App.java
-/home/agustin/workspace/el-almacen-de-peliculas-online-peliculas/el-almacen-de-peliculas-online/src/main/java/unrn/api/CategoriaController.java
-/home/agustin/workspace/el-almacen-de-peliculas-online-peliculas/el-almacen-de-peliculas-online/src/main/java/unrn/app/DemoConsultas.java
-/home/agustin/workspace/el-almacen-de-peliculas-online-peliculas/el-almacen-de-peliculas-online/src/main/java/unrn/infra/persistence/DirectorRepository.java
-/home/agustin/workspace/el-almacen-de-peliculas-online-peliculas/el-almacen-de-peliculas-online/src/main/java/unrn/infra/persistence/FormatoEntity.java
-/home/agustin/workspace/el-almacen-de-peliculas-online-peliculas/el-almacen-de-peliculas-online/src/main/java/unrn/app/Application.java
-/home/agustin/workspace/el-almacen-de-peliculas-online-peliculas/el-almacen-de-peliculas-online/src/main/java/unrn/api/PeliculaCommand.java
-/home/agustin/workspace/el-almacen-de-peliculas-online-peliculas/el-almacen-de-peliculas-online/src/main/java/unrn/api/WebCorsConfig.java
-/home/agustin/workspace/el-almacen-de-peliculas-online-peliculas/el-almacen-de-peliculas-online/src/main/java/unrn/model/Director.java
-/home/agustin/workspace/el-almacen-de-peliculas-online-peliculas/el-almacen-de-peliculas-online/src/main/java/unrn/api/PeliculaAdminController.java
-/home/agustin/workspace/el-almacen-de-peliculas-online-peliculas/el-almacen-de-peliculas-online/src/main/java/unrn/dto/GeneroDTO.java
-/home/agustin/workspace/el-almacen-de-peliculas-online-peliculas/el-almacen-de-peliculas-online/src/main/java/unrn/config/SecurityConfig.java
+C:\Users\pelud\OneDrive\Documentos\UNRN\Taller de Tecnologías y Producción de Software\el-almacen-de-peliculas-online\el-almacen-de-peliculas-online\src\main\java\unrn\api\WebCorsConfig.java
+C:\Users\pelud\OneDrive\Documentos\UNRN\Taller de Tecnologías y Producción de Software\el-almacen-de-peliculas-online\el-almacen-de-peliculas-online\src\main\java\unrn\infra\persistence\CondicionEntity.java
+C:\Users\pelud\OneDrive\Documentos\UNRN\Taller de Tecnologías y Producción de Software\el-almacen-de-peliculas-online\el-almacen-de-peliculas-online\src\main\java\unrn\model\Catalogo.java
+C:\Users\pelud\OneDrive\Documentos\UNRN\Taller de Tecnologías y Producción de Software\el-almacen-de-peliculas-online\el-almacen-de-peliculas-online\src\main\java\unrn\event\RatingActualizadoEvent.java
+C:\Users\pelud\OneDrive\Documentos\UNRN\Taller de Tecnologías y Producción de Software\el-almacen-de-peliculas-online\el-almacen-de-peliculas-online\src\main\java\unrn\service\PeliculaService.java
+C:\Users\pelud\OneDrive\Documentos\UNRN\Taller de Tecnologías y Producción de Software\el-almacen-de-peliculas-online\el-almacen-de-peliculas-online\src\main\java\unrn\infra\persistence\PeliculaEntity.java
+C:\Users\pelud\OneDrive\Documentos\UNRN\Taller de Tecnologías y Producción de Software\el-almacen-de-peliculas-online\el-almacen-de-peliculas-online\src\main\java\unrn\infra\persistence\DirectorRepository.java
+C:\Users\pelud\OneDrive\Documentos\UNRN\Taller de Tecnologías y Producción de Software\el-almacen-de-peliculas-online\el-almacen-de-peliculas-online\src\main\java\unrn\api\PageResponse.java
+C:\Users\pelud\OneDrive\Documentos\UNRN\Taller de Tecnologías y Producción de Software\el-almacen-de-peliculas-online\el-almacen-de-peliculas-online\src\main\java\unrn\dto\DetallePeliculaDTO.java
+C:\Users\pelud\OneDrive\Documentos\UNRN\Taller de Tecnologías y Producción de Software\el-almacen-de-peliculas-online\el-almacen-de-peliculas-online\src\main\java\unrn\dto\PeliculaRequest.java
+C:\Users\pelud\OneDrive\Documentos\UNRN\Taller de Tecnologías y Producción de Software\el-almacen-de-peliculas-online\el-almacen-de-peliculas-online\src\main\java\unrn\model\Actor.java
+C:\Users\pelud\OneDrive\Documentos\UNRN\Taller de Tecnologías y Producción de Software\el-almacen-de-peliculas-online\el-almacen-de-peliculas-online\src\main\java\unrn\api\PeliculaController.java
+C:\Users\pelud\OneDrive\Documentos\UNRN\Taller de Tecnologías y Producción de Software\el-almacen-de-peliculas-online\el-almacen-de-peliculas-online\src\main\java\unrn\model\Director.java
+C:\Users\pelud\OneDrive\Documentos\UNRN\Taller de Tecnologías y Producción de Software\el-almacen-de-peliculas-online\el-almacen-de-peliculas-online\src\main\java\unrn\app\DemoPersist.java
+C:\Users\pelud\OneDrive\Documentos\UNRN\Taller de Tecnologías y Producción de Software\el-almacen-de-peliculas-online\el-almacen-de-peliculas-online\src\main\java\unrn\app\SchemaInspector.java
+C:\Users\pelud\OneDrive\Documentos\UNRN\Taller de Tecnologías y Producción de Software\el-almacen-de-peliculas-online\el-almacen-de-peliculas-online\src\main\java\unrn\infra\persistence\ActorRepository.java
+C:\Users\pelud\OneDrive\Documentos\UNRN\Taller de Tecnologías y Producción de Software\el-almacen-de-peliculas-online\el-almacen-de-peliculas-online\src\main\java\unrn\infra\persistence\FormatoEntity.java
+C:\Users\pelud\OneDrive\Documentos\UNRN\Taller de Tecnologías y Producción de Software\el-almacen-de-peliculas-online\el-almacen-de-peliculas-online\src\main\java\unrn\infra\persistence\DirectorEntity.java
+C:\Users\pelud\OneDrive\Documentos\UNRN\Taller de Tecnologías y Producción de Software\el-almacen-de-peliculas-online\el-almacen-de-peliculas-online\src\main\java\unrn\api\CategoriaController.java
+C:\Users\pelud\OneDrive\Documentos\UNRN\Taller de Tecnologías y Producción de Software\el-almacen-de-peliculas-online\el-almacen-de-peliculas-online\src\main\java\unrn\event\Event.java
+C:\Users\pelud\OneDrive\Documentos\UNRN\Taller de Tecnologías y Producción de Software\el-almacen-de-peliculas-online\el-almacen-de-peliculas-online\src\main\java\unrn\App.java
+C:\Users\pelud\OneDrive\Documentos\UNRN\Taller de Tecnologías y Producción de Software\el-almacen-de-peliculas-online\el-almacen-de-peliculas-online\src\main\java\unrn\app\SchemaMigrator.java
+C:\Users\pelud\OneDrive\Documentos\UNRN\Taller de Tecnologías y Producción de Software\el-almacen-de-peliculas-online\el-almacen-de-peliculas-online\src\main\java\unrn\config\RabbitMQConfig.java
+C:\Users\pelud\OneDrive\Documentos\UNRN\Taller de Tecnologías y Producción de Software\el-almacen-de-peliculas-online\el-almacen-de-peliculas-online\src\main\java\unrn\api\PeliculaCommand.java
+C:\Users\pelud\OneDrive\Documentos\UNRN\Taller de Tecnologías y Producción de Software\el-almacen-de-peliculas-online\el-almacen-de-peliculas-online\src\main\java\unrn\api\PeliculaAdminController.java
+C:\Users\pelud\OneDrive\Documentos\UNRN\Taller de Tecnologías y Producción de Software\el-almacen-de-peliculas-online\el-almacen-de-peliculas-online\src\main\java\unrn\app\Application.java
+C:\Users\pelud\OneDrive\Documentos\UNRN\Taller de Tecnologías y Producción de Software\el-almacen-de-peliculas-online\el-almacen-de-peliculas-online\src\main\java\unrn\config\SecurityConfig.java
+C:\Users\pelud\OneDrive\Documentos\UNRN\Taller de Tecnologías y Producción de Software\el-almacen-de-peliculas-online\el-almacen-de-peliculas-online\src\main\java\unrn\model\Formato.java
+C:\Users\pelud\OneDrive\Documentos\UNRN\Taller de Tecnologías y Producción de Software\el-almacen-de-peliculas-online\el-almacen-de-peliculas-online\src\main\java\unrn\app\DataLoader.java
+C:\Users\pelud\OneDrive\Documentos\UNRN\Taller de Tecnologías y Producción de Software\el-almacen-de-peliculas-online\el-almacen-de-peliculas-online\src\main\java\unrn\app\DemoConsultas.java
+C:\Users\pelud\OneDrive\Documentos\UNRN\Taller de Tecnologías y Producción de Software\el-almacen-de-peliculas-online\el-almacen-de-peliculas-online\src\main\java\unrn\model\Genero.java
+C:\Users\pelud\OneDrive\Documentos\UNRN\Taller de Tecnologías y Producción de Software\el-almacen-de-peliculas-online\el-almacen-de-peliculas-online\src\main\java\unrn\event\MessageListener.java
+C:\Users\pelud\OneDrive\Documentos\UNRN\Taller de Tecnologías y Producción de Software\el-almacen-de-peliculas-online\el-almacen-de-peliculas-online\src\main\java\unrn\dto\DirectorDTO.java
+C:\Users\pelud\OneDrive\Documentos\UNRN\Taller de Tecnologías y Producción de Software\el-almacen-de-peliculas-online\el-almacen-de-peliculas-online\src\main\java\unrn\infra\persistence\PageResult.java
+C:\Users\pelud\OneDrive\Documentos\UNRN\Taller de Tecnologías y Producción de Software\el-almacen-de-peliculas-online\el-almacen-de-peliculas-online\src\main\java\unrn\dto\GeneroDTO.java
+C:\Users\pelud\OneDrive\Documentos\UNRN\Taller de Tecnologías y Producción de Software\el-almacen-de-peliculas-online\el-almacen-de-peliculas-online\src\main\java\unrn\model\Categoria.java
+C:\Users\pelud\OneDrive\Documentos\UNRN\Taller de Tecnologías y Producción de Software\el-almacen-de-peliculas-online\el-almacen-de-peliculas-online\src\main\java\unrn\model\Condicion.java
+C:\Users\pelud\OneDrive\Documentos\UNRN\Taller de Tecnologías y Producción de Software\el-almacen-de-peliculas-online\el-almacen-de-peliculas-online\src\main\java\unrn\infra\persistence\PeliculaRepository.java
+C:\Users\pelud\OneDrive\Documentos\UNRN\Taller de Tecnologías y Producción de Software\el-almacen-de-peliculas-online\el-almacen-de-peliculas-online\src\main\java\unrn\api\ApiErrorHandler.java
+C:\Users\pelud\OneDrive\Documentos\UNRN\Taller de Tecnologías y Producción de Software\el-almacen-de-peliculas-online\el-almacen-de-peliculas-online\src\main\java\unrn\dto\ActorDTO.java
+C:\Users\pelud\OneDrive\Documentos\UNRN\Taller de Tecnologías y Producción de Software\el-almacen-de-peliculas-online\el-almacen-de-peliculas-online\src\main\java\unrn\infra\persistence\PeliculaJpaRepository.java
+C:\Users\pelud\OneDrive\Documentos\UNRN\Taller de Tecnologías y Producción de Software\el-almacen-de-peliculas-online\el-almacen-de-peliculas-online\src\main\java\unrn\infra\persistence\GeneroEntity.java
+C:\Users\pelud\OneDrive\Documentos\UNRN\Taller de Tecnologías y Producción de Software\el-almacen-de-peliculas-online\el-almacen-de-peliculas-online\src\main\java\unrn\infra\persistence\ActorEntity.java
+C:\Users\pelud\OneDrive\Documentos\UNRN\Taller de Tecnologías y Producción de Software\el-almacen-de-peliculas-online\el-almacen-de-peliculas-online\src\main\java\unrn\model\Pelicula.java

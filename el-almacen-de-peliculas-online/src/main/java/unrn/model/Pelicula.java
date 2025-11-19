@@ -26,6 +26,8 @@ public class Pelicula {
     private String imagenUrl;
     private LocalDate fechaSalida;
     private int rating; // Nuevo campo rating con valor por defecto 0
+    private Double ratingPromedio; // Promedio de ratings de la comunidad
+    private Integer totalRatings; // Cantidad total de ratings recibidos
 
     // El método que devolvía el DTO se eliminó para mantener el modelo desacoplado
     public Pelicula(String titulo, Condicion condicion, List<Director> directores, double precio, Formato formato,
@@ -51,8 +53,9 @@ public class Pelicula {
         this.rating = rating; // Inicialización del nuevo campo rating
     }
 
-    public Pelicula(Long id, String titulo, Condicion condicion, List<Director> directores, double precio, Formato formato,
-                    Genero genero, String sinopsis, List<Actor> actores, String imagenUrl, LocalDate fechaSalida, int rating ){
+    public Pelicula(Long id, String titulo, Condicion condicion, List<Director> directores, double precio,
+            Formato formato,
+            Genero genero, String sinopsis, List<Actor> actores, String imagenUrl, LocalDate fechaSalida, int rating) {
         aasertId(id);
         assertTitulo(titulo);
         assertCondicion(condicion);
@@ -180,6 +183,14 @@ public class Pelicula {
         return rating;
     }
 
+    public Double ratingPromedio() {
+        return ratingPromedio;
+    }
+
+    public Integer totalRatings() {
+        return totalRatings;
+    }
+
     public void actualizarDesde(Pelicula nuevaPelicula) {
         if (nuevaPelicula == null)
             throw new RuntimeException("La película no puede ser null");
@@ -213,6 +224,21 @@ public class Pelicula {
             throw new RuntimeException("El rating debe estar entre 0 y 5");
         }
         this.rating = nuevoRating;
+    }
+
+    /**
+     * Actualiza el rating promedio y total de ratings desde la vertical Rating.
+     * Este método se invoca cuando se recibe un evento de RabbitMQ.
+     */
+    public void actualizarRatingPromedio(double ratingPromedio, int totalRatings) {
+        if (ratingPromedio < 0 || ratingPromedio > 10) {
+            throw new RuntimeException("El rating promedio debe estar entre 0 y 10");
+        }
+        if (totalRatings < 0) {
+            throw new RuntimeException("El total de ratings no puede ser negativo");
+        }
+        this.ratingPromedio = ratingPromedio;
+        this.totalRatings = totalRatings;
     }
 
     // El DTO se movió a la capa `unrn.dto` y el modelo ya no lo contiene

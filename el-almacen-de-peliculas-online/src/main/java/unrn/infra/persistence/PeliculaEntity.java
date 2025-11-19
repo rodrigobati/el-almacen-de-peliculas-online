@@ -61,6 +61,12 @@ public class PeliculaEntity {
     @Column(name = "rating", nullable = false)
     int rating;
 
+    @Column(name = "rating_promedio")
+    Double ratingPromedio;
+
+    @Column(name = "total_ratings")
+    Integer totalRatings;
+
     protected PeliculaEntity() {
     } // JPA
 
@@ -81,6 +87,8 @@ public class PeliculaEntity {
         if (actores != null)
             this.actores.addAll(actores);
         this.rating = rating;
+        this.ratingPromedio = null;
+        this.totalRatings = null;
     }
 
     public unrn.model.Pelicula asDomain() {
@@ -90,7 +98,8 @@ public class PeliculaEntity {
         var a = new java.util.ArrayList<unrn.model.Actor>();
         for (var ae : this.actores)
             a.add(new unrn.model.Actor(ae.nombre));
-        return new unrn.model.Pelicula(
+        var pelicula = new unrn.model.Pelicula(
+                this.id,
                 this.titulo,
                 new unrn.model.Condicion(this.condicion.nombre),
                 d,
@@ -102,5 +111,12 @@ public class PeliculaEntity {
                 this.imagenUrl,
                 this.fechaSalida,
                 this.rating);
+
+        // Si hay datos de rating comunitario, actualizarlos
+        if (this.ratingPromedio != null && this.totalRatings != null) {
+            pelicula.actualizarRatingPromedio(this.ratingPromedio, this.totalRatings);
+        }
+
+        return pelicula;
     }
 }

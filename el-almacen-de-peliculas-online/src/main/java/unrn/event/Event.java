@@ -1,9 +1,7 @@
 package unrn.event;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import lombok.Getter;
 
-@Getter
 public class Event<K, T> {
 
     public enum Type {
@@ -11,9 +9,9 @@ public class Event<K, T> {
         DELETE
     }
 
-    private final Type eventType;
-    private final K key;
-    private final T data;
+    private Type eventType;
+    private K key;
+    private T data;
 
     public Event() {
         this.eventType = null;
@@ -27,7 +25,32 @@ public class Event<K, T> {
         this.data = data;
     }
 
-    @JsonIgnore
-    public String getRoutingkey() {return  this.getData().getClass().getSimpleName() + "." + this.getEventType();}
+    public Type getEventType() {
+        return eventType;
+    }
 
+    public void setEventType(Type eventType) {
+        this.eventType = eventType;
+    }
+
+    public K getKey() {
+        return key;
+    }
+
+    public void setKey(K key) {
+        this.key = key;
+    }
+
+    public T getData() {
+        return data;
+    }
+
+    public void setData(T data) {
+        this.data = data;
+    }
+
+    @JsonIgnore
+    public String getRoutingkey() {
+        return this.getData().getClass().getSimpleName() + "." + this.getEventType();
+    }
 }

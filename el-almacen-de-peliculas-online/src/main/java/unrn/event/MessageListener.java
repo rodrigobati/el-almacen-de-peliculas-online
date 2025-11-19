@@ -1,7 +1,8 @@
 // java
 package unrn.event;
 
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.amqp.rabbit.annotation.Queue;
 import org.springframework.amqp.rabbit.annotation.QueueBinding;
 import org.springframework.amqp.rabbit.annotation.Exchange;
@@ -14,9 +15,9 @@ import unrn.infra.persistence.PeliculaRepository;
 import unrn.model.Pelicula;
 
 @Service
-@Slf4j
 public class MessageListener {
 
+    private static final Logger log = LoggerFactory.getLogger(MessageListener.class);
     static final String ERROR_PELICULA_NO_ENCONTRADA = "ERROR_PELICULA_NO_ENCONTRADA";
 
     private final PeliculaRepository peliculaRepository;
@@ -25,14 +26,7 @@ public class MessageListener {
         this.peliculaRepository = peliculaRepository;
     }
 
-    @RabbitListener(bindings = @QueueBinding(
-            value = @Queue(
-                    value = "${rabbitmq.event.movie.queue.name}",
-                    durable = "true"
-            ),
-            exchange = @Exchange(value = "${rabbitmq.event.exchange.name}", type = "topic"),
-            key = "${rabbitmq.event.movie.routing.key}"
-    ))
+    @RabbitListener(bindings = @QueueBinding(value = @Queue(value = "${rabbitmq.event.movie.queue.name}", durable = "true"), exchange = @Exchange(value = "${rabbitmq.event.exchange.name}", type = "topic"), key = "${rabbitmq.event.movie.routing.key}"))
     @Retryable(maxAttempts = 3, backoff = @Backoff(delay = 5000))
     public void handleMovieEvent(Event<String, Pelicula> event) {
         switch (event.getEventType()) {
@@ -62,5 +56,36 @@ public class MessageListener {
     @Recover
     public void recover(Exception e, Event<String, Pelicula> event) {
         log.info("Recover: no se pudo procesar el evento después de reintentos: {}", event.getData());
+    }
+
+    /**
+     * Escucha eventos de actualización de rating desde la vertical Rating.
+     * Actualiza el ratingPromedio y totalRatings en la película del catálogo.
+     */
+    @RabbitListener(bindings = @QueueBinding(value = @Queue(value = "rating.catalogo.queue", durable = "true"), exchange = @Exchange(value = "${rabbitmq.event.exchange.name}", type = "topic"), key = "RatingActualizadoEvent.#"))
+    @Retryable(maxAttempts = 3, backoff = @Backoff(delay = 5000))
+    public void handleRatingEvent(Event<String, RatingActualizadoEvent> event) {
+        log.info("Evento de rating recibido: {}", event.getData());
+
+        Long peliculaId = event.getData().id();
+        double ratingPromedio = event.getData().rating();
+        int totalRatings = (int) event.getData().totalRatings();
+
+        Pelicula pelicula = peliculaRepository.porId(peliculaId);
+        if (pelicula == null) {
+            throw new RuntimeException(ERROR_PELICULA_NO_ENCONTRADA);
+        }
+
+        pelicula.actualizarRatingPromedio(ratingPromedio, totalRatings);
+        peliculaRepository.actualizar(peliculaId, pelicula);
+
+        log.info("Película {} actualizada: ratingPromedio={}, totalRatings={}",
+                peliculaId, ratingPromedio, totalRatings);
+    }
+
+    @Recover
+    public void recoverRating(Exception e, Event<String, RatingActualizadoEvent> event) {
+        log.error("Recover: no se pudo procesar el evento de rating después de reintentos: {}",
+                event.getData(), e);
     }
 }
