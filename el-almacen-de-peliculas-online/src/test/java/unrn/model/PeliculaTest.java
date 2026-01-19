@@ -24,7 +24,8 @@ class PeliculaTest {
                 "Un hacker descubre la verdad sobre su realidad.",
                 List.of(new Actor("Keanu Reeves"), new Actor("Carrie-Anne Moss")),
                 "https://ejemplo.com/matrix.jpg",
-                LocalDate.of(1999, 3, 31));
+                LocalDate.of(1999, 3, 31),
+                5);
 
         // Ejercitación: transformar a DTO
         var detalle = DetallePeliculaDTO.from(pelicula);
@@ -46,7 +47,7 @@ class PeliculaTest {
     @DisplayName("No permite crear película con título vacío")
     void constructor_tituloVacio_lanzaExcepcion() {
         // Setup: parámetros válidos excepto el título
-        assertThrows(RuntimeException.class, () -> new Pelicula(
+        var ex = assertThrows(RuntimeException.class, () -> new Pelicula(
                 "",
                 new Condicion("nuevo"),
                 List.of(new Director("Director")),
@@ -56,13 +57,15 @@ class PeliculaTest {
                 "Sinopsis",
                 List.of(new Actor("Actor")),
                 "url",
-                LocalDate.now()));
+                LocalDate.now(),
+                5));
+        assertEquals(Pelicula.ERROR_TITULO, ex.getMessage());
     }
 
     @Test
     @DisplayName("No permite crear película con precio negativo")
     void constructor_precioNegativo_lanzaExcepcion() {
-        assertThrows(RuntimeException.class, () -> new Pelicula(
+        var ex = assertThrows(RuntimeException.class, () -> new Pelicula(
                 "Titulo",
                 new Condicion("nuevo"),
                 List.of(new Director("Director")),
@@ -72,7 +75,9 @@ class PeliculaTest {
                 "Sinopsis",
                 List.of(new Actor("Actor")),
                 "url",
-                LocalDate.now()));
+                LocalDate.now(),
+                5));
+        assertEquals(Pelicula.ERROR_PRECIO, ex.getMessage());
     }
 
     @Test

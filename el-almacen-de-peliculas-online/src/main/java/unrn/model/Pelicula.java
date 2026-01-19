@@ -12,22 +12,26 @@ public class Pelicula {
     static final String ERROR_ACTORES = "Debe tener al menos un actor";
     static final String ERROR_FECHA = "La fecha de salida no puede ser nula";
     static final String ERROR_CONDICION = "La condición debe ser 'nuevo' o 'usado'";
+    static final String ERROR_ID = "El id no puede ser nulo";
 
-    private final String titulo;
-    private final Condicion condicion;
-    private final List<Director> directores;
-    private final double precio;
-    private final Formato formato;
-    private final Genero genero;
-    private final String sinopsis;
-    private final List<Actor> actores;
-    private final String imagenUrl;
-    private final LocalDate fechaSalida;
+    private Long id;
+    private String titulo;
+    private List<Director> directores;
+    private Condicion condicion;
+    private double precio;
+    private Formato formato;
+    private Genero genero;
+    private String sinopsis;
+    private List<Actor> actores;
+    private String imagenUrl;
+    private LocalDate fechaSalida;
+    private int rating; // Nuevo campo rating con valor por defecto 0
+    private Double ratingPromedio; // Promedio de ratings de la comunidad
+    private Integer totalRatings; // Cantidad total de ratings recibidos
 
     // El método que devolvía el DTO se eliminó para mantener el modelo desacoplado
-
     public Pelicula(String titulo, Condicion condicion, List<Director> directores, double precio, Formato formato,
-            Genero genero, String sinopsis, List<Actor> actores, String imagenUrl, LocalDate fechaSalida) {
+            Genero genero, String sinopsis, List<Actor> actores, String imagenUrl, LocalDate fechaSalida, int rating) {
         assertTitulo(titulo);
         assertCondicion(condicion);
         assertDirectores(directores);
@@ -46,6 +50,39 @@ public class Pelicula {
         this.actores = List.copyOf(actores);
         this.imagenUrl = imagenUrl;
         this.fechaSalida = fechaSalida;
+        this.rating = rating; // Inicialización del nuevo campo rating
+    }
+
+    public Pelicula(Long id, String titulo, Condicion condicion, List<Director> directores, double precio,
+            Formato formato,
+            Genero genero, String sinopsis, List<Actor> actores, String imagenUrl, LocalDate fechaSalida, int rating) {
+        aasertId(id);
+        assertTitulo(titulo);
+        assertCondicion(condicion);
+        assertDirectores(directores);
+        assertPrecio(precio);
+        assertFormato(formato);
+        assertGenero(genero);
+        assertActores(actores);
+        assertFecha(fechaSalida);
+        this.id = id;
+        this.titulo = titulo;
+        this.condicion = condicion;
+        this.directores = List.copyOf(directores);
+        this.precio = precio;
+        this.formato = formato;
+        this.genero = genero;
+        this.sinopsis = sinopsis;
+        this.actores = List.copyOf(actores);
+        this.imagenUrl = imagenUrl;
+        this.fechaSalida = fechaSalida;
+        this.rating = rating;
+    }
+
+    private void aasertId(Long id) {
+        if (id == null) {
+            throw new RuntimeException(ERROR_ID);
+        }
     }
 
     private void assertTitulo(String titulo) {
@@ -98,6 +135,10 @@ public class Pelicula {
 
     // Métodos de lectura intencionales para uso por capas superiores (DTOs, vistas,
     // etc.)
+    public Long id() {
+        return id;
+    }
+
     public String titulo() {
         return titulo;
     }
@@ -136,6 +177,68 @@ public class Pelicula {
 
     public LocalDate fechaSalida() {
         return fechaSalida;
+    }
+
+    public int rating() {
+        return rating;
+    }
+
+    public Double ratingPromedio() {
+        return ratingPromedio;
+    }
+
+    public Integer totalRatings() {
+        return totalRatings;
+    }
+
+    public void actualizarDesde(Pelicula nuevaPelicula) {
+        if (nuevaPelicula == null)
+            throw new RuntimeException("La película no puede ser null");
+
+        // Validar todos los campos usando los assert existentes
+        assertTitulo(nuevaPelicula.titulo);
+        assertCondicion(nuevaPelicula.condicion);
+        assertDirectores(nuevaPelicula.directores);
+        assertPrecio(nuevaPelicula.precio);
+        assertFormato(nuevaPelicula.formato);
+        assertGenero(nuevaPelicula.genero);
+        assertActores(nuevaPelicula.actores);
+        assertFecha(nuevaPelicula.fechaSalida);
+
+        // Si todas las validaciones pasan, actualizar los campos
+        this.titulo = nuevaPelicula.titulo;
+        this.condicion = nuevaPelicula.condicion;
+        this.directores = List.copyOf(nuevaPelicula.directores);
+        this.precio = nuevaPelicula.precio;
+        this.formato = nuevaPelicula.formato;
+        this.genero = nuevaPelicula.genero;
+        this.sinopsis = nuevaPelicula.sinopsis;
+        this.actores = List.copyOf(nuevaPelicula.actores);
+        this.imagenUrl = nuevaPelicula.imagenUrl;
+        this.fechaSalida = nuevaPelicula.fechaSalida;
+        this.rating = nuevaPelicula.rating;
+    }
+
+    public void actualizarRating(int nuevoRating) {
+        if (nuevoRating < 0 || nuevoRating > 5) {
+            throw new RuntimeException("El rating debe estar entre 0 y 5");
+        }
+        this.rating = nuevoRating;
+    }
+
+    /**
+     * Actualiza el rating promedio y total de ratings desde la vertical Rating.
+     * Este método se invoca cuando se recibe un evento de RabbitMQ.
+     */
+    public void actualizarRatingPromedio(double ratingPromedio, int totalRatings) {
+        if (ratingPromedio < 0 || ratingPromedio > 10) {
+            throw new RuntimeException("El rating promedio debe estar entre 0 y 10");
+        }
+        if (totalRatings < 0) {
+            throw new RuntimeException("El total de ratings no puede ser negativo");
+        }
+        this.ratingPromedio = ratingPromedio;
+        this.totalRatings = totalRatings;
     }
 
     // El DTO se movió a la capa `unrn.dto` y el modelo ya no lo contiene

@@ -1,0 +1,47 @@
+services:
+  almacen-mysql:
+    image: mysql:8.4
+    container_name: almacen-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: almacen_peliculas
+      MYSQL_USER: almacen
+      MYSQL_PASSWORD: almacen
+      MYSQL_ROOT_PASSWORD: root
+    ports:
+      - "3307:3306" # desde Windows: localhost:3307
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "mysqladmin",
+          "ping",
+          "-h",
+          "localhost",
+          "-ualmacen",
+          "-palmacen",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
+  backend:
+    build: .
+    image: el-almacen-de-peliculas-online-backend:latest
+    container_name: almacen-backend
+    depends_on:
+      almacen-mysql:
+        condition: service_healthy
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_PROFILES_ACTIVE: mysql
+      SPRING_DATASOURCE_URL: jdbc:mysql://almacen-mysql:3306/almacen_peliculas?createDatabaseIfNotExist=true&serverTimezone=UTC&useSSL=false&allowPublicKeyRetrieval=true
+      SPRING_DATASOURCE_USERNAME: almacen
+      SPRING_DATASOURCE_PASSWORD: almacen
+
+volumes:
+  mysql_data:
