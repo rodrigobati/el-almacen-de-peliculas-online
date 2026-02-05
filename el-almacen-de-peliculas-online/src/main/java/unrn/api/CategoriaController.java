@@ -9,7 +9,7 @@ import unrn.infra.persistence.PeliculaRepository;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/categorias")
+@RequestMapping("/categorias")
 public class CategoriaController {
 
     private final PeliculaRepository repo;

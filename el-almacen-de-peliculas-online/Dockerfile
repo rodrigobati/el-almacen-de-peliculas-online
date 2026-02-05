@@ -18,6 +18,9 @@ FROM eclipse-temurin:23-jre
 
 WORKDIR /app
 
+# Instalar curl para healthchecks
+RUN apt-get update && apt-get install -y curl && rm -rf /var/lib/apt/lists/*
+
 # Copiamos el jar generado en la etapa anterior
 ARG JAR_FILE=target/*.jar
 COPY --from=build /app/${JAR_FILE} app.jar

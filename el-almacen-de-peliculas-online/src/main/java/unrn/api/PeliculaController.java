@@ -15,7 +15,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/peliculas")
+@RequestMapping("/peliculas")
 public class PeliculaController {
 
     private final PeliculaRepository repo;

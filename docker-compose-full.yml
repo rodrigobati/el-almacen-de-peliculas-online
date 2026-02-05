@@ -1,0 +1,241 @@
+networks:
+  peliculas-net:
+    driver: bridge
+
+volumes:
+  catalogo-mysql-data:
+  rating-mysql-data:
+  rabbitmq-data:
+
+services:
+  # Base de datos MySQL para Catálogo
+  catalogo-mysql:
+    image: mysql:8.4
+    container_name: catalogo-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: almacen_peliculas
+      MYSQL_USER: almacen
+      MYSQL_PASSWORD: almacen
+      MYSQL_ROOT_PASSWORD: root
+    ports:
+      - "3307:3306"
+    volumes:
+      - catalogo-mysql-data:/var/lib/mysql
+    networks:
+      - peliculas-net
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "mysqladmin",
+          "ping",
+          "-h",
+          "localhost",
+          "-ualmacen",
+          "-palmacen",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
+  # Base de datos MySQL para Rating
+  rating-mysql:
+    image: mysql:8.0
+    container_name: rating-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: almacen_peliculas_rating
+      MYSQL_USER: rating_user
+      MYSQL_PASSWORD: secret
+      MYSQL_ROOT_PASSWORD: root
+    ports:
+      - "3308:3306"
+    volumes:
+      - rating-mysql-data:/var/lib/mysql
+    networks:
+      - peliculas-net
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "mysqladmin",
+          "ping",
+          "-h",
+          "localhost",
+          "-urating_user",
+          "-psecret",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
+  # RabbitMQ para mensajería entre servicios
+  shared-rabbitmq:
+    image: rabbitmq:3.13-management
+    container_name: shared-rabbitmq
+    restart: unless-stopped
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    ports:
+      - "5672:5672" # Puerto AMQP
+      - "15672:15672" # Puerto Management UI
+    volumes:
+      - rabbitmq-data:/var/lib/rabbitmq
+    networks:
+      - peliculas-net
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
+  # Keycloak para autenticación y autorización
+  keycloak:
+    image: quay.io/keycloak/keycloak:25.0
+    container_name: keycloak-sso
+    restart: unless-stopped
+    command: start-dev --import-realm
+    environment:
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+      KC_HTTP_PORT: 8080
+    ports:
+      - "9090:8080"
+    volumes:
+      - ./realm-export.json:/opt/keycloak/data/import/realm-export.json:ro
+    networks:
+      - peliculas-net
+    healthcheck:
+      test:
+        ["CMD-SHELL", "timeout 2 bash -c '</dev/tcp/127.0.0.1/8080' || exit 1"]
+      interval: 10s
+      timeout: 3s
+      retries: 20
+      start_period: 40s
+
+  # Servicio de Catálogo de Películas
+  catalogo-backend:
+    build:
+      context: ./el-almacen-de-peliculas-online
+      dockerfile: Dockerfile
+    image: el-almacen-de-peliculas-online-backend:latest
+    container_name: catalogo-backend
+    restart: unless-stopped
+    depends_on:
+      catalogo-mysql:
+        condition: service_healthy
+      shared-rabbitmq:
+        condition: service_healthy
+    ports:
+      - "8081:8080"
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+    networks:
+      - peliculas-net
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 40s
+
+  # Servicio de Rating de Películas
+  rating-service:
+    build:
+      context: ../el-almacen-de-peliculas-online-rating
+      dockerfile: Dockerfile
+    image: el-almacen-de-peliculas-online-rating:latest
+    container_name: rating-service
+    restart: unless-stopped
+    depends_on:
+      rating-mysql:
+        condition: service_healthy
+      shared-rabbitmq:
+        condition: service_healthy
+    ports:
+      - "8082:8080"
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+    networks:
+      - peliculas-net
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 40s
+
+  # API Gateway
+  api-gateway:
+    build:
+      context: ../apigateway-main
+      dockerfile: Dockerfile
+    image: api-gateway:latest
+    container_name: api-gateway
+    restart: unless-stopped
+    depends_on:
+      catalogo-backend:
+        condition: service_started
+      rating-service:
+        condition: service_started
+      keycloak:
+        condition: service_started
+    ports:
+      - "9500:9500"
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      SPRING_CLOUD_GATEWAY_ROUTES_0_ID: catalogo
+      SPRING_CLOUD_GATEWAY_ROUTES_0_URI: http://catalogo-backend:8080
+      SPRING_CLOUD_GATEWAY_ROUTES_0_PREDICATES_0: Path=/api/peliculas/**
+      SPRING_CLOUD_GATEWAY_ROUTES_0_FILTERS_0: StripPrefix=1
+      SPRING_CLOUD_GATEWAY_ROUTES_1_ID: rating
+      SPRING_CLOUD_GATEWAY_ROUTES_1_URI: http://rating-service:8080
+      SPRING_CLOUD_GATEWAY_ROUTES_1_PREDICATES_0: Path=/api/ratings/**
+      SPRING_CLOUD_GATEWAY_ROUTES_1_FILTERS_0: StripPrefix=1
+      SPRING_CLOUD_GATEWAY_ROUTES_2_ID: keycloak
+      SPRING_CLOUD_GATEWAY_ROUTES_2_URI: http://keycloak:8080
+      SPRING_CLOUD_GATEWAY_ROUTES_2_PREDICATES_0: Path=/auth/**,/realms/**
+      SPRING_CLOUD_GATEWAY_ROUTES_3_ID: ventas
+      SPRING_CLOUD_GATEWAY_ROUTES_3_URI: http://ventas-service:8083
+      SPRING_CLOUD_GATEWAY_ROUTES_3_PREDICATES_0: Path=/api/ventas/**
+      SPRING_CLOUD_GATEWAY_ROUTES_3_FILTERS_0: StripPrefix=1
+    networks:
+      - peliculas-net
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9500/actuator/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  # Servicio de Ventas
+  ventas-service:
+    build:
+      context: ../el-almacen-de-peliculas-online-ventas
+      dockerfile: Dockerfile
+    image: el-almacen-de-peliculas-online-ventas:latest
+    container_name: ventas-service
+    restart: unless-stopped
+    depends_on:
+      shared-rabbitmq:
+        condition: service_healthy
+      keycloak:
+        condition: service_started
+    ports:
+      - "8083:8083"
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      SERVER_PORT: 8083
+    networks:
+      - peliculas-net
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8083/actuator/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 40s
