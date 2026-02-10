@@ -117,7 +117,6 @@ services:
       timeout: 3s
       retries: 20
       start_period: 40s
-
   # Servicio de Catálogo de Películas
   catalogo-backend:
     build:
@@ -180,11 +179,11 @@ services:
     restart: unless-stopped
     depends_on:
       catalogo-backend:
-        condition: service_started
+        condition: service_healthy
       rating-service:
-        condition: service_started
+        condition: service_healthy
       keycloak:
-        condition: service_started
+        condition: service_healthy
     ports:
       - "9500:9500"
     environment:
