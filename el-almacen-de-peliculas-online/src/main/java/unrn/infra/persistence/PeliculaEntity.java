@@ -67,6 +67,13 @@ public class PeliculaEntity {
     @Column(name = "total_ratings")
     Integer totalRatings;
 
+    @Column(name = "activa", nullable = false)
+    boolean activa;
+
+    @Version
+    @Column(name = "version", nullable = false)
+    long version;
+
     protected PeliculaEntity() {
     } // JPA
 
@@ -89,6 +96,7 @@ public class PeliculaEntity {
         this.rating = rating;
         this.ratingPromedio = null;
         this.totalRatings = null;
+        this.activa = true;
     }
 
     public unrn.model.Pelicula asDomain() {
@@ -110,7 +118,9 @@ public class PeliculaEntity {
                 a,
                 this.imagenUrl,
                 this.fechaSalida,
-                this.rating);
+            this.rating,
+            this.activa,
+            this.version);
 
         // Si hay datos de rating comunitario, actualizarlos
         if (this.ratingPromedio != null && this.totalRatings != null) {

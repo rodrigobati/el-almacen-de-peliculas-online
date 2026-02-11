@@ -23,10 +23,10 @@ public class DemoPersist {
                 LocalDate.of(1982, 6, 25),
                 5);
 
-        Long id = repo.guardar(peli);
-        System.out.println("Guardada Pelicula con id=" + id);
+        Pelicula guardada = repo.guardar(peli);
+        System.out.println("Guardada Pelicula con id=" + guardada.id());
 
-        Pelicula recuperada = repo.porId(id);
+        Pelicula recuperada = repo.porId(guardada.id());
         System.out.println("Recuperada: " + recuperada.titulo() + " (" + recuperada.genero() + ")");
     }
 }

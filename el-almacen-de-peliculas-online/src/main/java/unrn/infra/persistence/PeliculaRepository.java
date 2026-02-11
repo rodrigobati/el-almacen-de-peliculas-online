@@ -19,7 +19,7 @@ public class PeliculaRepository {
     private EntityManager em;
 
     @Transactional
-    public Long guardar(Pelicula p) {
+    public Pelicula guardar(Pelicula p) {
         var directores = new ArrayList<DirectorEntity>();
         for (Director d : p.directores()) {
             DirectorEntity de = findDirectorPorNombre(d.nombre());
@@ -67,7 +67,7 @@ public class PeliculaRepository {
                 p.rating());
 
         em.persist(pe);
-        return pe.id;
+        return pe.asDomain();
     }
 
     public Pelicula porId(Long id) {
@@ -238,11 +238,15 @@ public class PeliculaRepository {
     }
 
     @Transactional
-    public void eliminar(Long id) {
+    public Pelicula eliminar(Long id) {
         PeliculaEntity pe = em.find(PeliculaEntity.class, id);
-        if (pe != null) {
-            em.remove(pe);
+        if (pe == null) {
+            return null;
         }
+
+        pe.activa = false;
+        pe.version = pe.version + 1;
+        return pe.asDomain();
     }
 
     public List<Pelicula> listarTodos() {
@@ -252,10 +256,10 @@ public class PeliculaRepository {
     }
 
     @Transactional
-    public void actualizar(Long id, Pelicula p) {
+    public Pelicula actualizar(Long id, Pelicula p) {
         PeliculaEntity pe = em.find(PeliculaEntity.class, id);
         if (pe == null) {
-            return;
+            return null;
         }
 
         var directores = new ArrayList<DirectorEntity>();
@@ -309,6 +313,9 @@ public class PeliculaRepository {
         pe.rating = p.rating();
         pe.ratingPromedio = p.ratingPromedio();
         pe.totalRatings = p.totalRatings();
+        pe.version = pe.version + 1;
+
+        return pe.asDomain();
     }
 
 }

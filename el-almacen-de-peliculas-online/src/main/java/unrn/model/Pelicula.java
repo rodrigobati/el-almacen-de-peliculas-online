@@ -13,6 +13,8 @@ public class Pelicula {
     static final String ERROR_FECHA = "La fecha de salida no puede ser nula";
     static final String ERROR_CONDICION = "La condición debe ser 'nuevo' o 'usado'";
     static final String ERROR_ID = "El id no puede ser nulo";
+    static final String ERROR_VERSION_INVALIDA = "La versión debe ser mayor a cero";
+    static final String ERROR_PELICULA_INACTIVA = "La película ya está inactiva";
 
     private Long id;
     private String titulo;
@@ -28,10 +30,19 @@ public class Pelicula {
     private int rating; // Nuevo campo rating con valor por defecto 0
     private Double ratingPromedio; // Promedio de ratings de la comunidad
     private Integer totalRatings; // Cantidad total de ratings recibidos
+    private boolean activa;
+    private long version;
 
     // El método que devolvía el DTO se eliminó para mantener el modelo desacoplado
     public Pelicula(String titulo, Condicion condicion, List<Director> directores, double precio, Formato formato,
             Genero genero, String sinopsis, List<Actor> actores, String imagenUrl, LocalDate fechaSalida, int rating) {
+        this(titulo, condicion, directores, precio, formato, genero, sinopsis, actores, imagenUrl, fechaSalida, rating,
+                true, 1L);
+    }
+
+    private Pelicula(String titulo, Condicion condicion, List<Director> directores, double precio, Formato formato,
+            Genero genero, String sinopsis, List<Actor> actores, String imagenUrl, LocalDate fechaSalida, int rating,
+            boolean activa, long version) {
         assertTitulo(titulo);
         assertCondicion(condicion);
         assertDirectores(directores);
@@ -40,6 +51,7 @@ public class Pelicula {
         assertGenero(genero);
         assertActores(actores);
         assertFecha(fechaSalida);
+        assertVersion(version);
         this.titulo = titulo;
         this.condicion = condicion;
         this.directores = List.copyOf(directores);
@@ -51,11 +63,21 @@ public class Pelicula {
         this.imagenUrl = imagenUrl;
         this.fechaSalida = fechaSalida;
         this.rating = rating; // Inicialización del nuevo campo rating
+        this.activa = activa;
+        this.version = version;
     }
 
     public Pelicula(Long id, String titulo, Condicion condicion, List<Director> directores, double precio,
             Formato formato,
             Genero genero, String sinopsis, List<Actor> actores, String imagenUrl, LocalDate fechaSalida, int rating) {
+        this(id, titulo, condicion, directores, precio, formato, genero, sinopsis, actores, imagenUrl, fechaSalida,
+                rating, true, 1L);
+    }
+
+    public Pelicula(Long id, String titulo, Condicion condicion, List<Director> directores, double precio,
+            Formato formato,
+            Genero genero, String sinopsis, List<Actor> actores, String imagenUrl, LocalDate fechaSalida, int rating,
+            boolean activa, long version) {
         aasertId(id);
         assertTitulo(titulo);
         assertCondicion(condicion);
@@ -65,6 +87,7 @@ public class Pelicula {
         assertGenero(genero);
         assertActores(actores);
         assertFecha(fechaSalida);
+        assertVersion(version);
         this.id = id;
         this.titulo = titulo;
         this.condicion = condicion;
@@ -77,6 +100,8 @@ public class Pelicula {
         this.imagenUrl = imagenUrl;
         this.fechaSalida = fechaSalida;
         this.rating = rating;
+        this.activa = activa;
+        this.version = version;
     }
 
     private void aasertId(Long id) {
@@ -130,6 +155,12 @@ public class Pelicula {
     private void assertFecha(LocalDate fecha) {
         if (fecha == null) {
             throw new RuntimeException(ERROR_FECHA);
+        }
+    }
+
+    private void assertVersion(long version) {
+        if (version < 0) {
+            throw new RuntimeException(ERROR_VERSION_INVALIDA);
         }
     }
 
@@ -191,6 +222,14 @@ public class Pelicula {
         return totalRatings;
     }
 
+    public boolean activa() {
+        return activa;
+    }
+
+    public long version() {
+        return version;
+    }
+
     public void actualizarDesde(Pelicula nuevaPelicula) {
         if (nuevaPelicula == null)
             throw new RuntimeException("La película no puede ser null");
@@ -217,6 +256,18 @@ public class Pelicula {
         this.imagenUrl = nuevaPelicula.imagenUrl;
         this.fechaSalida = nuevaPelicula.fechaSalida;
         this.rating = nuevaPelicula.rating;
+    }
+
+    public void retirar() {
+        assertActiva();
+        this.activa = false;
+        this.version += 1;
+    }
+
+    private void assertActiva() {
+        if (!this.activa) {
+            throw new RuntimeException(ERROR_PELICULA_INACTIVA);
+        }
     }
 
     public void actualizarRating(int nuevoRating) {

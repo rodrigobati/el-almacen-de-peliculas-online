@@ -3,6 +3,9 @@ package unrn.service;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import unrn.dto.PeliculaRequest;
+import unrn.event.movie.MovieEventEnvelope;
+import unrn.event.movie.MovieEventPayload;
+import unrn.event.movie.MovieEventPublisher;
 import unrn.infra.persistence.ActorRepository;
 import unrn.infra.persistence.DirectorRepository;
 import unrn.infra.persistence.PeliculaRepository;
@@ -20,13 +23,16 @@ public class PeliculaService {
     private final DirectorRepository directorRepository;
     private final ActorRepository actorRepository;
     private final PeliculaRepository peliculaRepository;
+    private final MovieEventPublisher eventPublisher;
 
     public PeliculaService(DirectorRepository directorRepository,
             ActorRepository actorRepository,
-            PeliculaRepository peliculaRepository) {
+            PeliculaRepository peliculaRepository,
+            MovieEventPublisher eventPublisher) {
         this.directorRepository = directorRepository;
         this.actorRepository = actorRepository;
         this.peliculaRepository = peliculaRepository;
+        this.eventPublisher = eventPublisher;
     }
 
     // -------------------------
@@ -50,7 +56,9 @@ public class PeliculaService {
                 request.fechaSalida(),
                 request.rating());
 
-        peliculaRepository.guardar(pelicula);
+        var guardada = peliculaRepository.guardar(pelicula);
+        var payload = payloadDesde(guardada);
+        eventPublisher.publishAfterCommit(MovieEventEnvelope.created(payload));
     }
 
     // -------------------------
@@ -79,7 +87,9 @@ public class PeliculaService {
                 request.fechaSalida(),
                 request.rating());
 
-        peliculaRepository.actualizar(id, peliculaActualizada);
+        var actualizada = peliculaRepository.actualizar(id, peliculaActualizada);
+        var payload = payloadDesde(actualizada);
+        eventPublisher.publishAfterCommit(MovieEventEnvelope.updated(payload));
     }
 
     // -------------------------
@@ -87,7 +97,30 @@ public class PeliculaService {
     // -------------------------
     @Transactional
     public void eliminar(Long id) {
-        peliculaRepository.eliminar(id);
+        var eliminada = peliculaRepository.eliminar(id);
+        if (eliminada == null) {
+            throw new RuntimeException(ERROR_PELICULA_INEXISTENTE);
+        }
+
+        var payload = payloadDesde(eliminada);
+        eventPublisher.publishAfterCommit(MovieEventEnvelope.retired(payload));
+    }
+
+    // -------------------------
+    // LISTAR
+    // -------------------------
+    @Transactional(readOnly = true)
+    public List<Pelicula> listarTodas() {
+        return peliculaRepository.listarTodos();
+    }
+
+    private MovieEventPayload payloadDesde(Pelicula pelicula) {
+        return new MovieEventPayload(
+                pelicula.id(),
+                pelicula.titulo(),
+                pelicula.precio(),
+                pelicula.activa(),
+                pelicula.version());
     }
 
     // -------------------------

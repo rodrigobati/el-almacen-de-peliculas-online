@@ -38,8 +38,8 @@ public class DataLoader implements CommandLineRunner {
                     "https://www.themoviedb.org/t/p/w600_and_h900_bestv2/63N9uy8nd9j7Eog2axPQ8lbr3Wj.jpg",
                     LocalDate.of(1982, 6, 25),
                     5);
-            var id1 = repo.guardar(br);
-            System.out.println("DataLoader: insertada 'Blade Runner' id=" + id1);
+            var guardada1 = repo.guardar(br);
+            System.out.println("DataLoader: insertada 'Blade Runner' id=" + guardada1.id());
 
             var shaw = new Pelicula(
                     "The Shawshank Redemption",
@@ -53,8 +53,8 @@ public class DataLoader implements CommandLineRunner {
                     "https://www.themoviedb.org/t/p/w600_and_h900_bestv2/9cqNxx0GxF0bflZmeSMuL5tnGzr.jpg",
                     LocalDate.of(1994, 9, 23),
                     3);
-            var id2 = repo.guardar(shaw);
-            System.out.println("DataLoader: insertada 'The Shawshank Redemption' id=" + id2);
+            var guardada2 = repo.guardar(shaw);
+            System.out.println("DataLoader: insertada 'The Shawshank Redemption' id=" + guardada2.id());
 
             var godf = new Pelicula(
                     "The Godfather",
@@ -68,8 +68,8 @@ public class DataLoader implements CommandLineRunner {
                     "https://www.themoviedb.org/t/p/w600_and_h900_bestv2/3bhkrj58Vtu7enYsRolD1fZdja1.jpg",
                     LocalDate.of(1972, 3, 24),
                     4);
-            var id3 = repo.guardar(godf);
-            System.out.println("DataLoader: insertada 'The Godfather' id=" + id3);
+            var guardada3 = repo.guardar(godf);
+            System.out.println("DataLoader: insertada 'The Godfather' id=" + guardada3.id());
 
             // Más ejemplos para el front-end
             var matrix = new Pelicula(
@@ -84,8 +84,8 @@ public class DataLoader implements CommandLineRunner {
                     "https://www.themoviedb.org/t/p/w600_and_h900_bestv2/p96dm7sCMn4VYAStA6siNz30G1r.jpg",
                     LocalDate.of(1999, 3, 31),
                     0);
-            var id4 = repo.guardar(matrix);
-            System.out.println("DataLoader: insertada 'The Matrix' id=" + id4);
+            var guardada4 = repo.guardar(matrix);
+            System.out.println("DataLoader: insertada 'The Matrix' id=" + guardada4.id());
 
             var dark = new Pelicula(
                     "Dark Knight",
@@ -99,8 +99,8 @@ public class DataLoader implements CommandLineRunner {
                     "https://www.themoviedb.org/t/p/w600_and_h900_bestv2/qJ2tW6WMUDux911r6m7haRef0WH.jpg",
                     LocalDate.of(2008, 7, 18),
                     2);
-            var id5 = repo.guardar(dark);
-            System.out.println("DataLoader: insertada 'Dark Knight' id=" + id5);
+            var guardada5 = repo.guardar(dark);
+            System.out.println("DataLoader: insertada 'Dark Knight' id=" + guardada5.id());
 
             var fight = new Pelicula(
                     "Fight Club",
@@ -114,8 +114,8 @@ public class DataLoader implements CommandLineRunner {
                     "https://www.themoviedb.org/t/p/w600_and_h900_bestv2/pB8BM7pdSp6B6Ih7QZ4DrQ3PmJK.jpg",
                     LocalDate.of(1999, 10, 15),
                     1);
-            var id6 = repo.guardar(fight);
-            System.out.println("DataLoader: insertada 'Fight Club' id=" + id6);
+            var guardada6 = repo.guardar(fight);
+            System.out.println("DataLoader: insertada 'Fight Club' id=" + guardada6.id());
 
             var inception = new Pelicula(
                     "Inception",
@@ -129,8 +129,8 @@ public class DataLoader implements CommandLineRunner {
                     "https://www.themoviedb.org/t/p/w600_and_h900_bestv2/ljsZTbVsrQSqZgWeep2B1QiDKuh.jpg",
                     LocalDate.of(2010, 7, 16),
                     5);
-            var id7 = repo.guardar(inception);
-            System.out.println("DataLoader: insertada 'Inception' id=" + id7);
+            var guardada7 = repo.guardar(inception);
+            System.out.println("DataLoader: insertada 'Inception' id=" + guardada7.id());
 
         } catch (RuntimeException ex) {
             System.out.println("DataLoader: error al insertar datos de ejemplo: " + ex.getMessage());

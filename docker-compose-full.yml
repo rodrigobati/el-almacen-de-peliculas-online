@@ -6,8 +6,29 @@ volumes:
   catalogo-mysql-data:
   rating-mysql-data:
   rabbitmq-data:
+  postgres-keycloak-data:
 
 services:
+  # Base de datos PostgreSQL para Keycloak
+  keycloak-postgres:
+    image: postgres:16.3
+    container_name: keycloak-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: keycloak
+      POSTGRES_USER: keycloak
+      POSTGRES_PASSWORD: keycloak
+    volumes:
+      - postgres-keycloak-data:/var/lib/postgresql/data
+    networks:
+      - peliculas-net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U keycloak"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
   # Base de datos MySQL para Catálogo
   catalogo-mysql:
     image: mysql:8.4
@@ -110,13 +131,16 @@ services:
       - ./realm-export.json:/opt/keycloak/data/import/realm-export.json:ro
     networks:
       - peliculas-net
+    depends_on:
+      keycloak-postgres:
+        condition: service_healthy
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/health/ready"]
+      test:
+        ["CMD-SHELL", "timeout 2 bash -c '</dev/tcp/127.0.0.1/8080' || exit 1"]
       interval: 10s
-      timeout: 5s
-      retries: 10
-      start_period: 60s
-
+      timeout: 3s
+      retries: 20
+      start_period: 40s
   # Servicio de Catálogo de Películas
   catalogo-backend:
     build:
@@ -137,7 +161,7 @@ services:
     networks:
       - peliculas-net
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
+      test: ["CMD", "curl", "-f", "http://localhost:8080/categorias"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -157,13 +181,14 @@ services:
       shared-rabbitmq:
         condition: service_healthy
     ports:
-      - "8082:8080"
+      - "8082:8082"
     environment:
       SPRING_PROFILES_ACTIVE: docker
     networks:
       - peliculas-net
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
+      test:
+        ["CMD", "curl", "-f", "http://localhost:8082/api/ratings/pelicula/1"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -188,17 +213,6 @@ services:
       - "9500:9500"
     environment:
       SPRING_PROFILES_ACTIVE: docker
-      SPRING_CLOUD_GATEWAY_ROUTES_0_ID: catalogo
-      SPRING_CLOUD_GATEWAY_ROUTES_0_URI: http://catalogo-backend:8080
-      SPRING_CLOUD_GATEWAY_ROUTES_0_PREDICATES_0: Path=/api/peliculas/**
-      SPRING_CLOUD_GATEWAY_ROUTES_0_FILTERS_0: StripPrefix=1
-      SPRING_CLOUD_GATEWAY_ROUTES_1_ID: rating
-      SPRING_CLOUD_GATEWAY_ROUTES_1_URI: http://rating-service:8080
-      SPRING_CLOUD_GATEWAY_ROUTES_1_PREDICATES_0: Path=/api/ratings/**
-      SPRING_CLOUD_GATEWAY_ROUTES_1_FILTERS_0: StripPrefix=1
-      SPRING_CLOUD_GATEWAY_ROUTES_2_ID: keycloak
-      SPRING_CLOUD_GATEWAY_ROUTES_2_URI: http://keycloak:8080
-      SPRING_CLOUD_GATEWAY_ROUTES_2_PREDICATES_0: Path=/auth/**,/realms/**
     networks:
       - peliculas-net
     healthcheck:
@@ -207,3 +221,53 @@ services:
       timeout: 5s
       retries: 5
       start_period: 30s
+
+  # Servicio de Ventas
+  ventas-service:
+    build:
+      context: ../el-almacen-de-peliculas-online-ventas
+      dockerfile: Dockerfile
+    image: el-almacen-de-peliculas-online-ventas:latest
+    container_name: ventas-service
+    restart: unless-stopped
+    depends_on:
+      shared-rabbitmq:
+        condition: service_healthy
+      keycloak:
+        condition: service_started
+    ports:
+      - "8083:8083"
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      SERVER_PORT: 8083
+    networks:
+      - peliculas-net
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8083/carrito"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 40s
+
+  # Frontend (React + Vite)
+  peliculas-frontend:
+    build:
+      context: ../el-almacen-de-peliculas-online-front-end
+      dockerfile: Dockerfile
+    image: peliculas-frontend:latest
+    container_name: peliculas-frontend
+    restart: unless-stopped
+    depends_on:
+      api-gateway:
+        condition: service_healthy
+    ports:
+      - "5173:80"
+    networks:
+      - peliculas-net
+    healthcheck:
+      test:
+        ["CMD-SHELL", "timeout 2 bash -c '</dev/tcp/127.0.0.1/80' || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 10s

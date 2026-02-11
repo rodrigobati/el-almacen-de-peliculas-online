@@ -1,0 +1,47 @@
+# Java / build artifacts
+/target/
+/build/
+*.class
+*.jar
+*.war
+*.ear
+
+# Logs
+*.log
+/logs/
+
+# IntelliJ IDEA
+.idea/
+*.iml
+*.ipr
+*.iws
+
+# Eclipse
+.project
+.classpath
+.settings/
+
+# VS Code
+.vscode/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Secrets / certs
+*.pem
+*.key
+*.crt
+*.p12
+/secrets/
+
+# Maven wrapper
+!.mvn/wrapper/maven-wrapper.jar
+
+# Maven shaded
+dependency-reduced-pom.xml
+
+# Local overrides
+docker-compose.override.yml
+*.local.ps1
+*.local.sh
