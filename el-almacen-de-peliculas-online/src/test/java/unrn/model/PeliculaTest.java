@@ -86,4 +86,56 @@ class PeliculaTest {
         var ex = assertThrows(RuntimeException.class, () -> new Condicion("reparado"));
         assertEquals(Condicion.ERROR_CONDICION, ex.getMessage());
     }
+
+    @Test
+    @DisplayName("Permite version cero para pelicula persistida")
+    void constructor_versionCero_permiteInstanciacion() {
+        // Setup: parámetros válidos con version cero
+        var pelicula = new Pelicula(
+                1L,
+                "Titulo",
+                new Condicion("nuevo"),
+                List.of(new Director("Director")),
+                100.0,
+                new Formato("DVD"),
+                new Genero("Acción"),
+                "Sinopsis",
+                List.of(new Actor("Actor")),
+                "url",
+                LocalDate.now(),
+                4,
+                true,
+                0L);
+
+        // Ejercitación: consultar version
+        var version = pelicula.version();
+
+        // Verificación: se acepta version cero
+        assertEquals(0L, version, "La versión debe permitir el valor cero");
+    }
+
+    @Test
+    @DisplayName("No permite version negativa en pelicula persistida")
+    void constructor_versionNegativa_lanzaExcepcion() {
+        // Setup: parámetros válidos excepto version negativa
+        var ex = assertThrows(RuntimeException.class, () -> new Pelicula(
+                1L,
+                "Titulo",
+                new Condicion("nuevo"),
+                List.of(new Director("Director")),
+                100.0,
+                new Formato("DVD"),
+                new Genero("Acción"),
+                "Sinopsis",
+                List.of(new Actor("Actor")),
+                "url",
+                LocalDate.now(),
+                4,
+                true,
+                -1L));
+
+        // Verificación: mensaje de error consistente
+        assertEquals(Pelicula.ERROR_VERSION_INVALIDA, ex.getMessage(),
+                "El mensaje de error debe indicar version invalida");
+    }
 }

@@ -3,8 +3,11 @@ package unrn.api;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import unrn.dto.DetallePeliculaDTO;
 import unrn.dto.PeliculaRequest;
 import unrn.service.PeliculaService;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/admin/peliculas")
@@ -14,6 +17,16 @@ public class PeliculaAdminController {
 
     public PeliculaAdminController(PeliculaService peliculaService) {
         this.peliculaService = peliculaService;
+    }
+
+    // LISTAR
+    @GetMapping
+    public ResponseEntity<List<DetallePeliculaDTO>> listar() {
+        var items = peliculaService.listarTodas()
+                .stream()
+                .map(DetallePeliculaDTO::from)
+                .toList();
+        return ResponseEntity.ok(items);
     }
 
     // CREAR

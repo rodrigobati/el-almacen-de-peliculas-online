@@ -22,10 +22,11 @@ class PeliculaRepositoryIntegrationTest {
     @DisplayName("guardar y recuperar pelicula desde H2 via Spring Data JPA")
     void guardar_recuperar_pelicula() {
         var p = samplePelicula();
-        Long id = repo.guardar(p);
-        assertNotNull(id, "El id devuelto no debe ser nulo");
+        var guardada = repo.guardar(p);
+        assertNotNull(guardada, "La película guardada no debe ser nula");
+        assertNotNull(guardada.id(), "El id devuelto no debe ser nulo");
 
-        var found = repo.porId(id);
+        var found = repo.porId(guardada.id());
         assertNotNull(found, "La pelicula persistida debe recuperarse");
         assertEquals(p.titulo(), found.titulo(), "El titulo debe coincidir");
         assertEquals(p.precio(), found.precio(), "El precio debe coincidir");
