@@ -1,6 +1,7 @@
 package unrn.api;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -8,6 +9,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import unrn.dto.DetallePeliculaDTO;
 import unrn.infra.persistence.PeliculaRepository;
+import unrn.service.PeliculaService;
 import unrn.model.Pelicula;
 
 import java.math.BigDecimal;
@@ -19,9 +21,11 @@ import java.util.List;
 public class PeliculaController {
 
     private final PeliculaRepository repo;
+    private final PeliculaService service;
 
-    public PeliculaController(PeliculaRepository repo) {
+    public PeliculaController(PeliculaRepository repo, PeliculaService service) {
         this.repo = repo;
+        this.service = service;
     }
 
     // GET /api/peliculas/{id} -> detalle para la vista de React
@@ -51,48 +55,33 @@ public class PeliculaController {
             @RequestParam(defaultValue = "12") int size,
             @RequestParam(defaultValue = "titulo") String sort,
             @RequestParam(defaultValue = "true") boolean asc) {
-        // Si hay filtros específicos de actor/director, usar named queries
-        if (actor != null && !actor.isBlank()) {
-            var list = repo.buscarPorActor(actor);
-            return ResponseEntity.ok(paginar(list, page, size));
-        }
-        if (director != null && !director.isBlank()) {
-            var list = repo.buscarPorDirector(director);
-            return ResponseEntity.ok(paginar(list, page, size));
-        }
-        if (genero != null && !genero.isBlank() && (q == null || q.isBlank())) {
-            var list = repo.buscarPorGenero(genero);
-            return ResponseEntity.ok(paginar(list, page, size));
-        }
-        if (q != null && !q.isBlank() && genero == null && actor == null && director == null) {
-            var list = repo.buscarPorTitulo(q);
-            return ResponseEntity.ok(paginar(list, page, size));
-        }
-
-        // Rango de fechas y precios
         LocalDate d = (desde == null || desde.isBlank()) ? null : LocalDate.parse(desde);
         LocalDate h = (hasta == null || hasta.isBlank()) ? null : LocalDate.parse(hasta);
 
-        var filtradas = repo.buscarDinamico(q, genero, formato, condicion, d, h, minPrecio, maxPrecio);
-        // Ordenamiento básico por título (ya está en Criteria por defecto)
-        // Para ordenar por otros campos habría que ampliar Criteria
+        Page<Pelicula> pageResult = service.buscarPaginado(
+                q,
+                genero,
+                formato,
+                condicion,
+                actor,
+                director,
+                minPrecio,
+                maxPrecio,
+                d,
+                h,
+                page,
+                size,
+                sort,
+                asc);
 
-        // Paginado manual
-        int total = filtradas.size();
-        int from = Math.max(0, page * size);
-        int to = Math.min(total, from + size);
-        var pageItems = (from < to) ? filtradas.subList(from, to) : List.<Pelicula>of();
+        var dtoItems = pageResult.getContent().stream().map(DetallePeliculaDTO::from).toList();
+        var response = new PageResponse<>(
+                dtoItems,
+                pageResult.getTotalElements(),
+                pageResult.getTotalPages(),
+                pageResult.getNumber(),
+                pageResult.getSize());
 
-        var dtoItems = pageItems.stream().map(DetallePeliculaDTO::from).toList();
-        return ResponseEntity.ok(new PageResponse<>(dtoItems, total, page, size));
-    }
-
-    private PageResponse<DetallePeliculaDTO> paginar(List<Pelicula> source, int page, int size) {
-        int total = source.size();
-        int from = Math.max(0, page * size);
-        int to = Math.min(total, from + size);
-        var pageItems = (from < to) ? source.subList(from, to) : List.<Pelicula>of();
-        var dtoItems = pageItems.stream().map(DetallePeliculaDTO::from).toList();
-        return new PageResponse<>(dtoItems, total, page, size);
+        return ResponseEntity.ok(response);
     }
 }
