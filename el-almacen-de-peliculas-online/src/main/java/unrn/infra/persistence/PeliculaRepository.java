@@ -209,6 +209,8 @@ public class PeliculaRepository {
             BigDecimal maxPrecio) {
         var preds = new ArrayList<Predicate>();
 
+        preds.add(cb.isTrue(root.get("activa")));
+
         if (titulo != null && !titulo.isBlank()) {
             preds.add(cb.like(cb.lower(root.get("titulo")), "%" + titulo.toLowerCase() + "%"));
         }
@@ -378,7 +380,9 @@ public class PeliculaRepository {
     }
 
     public List<Pelicula> listarTodos() {
-        var list = em.createQuery("SELECT p FROM PeliculaEntity p ORDER BY p.titulo", PeliculaEntity.class)
+        var list = em
+                .createQuery("SELECT p FROM PeliculaEntity p WHERE p.activa = true ORDER BY p.titulo",
+                        PeliculaEntity.class)
                 .getResultList();
         return list.stream().map(PeliculaEntity::asDomain).toList();
     }

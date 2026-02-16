@@ -35,4 +35,42 @@ public class ActorRepository {
         var ae = em.find(ActorEntity.class, id);
         return (ae == null) ? null : ae.asDomain();
     }
+
+    public ActorEntity findEntityById(Long id) {
+        return em.find(ActorEntity.class, id);
+    }
+
+    public boolean existsByNombreIgnoreCase(String nombre) {
+        Long count = em
+                .createQuery(
+                        "SELECT COUNT(a) FROM ActorEntity a WHERE LOWER(a.nombre) = LOWER(:nombre)",
+                        Long.class)
+                .setParameter("nombre", nombre)
+                .getSingleResult();
+        return count != null && count > 0;
+    }
+
+    public List<ActorEntity> buscarPorNombre(String q, Integer page, Integer size) {
+        String normalized = q == null ? "" : q.trim().toLowerCase();
+        String filter = "%" + normalized + "%";
+
+        var query = em.createQuery(
+                "SELECT a FROM ActorEntity a WHERE LOWER(a.nombre) LIKE :q ORDER BY a.nombre ASC",
+                ActorEntity.class)
+                .setParameter("q", filter);
+
+        if (page != null && size != null && size > 0 && page >= 0) {
+            query.setFirstResult(page * size);
+            query.setMaxResults(size);
+        }
+
+        return query.getResultList();
+    }
+
+    @Transactional
+    public ActorEntity guardar(ActorEntity actorEntity) {
+        em.persist(actorEntity);
+        em.flush();
+        return actorEntity;
+    }
 }

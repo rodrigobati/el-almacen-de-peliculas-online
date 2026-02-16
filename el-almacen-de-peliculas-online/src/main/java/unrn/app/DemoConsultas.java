@@ -11,7 +11,21 @@ public class DemoConsultas {
         System.out.println("¿Existe Blade Runner? " + repo.existePorTitulo("Blade Runner"));
         System.out.println("Total DRAMA: " + repo.contarPorGenero("DRAMA"));
 
-        var pagina = repo.buscarPaginado("blade", 0, 10, "titulo", true);
+        var pagina = repo.buscarPaginado(
+                "blade",
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                0,
+                10,
+                "titulo",
+                true);
         System.out.println("Página 0, total=" + pagina.getTotal() + ", items=" + pagina.getItems().size());
 
         var rangoPrecio = repo.buscarPorPrecioEntre(new BigDecimal("0"), new BigDecimal("20000"));
