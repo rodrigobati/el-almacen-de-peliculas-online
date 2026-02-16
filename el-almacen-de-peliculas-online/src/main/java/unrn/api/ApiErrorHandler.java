@@ -4,8 +4,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import unrn.service.ValidationRuntimeException;
 
 import java.time.Instant;
 
@@ -31,6 +33,24 @@ public class ApiErrorHandler {
             org.springframework.web.context.request.WebRequest req) {
         log.info("Not found: {}", ex.getMessage());
         var err = new ApiError(ex.getMessage(), HttpStatus.NOT_FOUND.value(), req.getDescription(false), Instant.now());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(err);
+    }
+
+    @ExceptionHandler(ValidationRuntimeException.class)
+    public ResponseEntity<ApiError> handleValidation(ValidationRuntimeException ex,
+            org.springframework.web.context.request.WebRequest req) {
+        log.warn("Validation error: {}", ex.getMessage());
+        var err = new ApiError(ex.getMessage(), HttpStatus.BAD_REQUEST.value(), req.getDescription(false),
+                Instant.now());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(err);
+    }
+
+    @ExceptionHandler(NoResourceFoundException.class)
+    public ResponseEntity<ApiError> handleNoResource(NoResourceFoundException ex,
+            org.springframework.web.context.request.WebRequest req) {
+        log.info("No resource found: {}", ex.getMessage());
+        var err = new ApiError("Resource not found", HttpStatus.NOT_FOUND.value(), req.getDescription(false),
+                Instant.now());
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(err);
     }
 

@@ -25,4 +25,12 @@ public class DirectorEntity {
         return new Director(this.nombre);
     }
 
+    public Long id() {
+        return this.id;
+    }
+
+    public String nombre() {
+        return this.nombre;
+    }
+
 }

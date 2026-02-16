@@ -1,5 +1,10 @@
 package unrn.service;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import unrn.dto.PeliculaRequest;
@@ -8,9 +13,12 @@ import unrn.event.movie.MovieEventPayload;
 import unrn.event.movie.MovieEventPublisher;
 import unrn.infra.persistence.ActorRepository;
 import unrn.infra.persistence.DirectorRepository;
+import unrn.infra.persistence.PageResult;
 import unrn.infra.persistence.PeliculaRepository;
 import unrn.model.*;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.List;
 
 @Service
@@ -112,6 +120,47 @@ public class PeliculaService {
     @Transactional(readOnly = true)
     public List<Pelicula> listarTodas() {
         return peliculaRepository.listarTodos();
+    }
+
+    @Transactional(readOnly = true)
+    public Page<Pelicula> buscarPaginado(
+            String q,
+            String genero,
+            String formato,
+            String condicion,
+            String actor,
+            String director,
+            BigDecimal minPrecio,
+            BigDecimal maxPrecio,
+            LocalDate desde,
+            LocalDate hasta,
+            int page,
+            int size,
+            String sort,
+            boolean asc) {
+        int safePage = Math.max(0, page);
+        int safeSize = size <= 0 ? 12 : size;
+
+        PageResult<Pelicula> result = peliculaRepository.buscarPaginado(
+                q,
+                genero,
+                formato,
+                condicion,
+                actor,
+                director,
+                desde,
+                hasta,
+                minPrecio,
+                maxPrecio,
+                safePage,
+                safeSize,
+                sort,
+                asc);
+
+        String safeSort = (sort == null || sort.isBlank()) ? "titulo" : sort;
+        Sort sortSpec = Sort.by(asc ? Sort.Direction.ASC : Sort.Direction.DESC, safeSort);
+        Pageable pageable = PageRequest.of(result.getPage(), result.getSize(), sortSpec);
+        return new PageImpl<>(result.getItems(), pageable, result.getTotal());
     }
 
     private MovieEventPayload payloadDesde(Pelicula pelicula) {

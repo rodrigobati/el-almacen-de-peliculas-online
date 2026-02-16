@@ -7,9 +7,18 @@ import org.springframework.transaction.annotation.Transactional;
 import unrn.model.Actor;
 import unrn.model.Director;
 import unrn.model.Pelicula;
+
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.JoinType;
+import jakarta.persistence.criteria.Path;
+import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Root;
 
 @Repository
 @Transactional(readOnly = true)
@@ -110,23 +119,144 @@ public class PeliculaRepository {
         return c > 0;
     }
 
-    public PageResult<Pelicula> buscarPaginado(String q, int page, int size, String sortField, boolean asc) {
+    public PageResult<Pelicula> buscarPaginado(
+            String q,
+            String genero,
+            String formato,
+            String condicion,
+            String actor,
+            String director,
+            LocalDate desde,
+            LocalDate hasta,
+            BigDecimal minPrecio,
+            BigDecimal maxPrecio,
+            int page,
+            int size,
+            String sortField,
+            boolean asc) {
         int offset = page * size;
-        String order = (sortField == null || sortField.isBlank()) ? "titulo" : sortField;
-        String dir = asc ? "ASC" : "DESC";
+        var cb = em.getCriteriaBuilder();
 
-        String base = "FROM PeliculaEntity p WHERE (:q IS NULL OR LOWER(p.titulo) LIKE LOWER(CONCAT('%', :q, '%')))";
-        var total = em.createQuery("SELECT COUNT(p) " + base, Long.class)
-                .setParameter("q", (q == null || q.isBlank()) ? null : q)
-                .getSingleResult();
+        // DATA QUERY
+        CriteriaQuery<PeliculaEntity> dataQuery = cb.createQuery(PeliculaEntity.class);
+        Root<PeliculaEntity> dataRoot = dataQuery.from(PeliculaEntity.class);
+        var dataPredicates = buildPredicates(
+                cb,
+                dataRoot,
+                q,
+                genero,
+                formato,
+                condicion,
+                actor,
+                director,
+                desde,
+                hasta,
+                minPrecio,
+                maxPrecio);
 
-        var query = em.createQuery("SELECT p " + base + " ORDER BY p." + order + " " + dir, PeliculaEntity.class)
-                .setParameter("q", (q == null || q.isBlank()) ? null : q)
+        dataQuery.select(dataRoot).distinct(true);
+        if (!dataPredicates.isEmpty()) {
+            dataQuery.where(dataPredicates.toArray(new Predicate[0]));
+        }
+
+        Path<?> orderPath = resolveSortPath(dataRoot, sortField);
+        dataQuery.orderBy(asc ? cb.asc(orderPath) : cb.desc(orderPath));
+
+        var paged = em.createQuery(dataQuery)
                 .setFirstResult(offset)
-                .setMaxResults(size);
+                .setMaxResults(size)
+                .getResultList();
 
-        var items = query.getResultList().stream().map(PeliculaEntity::asDomain).toList();
+        // COUNT QUERY
+        CriteriaQuery<Long> countQuery = cb.createQuery(Long.class);
+        Root<PeliculaEntity> countRoot = countQuery.from(PeliculaEntity.class);
+        var countPredicates = buildPredicates(
+                cb,
+                countRoot,
+                q,
+                genero,
+                formato,
+                condicion,
+                actor,
+                director,
+                desde,
+                hasta,
+                minPrecio,
+                maxPrecio);
+        countQuery.select(cb.countDistinct(countRoot));
+        if (!countPredicates.isEmpty()) {
+            countQuery.where(countPredicates.toArray(new Predicate[0]));
+        }
+
+        long total = em.createQuery(countQuery).getSingleResult();
+
+        var items = paged.stream().map(PeliculaEntity::asDomain).toList();
         return new PageResult<>(items, total, page, size);
+    }
+
+    private List<Predicate> buildPredicates(
+            CriteriaBuilder cb,
+            Root<PeliculaEntity> root,
+            String titulo,
+            String genero,
+            String formato,
+            String condicion,
+            String actor,
+            String director,
+            LocalDate desde,
+            LocalDate hasta,
+            BigDecimal minPrecio,
+            BigDecimal maxPrecio) {
+        var preds = new ArrayList<Predicate>();
+
+        preds.add(cb.isTrue(root.get("activa")));
+
+        if (titulo != null && !titulo.isBlank()) {
+            preds.add(cb.like(cb.lower(root.get("titulo")), "%" + titulo.toLowerCase() + "%"));
+        }
+        if (genero != null && !genero.isBlank()) {
+            preds.add(cb.equal(cb.lower(root.get("genero").get("nombre")), genero.toLowerCase()));
+        }
+        if (formato != null && !formato.isBlank()) {
+            preds.add(cb.equal(cb.lower(root.get("formato").get("nombre")), formato.toLowerCase()));
+        }
+        if (condicion != null && !condicion.isBlank()) {
+            preds.add(cb.equal(cb.lower(root.get("condicion").get("nombre")), condicion.toLowerCase()));
+        }
+        if (actor != null && !actor.isBlank()) {
+            var actorJoin = root.join("actores", JoinType.LEFT);
+            preds.add(cb.like(cb.lower(actorJoin.get("nombre")), "%" + actor.toLowerCase() + "%"));
+        }
+        if (director != null && !director.isBlank()) {
+            var directorJoin = root.join("directores", JoinType.LEFT);
+            preds.add(cb.like(cb.lower(directorJoin.get("nombre")), "%" + director.toLowerCase() + "%"));
+        }
+        if (desde != null) {
+            preds.add(cb.greaterThanOrEqualTo(root.get("fechaSalida"), desde));
+        }
+        if (hasta != null) {
+            preds.add(cb.lessThanOrEqualTo(root.get("fechaSalida"), hasta));
+        }
+        if (minPrecio != null) {
+            preds.add(cb.ge(root.get("precio"), minPrecio));
+        }
+        if (maxPrecio != null) {
+            preds.add(cb.le(root.get("precio"), maxPrecio));
+        }
+
+        return preds;
+    }
+
+    private Path<?> resolveSortPath(Root<PeliculaEntity> root, String sortField) {
+        String normalized = (sortField == null || sortField.isBlank()) ? "titulo" : sortField;
+        return switch (normalized) {
+            case "precio" -> root.get("precio");
+            case "fechaSalida" -> root.get("fechaSalida");
+            case "genero" -> root.get("genero").get("nombre");
+            case "formato" -> root.get("formato").get("nombre");
+            case "condicion" -> root.get("condicion").get("nombre");
+            default -> root.get("titulo");
+        };
     }
 
     public java.util.List<Pelicula> buscarPorPrecioEntre(java.math.BigDecimal min, java.math.BigDecimal max) {
@@ -250,7 +380,9 @@ public class PeliculaRepository {
     }
 
     public List<Pelicula> listarTodos() {
-        var list = em.createQuery("SELECT p FROM PeliculaEntity p ORDER BY p.titulo", PeliculaEntity.class)
+        var list = em
+                .createQuery("SELECT p FROM PeliculaEntity p WHERE p.activa = true ORDER BY p.titulo",
+                        PeliculaEntity.class)
                 .getResultList();
         return list.stream().map(PeliculaEntity::asDomain).toList();
     }

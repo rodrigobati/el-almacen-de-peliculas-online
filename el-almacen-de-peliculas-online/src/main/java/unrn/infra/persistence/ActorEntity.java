@@ -25,5 +25,13 @@ public class ActorEntity {
         return new Actor(this.nombre);
     }
 
+    public Long id() {
+        return this.id;
+    }
+
+    public String nombre() {
+        return this.nombre;
+    }
+
     // Sin getters/setters. Se accede por campo (JPA) y desde el mismo paquete.
 }
