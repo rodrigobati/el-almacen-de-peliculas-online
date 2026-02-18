@@ -1,6 +1,11 @@
 package unrn.config;
 
-import org.springframework.amqp.core.*;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import org.springframework.amqp.core.Binding;
+import org.springframework.amqp.core.BindingBuilder;
+import org.springframework.amqp.core.Queue;
+import org.springframework.amqp.core.TopicExchange;
 import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
 import org.springframework.amqp.support.converter.MessageConverter;
 import org.springframework.beans.factory.annotation.Value;
@@ -9,6 +14,11 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class RabbitMQConfig {
+
+    static final String VENTAS_EVENTS_EXCHANGE = "ventas.events";
+    static final String CATALOGO_EVENTS_EXCHANGE = "catalogo.events";
+    static final String CATALOGO_COMPRA_CONFIRMADA_QUEUE = "catalogo.q.ventas-compra-confirmada";
+    static final String VENTAS_COMPRA_CONFIRMADA_ROUTING_KEY = "ventas.compra.confirmada";
 
     // Event
     @Value("${rabbitmq.event.exchange.name}")
@@ -21,37 +31,32 @@ public class RabbitMQConfig {
 
     @Bean
     public MessageConverter jsonMessageConverter() {
-        return new Jackson2JsonMessageConverter();
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.findAndRegisterModules();
+        objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+        return new Jackson2JsonMessageConverter(objectMapper);
     }
 
-    // KeyCloak
-    @Value("${rabbitmq.queue.name}")
-    private String queue;
-
-    @Value("${rabbitmq.exchange.name}")
-    private String exchange;
-
-    @Value("${rabbitmq.routing.key}")
-    private String routingKey;
-
-    // spring bean for rabbitmq queue
     @Bean
-    public Queue queue(){
-        return new Queue(queue, true);
+    public TopicExchange ventasEventsExchange() {
+        return new TopicExchange(VENTAS_EVENTS_EXCHANGE, true, false);
     }
 
-    // spring bean for rabbitmq exchange
     @Bean
-    public TopicExchange exchange(){
-        return new TopicExchange(exchange);
+    public TopicExchange catalogoEventsExchange() {
+        return new TopicExchange(CATALOGO_EVENTS_EXCHANGE, true, false);
     }
 
-    // binding between queue and exchange using routing key
     @Bean
-    public Binding binding(){
+    public Queue catalogoCompraConfirmadaQueue() {
+        return new Queue(CATALOGO_COMPRA_CONFIRMADA_QUEUE, true);
+    }
+
+    @Bean
+    public Binding catalogoCompraConfirmadaBinding() {
         return BindingBuilder
-                .bind(queue())
-                .to(exchange())
-                .with(routingKey);
+                .bind(catalogoCompraConfirmadaQueue())
+                .to(ventasEventsExchange())
+                .with(VENTAS_COMPRA_CONFIRMADA_ROUTING_KEY);
     }
 }

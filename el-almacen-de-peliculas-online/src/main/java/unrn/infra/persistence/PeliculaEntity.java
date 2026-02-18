@@ -19,6 +19,8 @@ import java.util.List;
 })
 @Access(AccessType.FIELD)
 public class PeliculaEntity {
+
+    static final String ERROR_STOCK_NEGATIVO = "El stock no puede quedar en negativo";
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
@@ -70,6 +72,9 @@ public class PeliculaEntity {
     @Column(name = "activa", nullable = false)
     boolean activa;
 
+    @Column(name = "stock_disponible", nullable = false, precision = 12, scale = 2)
+    BigDecimal stockDisponible;
+
     @Version
     @Column(name = "version", nullable = false)
     long version;
@@ -97,6 +102,7 @@ public class PeliculaEntity {
         this.ratingPromedio = null;
         this.totalRatings = null;
         this.activa = true;
+        this.stockDisponible = new BigDecimal("100.00");
     }
 
     public unrn.model.Pelicula asDomain() {
@@ -118,9 +124,9 @@ public class PeliculaEntity {
                 a,
                 this.imagenUrl,
                 this.fechaSalida,
-            this.rating,
-            this.activa,
-            this.version);
+                this.rating,
+                this.activa,
+                this.version);
 
         // Si hay datos de rating comunitario, actualizarlos
         if (this.ratingPromedio != null && this.totalRatings != null) {
@@ -128,5 +134,25 @@ public class PeliculaEntity {
         }
 
         return pelicula;
+    }
+
+    public Long id() {
+        return id;
+    }
+
+    public BigDecimal stockDisponible() {
+        return stockDisponible;
+    }
+
+    public boolean estaActiva() {
+        return activa;
+    }
+
+    public void descontarStock(BigDecimal cantidad) {
+        BigDecimal nuevoStock = stockDisponible.subtract(cantidad);
+        if (nuevoStock.compareTo(BigDecimal.ZERO) < 0) {
+            throw new RuntimeException(ERROR_STOCK_NEGATIVO);
+        }
+        this.stockDisponible = nuevoStock;
     }
 }
