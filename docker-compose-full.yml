@@ -7,6 +7,7 @@ volumes:
   rating-mysql-data:
   rabbitmq-data:
   postgres-keycloak-data:
+  descuentos-mysql-data:
 
 services:
   # Base de datos PostgreSQL para Keycloak
@@ -337,3 +338,75 @@ services:
       timeout: 5s
       retries: 3
       start_period: 10s
+
+  # Servicio de Descuentos
+  descuentos-service:
+    build:
+      context: ../el-almacen-de-peliculas-online-descuentos
+      dockerfile: Dockerfile
+    image: el-almacen-de-peliculas-online-descuentos:latest
+    container_name: descuentos-service
+    restart: unless-stopped
+    depends_on:
+      descuentos-mysql:
+        condition: service_healthy
+      shared-rabbitmq:
+        condition: service_healthy
+      keycloak:
+        condition: service_healthy
+    ports:
+      - "8085:8085"
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      SERVER_PORT: 8085
+      SPRING_DATASOURCE_URL: jdbc:mysql://descuentos-mysql:3306/almacen_peliculas_descuentos
+      SPRING_DATASOURCE_USERNAME: descuentos_user
+      SPRING_DATASOURCE_PASSWORD: secret
+      SPRING_RABBITMQ_HOST: shared-rabbitmq
+      SPRING_RABBITMQ_PORT: 5672
+      SPRING_RABBITMQ_USERNAME: guest
+      SPRING_RABBITMQ_PASSWORD: guest
+    networks:
+      - peliculas-net
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "curl -fsS http://localhost:8085/actuator/health > /dev/null || exit 1",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 40s
+
+  # Base de datos MySQL para Descuentos
+  descuentos-mysql:
+    image: mysql:8.0
+    container_name: descuentos-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: almacen_peliculas_descuentos
+      MYSQL_USER: descuentos_user
+      MYSQL_PASSWORD: secret
+      MYSQL_ROOT_PASSWORD: root
+    ports:
+      - "3309:3306"
+    volumes:
+      - descuentos-mysql-data:/var/lib/mysql
+    networks:
+      - peliculas-net
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "mysqladmin",
+          "ping",
+          "-h",
+          "localhost",
+          "-udescuentos_user",
+          "-psecret",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
