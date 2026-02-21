@@ -209,11 +209,7 @@ services:
     networks:
       - peliculas-net
     healthcheck:
-      test:
-        [
-          "CMD-SHELL",
-          "curl -fsS http://localhost:8082/actuator/health > /dev/null || curl -fsS http://localhost:8082/api/ratings/pelicula/1 > /dev/null",
-        ]
+      test: ["CMD-SHELL", "bash -c '</dev/tcp/127.0.0.1/8082'"]
       interval: 10s
       timeout: 5s
       retries: 5

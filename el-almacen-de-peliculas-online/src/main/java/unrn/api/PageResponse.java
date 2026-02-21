@@ -6,7 +6,7 @@ public record PageResponse<T>(List<T> items, long total, int totalPages, int pag
     public static <T> PageResponse<T> of(List<T> items, long total, int page, int size) {
         int safeSize = size <= 0 ? 1 : size;
         int safePage = Math.max(0, page);
-        int computedTotalPages = (int) Math.ceil((double) total / safeSize);
+        int computedTotalPages = total == 0 ? 0 : (int) Math.ceil((double) total / safeSize);
         return new PageResponse<>(items, total, computedTotalPages, safePage, safeSize);
     }
 }

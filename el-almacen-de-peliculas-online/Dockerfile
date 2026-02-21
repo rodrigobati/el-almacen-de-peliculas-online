@@ -5,13 +5,13 @@ WORKDIR /app
 
 # Copiamos pom y resolvemos dependencias (cachea bien)
 COPY pom.xml .
-RUN mvn -B dependency:go-offline
 
 # Copiamos el código
 COPY src ./src
 
-# Compilamos y empaquetamos (sin tests para acelerar)
-RUN mvn -B -DskipTests clean package
+# Compilamos y empaquetamos (sin ejecutar ni compilar tests)
+# Use -Dmaven.test.skip=true to avoid test compilation and test-scoped resolution
+RUN mvn -B -Dmaven.test.skip=true clean package
 
 # ====== Etapa 2: imagen liviana para correr la app ======
 FROM eclipse-temurin:23-jre

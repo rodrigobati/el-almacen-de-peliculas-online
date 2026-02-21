@@ -7,6 +7,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import unrn.dto.DetallePeliculaDTO;
 import unrn.dto.PeliculaRequest;
 import unrn.event.movie.MovieEventEnvelope;
 import unrn.event.movie.MovieEventPayload;
@@ -20,6 +21,8 @@ import unrn.model.*;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 @Service
 public class PeliculaService {
@@ -27,6 +30,12 @@ public class PeliculaService {
     static final String ERROR_DIRECTOR_INEXISTENTE = "Algún director no existe";
     static final String ERROR_ACTOR_INEXISTENTE = "Algún actor no existe";
     static final String ERROR_PELICULA_INEXISTENTE = "La película no existe";
+    static final int MAX_SIZE = 100;
+    static final Set<String> SORT_ALLOWLIST = Set.of("titulo", "precio", "fechaSalida", "genero", "formato",
+            "condicion");
+    static final String ERROR_PAGE_INVALIDA = "El parámetro 'page' debe ser mayor o igual a 0";
+    static final String ERROR_SIZE_INVALIDA = "El parámetro 'size' debe estar entre 1 y " + MAX_SIZE;
+    static final String ERROR_SORT_INVALIDO = "El parámetro 'sort' no es válido";
 
     private final DirectorRepository directorRepository;
     private final ActorRepository actorRepository;
@@ -138,8 +147,8 @@ public class PeliculaService {
             int size,
             String sort,
             boolean asc) {
-        int safePage = Math.max(0, page);
-        int safeSize = size <= 0 ? 12 : size;
+        String safeSort = (sort == null) ? "titulo" : sort.trim();
+        assertParametrosPaginacionYOrdenValidos(page, size, safeSort);
 
         PageResult<Pelicula> result = peliculaRepository.buscarPaginado(
                 q,
@@ -152,15 +161,34 @@ public class PeliculaService {
                 hasta,
                 minPrecio,
                 maxPrecio,
-                safePage,
-                safeSize,
-                sort,
+                page,
+                size,
+                safeSort,
                 asc);
 
-        String safeSort = (sort == null || sort.isBlank()) ? "titulo" : sort;
         Sort sortSpec = Sort.by(asc ? Sort.Direction.ASC : Sort.Direction.DESC, safeSort);
         Pageable pageable = PageRequest.of(result.getPage(), result.getSize(), sortSpec);
         return new PageImpl<>(result.getItems(), pageable, result.getTotal());
+    }
+
+    @Transactional(readOnly = true)
+    public Page<DetallePeliculaDTO> buscarPaginadoDetalle(
+            String q,
+            String genero,
+            String formato,
+            String condicion,
+            String actor,
+            String director,
+            BigDecimal minPrecio,
+            BigDecimal maxPrecio,
+            LocalDate desde,
+            LocalDate hasta,
+            int page,
+            int size,
+            String sort,
+            boolean asc) {
+        return buscarPaginado(q, genero, formato, condicion, actor, director, minPrecio, maxPrecio, desde, hasta,
+                page, size, sort, asc).map(DetallePeliculaDTO::from);
     }
 
     private MovieEventPayload payloadDesde(Pelicula pelicula) {
@@ -170,6 +198,27 @@ public class PeliculaService {
                 pelicula.precio(),
                 pelicula.activa(),
                 pelicula.version());
+    }
+
+    private void assertParametrosPaginacionYOrdenValidos(int page, int size, String sort) {
+        if (page < 0) {
+            throw new CatalogoQueryValidationException(
+                    "INVALID_PAGE",
+                    ERROR_PAGE_INVALIDA,
+                    Map.of("field", "page", "value", page, "rule", ">= 0"));
+        }
+        if (size < 1 || size > MAX_SIZE) {
+            throw new CatalogoQueryValidationException(
+                    "INVALID_SIZE",
+                    ERROR_SIZE_INVALIDA,
+                    Map.of("field", "size", "value", size, "rule", "1.." + MAX_SIZE));
+        }
+        if (!SORT_ALLOWLIST.contains(sort)) {
+            throw new CatalogoQueryValidationException(
+                    "INVALID_SORT",
+                    ERROR_SORT_INVALIDO,
+                    Map.of("field", "sort", "value", sort, "allowed", SORT_ALLOWLIST));
+        }
     }
 
     // -------------------------

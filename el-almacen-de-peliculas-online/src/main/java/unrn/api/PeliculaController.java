@@ -1,7 +1,6 @@
 package unrn.api;
 
 import org.springframework.http.ResponseEntity;
-import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -14,7 +13,6 @@ import unrn.model.Pelicula;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.List;
 
 @RestController
 @RequestMapping("/peliculas")
@@ -41,24 +39,24 @@ public class PeliculaController {
     // /api/peliculas?q=blade&genero=DRAMA&actor=Ford&director=Scott&minPrecio=0&maxPrecio=10000&desde=1980-01-01&hasta=1990-12-31&page=0&size=12&sort=titulo&asc=true
     @GetMapping
     public ResponseEntity<PageResponse<DetallePeliculaDTO>> buscar(
-            @RequestParam(required = false) String q,
-            @RequestParam(required = false) String genero,
-            @RequestParam(required = false) String formato,
-            @RequestParam(required = false) String condicion,
-            @RequestParam(required = false) String actor,
-            @RequestParam(required = false) String director,
-            @RequestParam(required = false) BigDecimal minPrecio,
-            @RequestParam(required = false) BigDecimal maxPrecio,
-            @RequestParam(required = false) String desde,
-            @RequestParam(required = false) String hasta,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "12") int size,
-            @RequestParam(defaultValue = "titulo") String sort,
-            @RequestParam(defaultValue = "true") boolean asc) {
+            @RequestParam(name = "q", required = false) String q,
+            @RequestParam(name = "genero", required = false) String genero,
+            @RequestParam(name = "formato", required = false) String formato,
+            @RequestParam(name = "condicion", required = false) String condicion,
+            @RequestParam(name = "actor", required = false) String actor,
+            @RequestParam(name = "director", required = false) String director,
+            @RequestParam(name = "minPrecio", required = false) BigDecimal minPrecio,
+            @RequestParam(name = "maxPrecio", required = false) BigDecimal maxPrecio,
+            @RequestParam(name = "desde", required = false) String desde,
+            @RequestParam(name = "hasta", required = false) String hasta,
+            @RequestParam(name = "page", defaultValue = "0") int page,
+            @RequestParam(name = "size", defaultValue = "12") int size,
+            @RequestParam(name = "sort", defaultValue = "titulo") String sort,
+            @RequestParam(name = "asc", defaultValue = "true") boolean asc) {
         LocalDate d = (desde == null || desde.isBlank()) ? null : LocalDate.parse(desde);
         LocalDate h = (hasta == null || hasta.isBlank()) ? null : LocalDate.parse(hasta);
 
-        Page<Pelicula> pageResult = service.buscarPaginado(
+        var pageResult = service.buscarPaginadoDetalle(
                 q,
                 genero,
                 formato,
@@ -74,11 +72,9 @@ public class PeliculaController {
                 sort,
                 asc);
 
-        var dtoItems = pageResult.getContent().stream().map(DetallePeliculaDTO::from).toList();
-        var response = new PageResponse<>(
-                dtoItems,
+        var response = PageResponse.of(
+                pageResult.getContent(),
                 pageResult.getTotalElements(),
-                pageResult.getTotalPages(),
                 pageResult.getNumber(),
                 pageResult.getSize());
 

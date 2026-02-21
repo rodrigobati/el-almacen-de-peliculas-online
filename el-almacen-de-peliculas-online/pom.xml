@@ -101,6 +101,13 @@
       <scope>test</scope>
     </dependency>
 
+    <!-- Security test utilities -->
+    <dependency>
+      <groupId>org.springframework.security</groupId>
+      <artifactId>spring-security-test</artifactId>
+      <scope>test</scope>
+    </dependency>
+
     <!-- Web starter (Spring MVC, Jackson, etc.) -->
     <dependency>
       <groupId>org.springframework.boot</groupId>

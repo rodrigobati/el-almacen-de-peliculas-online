@@ -7,8 +7,6 @@ import unrn.dto.DetallePeliculaDTO;
 import unrn.dto.PeliculaRequest;
 import unrn.service.PeliculaService;
 
-import java.util.List;
-
 @RestController
 @RequestMapping("/api/admin/peliculas")
 public class PeliculaAdminController {
@@ -21,12 +19,48 @@ public class PeliculaAdminController {
 
     // LISTAR
     @GetMapping
-    public ResponseEntity<List<DetallePeliculaDTO>> listar() {
-        var items = peliculaService.listarTodas()
-                .stream()
-                .map(DetallePeliculaDTO::from)
-                .toList();
-        return ResponseEntity.ok(items);
+    public ResponseEntity<PageResponse<DetallePeliculaDTO>> listar(
+            @RequestParam(required = false) String q,
+            @RequestParam(required = false) String genero,
+            @RequestParam(required = false) String formato,
+            @RequestParam(required = false) String condicion,
+            @RequestParam(required = false) String actor,
+            @RequestParam(required = false) String director,
+            @RequestParam(required = false) java.math.BigDecimal minPrecio,
+            @RequestParam(required = false) java.math.BigDecimal maxPrecio,
+            @RequestParam(required = false) String desde,
+            @RequestParam(required = false) String hasta,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "12") int size,
+            @RequestParam(defaultValue = "titulo") String sort,
+            @RequestParam(defaultValue = "true") boolean asc) {
+
+        java.time.LocalDate d = (desde == null || desde.isBlank()) ? null : java.time.LocalDate.parse(desde);
+        java.time.LocalDate h = (hasta == null || hasta.isBlank()) ? null : java.time.LocalDate.parse(hasta);
+
+        var pageResult = peliculaService.buscarPaginadoDetalle(
+                q,
+                genero,
+                formato,
+                condicion,
+                actor,
+                director,
+                minPrecio,
+                maxPrecio,
+                d,
+                h,
+                page,
+                size,
+                sort,
+                asc);
+
+        var response = PageResponse.of(
+                pageResult.getContent(),
+                pageResult.getTotalElements(),
+                pageResult.getNumber(),
+                pageResult.getSize());
+
+        return ResponseEntity.ok(response);
     }
 
     // CREAR

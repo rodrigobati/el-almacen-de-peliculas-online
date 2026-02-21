@@ -180,3 +180,11 @@ Output Requirements
 
 Goal
 Maintain infrastructure stability while allowing application evolution.
+
+--
+Todo commit requiere aprobación manual previa.
+Se debe compartir git status y git diff antes del commit.
+
+El mensaje de commit debe ser validado antes de ejecutarse.
+
+No se permiten commits automáticos desde herramientas, scripts o asistentes sin autorización explícita.

@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import unrn.service.CatalogoQueryValidationException;
 import unrn.service.ValidationRuntimeException;
 
 import java.time.Instant;
@@ -17,6 +18,9 @@ public class ApiErrorHandler {
     private static final Logger log = LoggerFactory.getLogger(ApiErrorHandler.class);
 
     public record ApiError(String message, int status, String path, Instant timestamp) {
+    }
+
+    public record ValidationError(String code, String message, Object details) {
     }
 
     @ExceptionHandler(IllegalArgumentException.class)
@@ -42,6 +46,13 @@ public class ApiErrorHandler {
         log.warn("Validation error: {}", ex.getMessage());
         var err = new ApiError(ex.getMessage(), HttpStatus.BAD_REQUEST.value(), req.getDescription(false),
                 Instant.now());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(err);
+    }
+
+    @ExceptionHandler(CatalogoQueryValidationException.class)
+    public ResponseEntity<ValidationError> handleCatalogoQueryValidation(CatalogoQueryValidationException ex) {
+        log.warn("Catalog query validation error: {}", ex.getMessage());
+        var err = new ValidationError(ex.code(), ex.getMessage(), ex.details());
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(err);
     }
 
