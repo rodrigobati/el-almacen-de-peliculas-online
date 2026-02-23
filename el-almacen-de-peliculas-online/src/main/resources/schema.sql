@@ -5,5 +5,4 @@ CREATE TABLE IF NOT EXISTS eventos_procesados (
     compra_id BIGINT
 );
 
-CREATE INDEX IF NOT EXISTS idx_eventos_procesados_compra
-    ON eventos_procesados (compra_id);
+CREATE INDEX idx_eventos_procesados_compra ON eventos_procesados (compra_id);
