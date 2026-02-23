@@ -344,69 +344,42 @@ services:
     build:
       context: ../el-almacen-de-peliculas-online-descuentos
       dockerfile: Dockerfile
-    image: el-almacen-de-peliculas-online-descuentos:latest
+    image: descuentos-service:workspace # CORREGIDO: Antes decía ventas-service
     container_name: descuentos-service
-    restart: unless-stopped
     depends_on:
       descuentos-mysql:
-        condition: service_healthy
-      shared-rabbitmq:
-        condition: service_healthy
-      keycloak:
         condition: service_healthy
     ports:
       - "8085:8085"
     environment:
-      SPRING_PROFILES_ACTIVE: docker
-      SERVER_PORT: 8085
-      SPRING_DATASOURCE_URL: jdbc:mysql://descuentos-mysql:3306/almacen_peliculas_descuentos
-      SPRING_DATASOURCE_USERNAME: descuentos_user
-      SPRING_DATASOURCE_PASSWORD: secret
-      SPRING_RABBITMQ_HOST: shared-rabbitmq
-      SPRING_RABBITMQ_PORT: 5672
-      SPRING_RABBITMQ_USERNAME: guest
-      SPRING_RABBITMQ_PASSWORD: guest
+      - SERVER_PORT=8085 # Forzamos a Spring a usar el puerto 8085
+      # Agregamos parámetros a la URL para que no explote con fechas 0000-00-00
+      - SPRING_DATASOURCE_URL=jdbc:mysql://descuentos-mysql:3306/db_descuentos?createDatabaseIfNotExist=true&zeroDateTimeBehavior=convertToNull&allowPublicKeyRetrieval=true&useSSL=false
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=root
+      # Esta línea es CLAVE: le dice a Spring que use el set de certificados para validar,
+      # ignorando si el puerto del 'iss' es 8080 o 9090
+      - SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI=http://keycloak-sso:8080/realms/videoclub/protocol/openid-connect/certs
+      - SPRING_JPA_HIBERNATE_NAMING_PHYSICAL_STRATEGY=org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+      - SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI=http://localhost:9090/realms/videoclub
     networks:
       - peliculas-net
-    healthcheck:
-      test:
-        [
-          "CMD-SHELL",
-          "curl -fsS http://localhost:8085/actuator/health > /dev/null || exit 1",
-        ]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-      start_period: 40s
 
-  # Base de datos MySQL para Descuentos
   descuentos-mysql:
-    image: mysql:8.0
+    image: mysql:8.4
     container_name: descuentos-mysql
-    restart: unless-stopped
     environment:
-      MYSQL_DATABASE: almacen_peliculas_descuentos
-      MYSQL_USER: descuentos_user
-      MYSQL_PASSWORD: secret
+      MYSQL_DATABASE: db_descuentos
       MYSQL_ROOT_PASSWORD: root
-    ports:
-      - "3309:3306"
+      MYSQL_ROOT_HOST: "%"
     volumes:
-      - descuentos-mysql-data:/var/lib/mysql
+      # Mapeamos tu archivo local al directorio de inicialización de MySQL
+      - ../el-almacen-de-peliculas-online-descuentos/sql/import.sql:/docker-entrypoint-initdb.d/import.sql
     networks:
       - peliculas-net
     healthcheck:
       test:
-        [
-          "CMD",
-          "mysqladmin",
-          "ping",
-          "-h",
-          "localhost",
-          "-udescuentos_user",
-          "-psecret",
-        ]
-      interval: 10s
+        ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-proot"]
+      interval: 5s
       timeout: 5s
       retries: 5
-      start_period: 20s
