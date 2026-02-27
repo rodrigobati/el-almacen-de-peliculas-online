@@ -391,3 +391,15 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
+
+# Visualizador de Arquitectura (Modelo C4 Global)
+  architecture-docs:
+    image: structurizr/lite
+    container_name: architecture-docs
+    restart: unless-stopped
+    ports:
+      - "8090:8080"
+    volumes:
+      - ../el-almacen-de-peliculas-online-descuentos/.structurizr:/usr/local/structurizr
+    networks:
+      - peliculas-net
