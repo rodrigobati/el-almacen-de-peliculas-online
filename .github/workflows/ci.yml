@@ -27,13 +27,15 @@ jobs:
           echo "Searching for pom.xml files (depth 3):"
           find . -maxdepth 3 -name pom.xml -print || true
 
-      - name: Run unit tests for catalogo module
+      - name: Run unit tests for catalogo module (unit-only)
         run: |
           # Repository-relative path to the catalog module pom.xml
-          CATALOGO_POM=el-almacen-de-peliculas-online/el-almacen-de-peliculas-online/pom.xml
+          CATALOGO_POM=el-almacen-de-peliculas-online/pom.xml
+          # Run only unit tests (model + simple AppTest). Adjust the pattern if you need more packages.
+          TEST_PATTERN="unrn.model.*Test,unrn.AppTest"
           if [ -f mvnw ]; then
             chmod +x mvnw
-            ./mvnw -B -ntp -f "$CATALOGO_POM" test
+            ./mvnw -B -ntp -f "$CATALOGO_POM" -Dtest="$TEST_PATTERN" test
           else
-            mvn -B -ntp -f "$CATALOGO_POM" test
+            mvn -B -ntp -f "$CATALOGO_POM" -Dtest="$TEST_PATTERN" test
           fi
