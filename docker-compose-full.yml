@@ -173,8 +173,10 @@ services:
     ports:
       - "8081:8080"
     environment:
-      SPRING_PROFILES_ACTIVE: docker
-      SPRING_SQL_INIT_MODE: never
+      - SPRING_PROFILES_ACTIVE= docker
+      - SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI=http://keycloak-sso:8080/realms/videoclub/protocol/openid-connect/certs
+      - SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI=http://localhost:9090/realms/videoclub
+      - SPRING_SQL_INIT_MODE=never
     networks:
       - peliculas-net
     healthcheck:
@@ -364,6 +366,10 @@ services:
       - SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI=http://keycloak-sso:8080/realms/videoclub/protocol/openid-connect/certs
       - SPRING_JPA_HIBERNATE_NAMING_PHYSICAL_STRATEGY=org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
       - SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI=http://localhost:9090/realms/videoclub
+      - SPRING_RABBITMQ_HOST=shared-rabbitmq
+      - SPRING_RABBITMQ_PORT=5672
+      - SPRING_RABBITMQ_USERNAME=guest
+      - SPRING_RABBITMQ_PASSWORD=guest
     networks:
       - peliculas-net
 
