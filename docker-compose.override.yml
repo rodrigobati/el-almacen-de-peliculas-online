@@ -1,0 +1,5 @@
+services:
+  api-gateway:
+    build:
+      context: ../el-almacen-de-peliculas-online-apigateway
+      dockerfile: Dockerfile.dev

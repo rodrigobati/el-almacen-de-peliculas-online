@@ -295,12 +295,14 @@ services:
     ports:
       - "8084:8084"
     environment:
-      SPRING_PROFILES_ACTIVE: docker
+      SPRING_PROFILES_ACTIVE: docker,mailtrap
       SERVER_PORT: 8084
       SPRING_RABBITMQ_HOST: shared-rabbitmq
       SPRING_RABBITMQ_PORT: 5672
       SPRING_RABBITMQ_USERNAME: guest
       SPRING_RABBITMQ_PASSWORD: guest
+      MAILTRAP_USERNAME: ${MAILTRAP_USERNAME}
+      MAILTRAP_PASSWORD: ${MAILTRAP_PASSWORD}
     networks:
       - peliculas-net
     healthcheck:
@@ -383,3 +385,14 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
+  # Visualizador de Arquitectura (Modelo C4 Global)
+  architecture-docs:
+    image: structurizr/lite
+    container_name: architecture-docs
+    restart: unless-stopped
+    ports:
+      - "8090:8080"
+    volumes:
+      - ../el-almacen-de-peliculas-online-descuentos/.structurizr:/usr/local/structurizr
+    networks:
+      - peliculas-net

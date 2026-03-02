@@ -1,0 +1,7 @@
+# Ignore local env files
+.env
+
+# Maven / Java defaults
+/target/
+*.class
+*.jar
