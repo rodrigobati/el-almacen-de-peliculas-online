@@ -16,9 +16,9 @@ services:
     container_name: keycloak-postgres
     restart: unless-stopped
     environment:
-      POSTGRES_DB: keycloak
-      POSTGRES_USER: keycloak
-      POSTGRES_PASSWORD: keycloak
+      POSTGRES_DB: ${KC_DB_NAME}
+      POSTGRES_USER: ${KC_DB_USER}
+      POSTGRES_PASSWORD: ${KC_DB_PASS}
     volumes:
       - postgres-keycloak-data:/var/lib/postgresql/data
     networks:
@@ -36,10 +36,10 @@ services:
     container_name: catalogo-mysql
     restart: unless-stopped
     environment:
-      MYSQL_DATABASE: almacen_peliculas
-      MYSQL_USER: almacen
-      MYSQL_PASSWORD: almacen
-      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: ${CATALOGO_DB_NAME}
+      MYSQL_USER: ${CATALOGO_DB_USER}
+      MYSQL_PASSWORD: ${CATALOGO_DB_PASS}
+      MYSQL_ROOT_PASSWORD: ${CATALOGO_DB_ROOT_PASS}
     ports:
       - "3307:3306"
     volumes:
@@ -54,8 +54,8 @@ services:
           "ping",
           "-h",
           "localhost",
-          "-ualmacen",
-          "-palmacen",
+          "-u${CATALOGO_DB_USER}",
+          "-p${CATALOGO_DB_PASS}",
         ]
       interval: 10s
       timeout: 5s
@@ -68,10 +68,10 @@ services:
     container_name: rating-mysql
     restart: unless-stopped
     environment:
-      MYSQL_DATABASE: almacen_peliculas_rating
-      MYSQL_USER: rating_user
-      MYSQL_PASSWORD: secret
-      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: ${RATING_DB_NAME}
+      MYSQL_USER: ${RATING_DB_USER}
+      MYSQL_PASSWORD: ${RATING_DB_PASS}
+      MYSQL_ROOT_PASSWORD: ${RATING_DB_ROOT_PASS}
     ports:
       - "3308:3306"
     volumes:
@@ -100,8 +100,8 @@ services:
     container_name: shared-rabbitmq
     restart: unless-stopped
     environment:
-      RABBITMQ_DEFAULT_USER: guest
-      RABBITMQ_DEFAULT_PASS: guest
+      RABBITMQ_DEFAULT_USER: ${RABBIT_USER}
+      RABBITMQ_DEFAULT_PASS: ${RABBIT_PASS}
     ports:
       - "5672:5672" # Puerto AMQP
       - "15672:15672" # Puerto Management UI
@@ -127,14 +127,14 @@ services:
         "/opt/keycloak/bin/kc.sh import --file=/opt/keycloak/data/import/realm-export.json --override true && exec /opt/keycloak/bin/kc.sh start-dev",
       ]
     environment:
-      KEYCLOAK_ADMIN: admin
-      KEYCLOAK_ADMIN_PASSWORD: admin
+      KEYCLOAK_ADMIN: ${KC_ADMIN_USER}
+      KEYCLOAK_ADMIN_PASSWORD: ${KC_ADMIN_PASS}
       KC_HTTP_PORT: 8080
       KC_DB: postgres
       KC_DB_URL_HOST: keycloak-postgres
-      KC_DB_URL_DATABASE: keycloak
-      KC_DB_USERNAME: keycloak
-      KC_DB_PASSWORD: keycloak
+      KC_DB_URL_DATABASE: ${KC_DB_USER}
+      KC_DB_USERNAME: ${KC_DB_USER}
+      KC_DB_PASSWORD: ${KC_DB_PASS}
       KC_HEALTH_ENABLED: "true"
     ports:
       - "9090:8080"
@@ -274,10 +274,15 @@ services:
     environment:
       SPRING_PROFILES_ACTIVE: docker
       SERVER_PORT: 8083
+<<<<<<< Updated upstream
       VENTAS_DATASOURCE_USERNAME: root
       VENTAS_DATASOURCE_PASSWORD: root
       SPRING_JPA_HIBERNATE_DDL_AUTO: update
       SPRING_DATASOURCE_URL: jdbc:mysql://catalogo-mysql:3306/almacen_ventas?createDatabaseIfNotExist=true
+=======
+      VENTAS_DATASOURCE_USERNAME: ${VENTAS_DB_USER}
+      VENTAS_DATASOURCE_PASSWORD: ${VENTAS_DB_PASS}
+>>>>>>> Stashed changes
     networks:
       - peliculas-net
     healthcheck:
@@ -354,7 +359,7 @@ services:
     build:
       context: ../el-almacen-de-peliculas-online-descuentos
       dockerfile: Dockerfile
-    image: descuentos-service:workspace # CORREGIDO: Antes decía ventas-service
+    image: descuentos-service:workspace
     container_name: descuentos-service
     depends_on:
       descuentos-mysql:
@@ -364,20 +369,20 @@ services:
     ports:
       - "8085:8085"
     environment:
-      - SERVER_PORT=8085 # Forzamos a Spring a usar el puerto 8085
-      # Agregamos parámetros a la URL para que no explote con fechas 0000-00-00
+      - SPRING_PROFILES_ACTIVE=docker
+      - SERVER_PORT=8085
+      # Configuración de Base de Datos
       - SPRING_DATASOURCE_URL=jdbc:mysql://descuentos-mysql:3306/db_descuentos?createDatabaseIfNotExist=true&zeroDateTimeBehavior=convertToNull&allowPublicKeyRetrieval=true&useSSL=false
-      - SPRING_DATASOURCE_USERNAME=root
-      - SPRING_DATASOURCE_PASSWORD=root
-      # Esta línea es CLAVE: le dice a Spring que use el set de certificados para validar,
-      # ignorando si el puerto del 'iss' es 8080 o 9090
-      - SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI=http://keycloak-sso:8080/realms/videoclub/protocol/openid-connect/certs
-      - SPRING_JPA_HIBERNATE_NAMING_PHYSICAL_STRATEGY=org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
-      - SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI=http://localhost:9090/realms/videoclub
+      - SPRING_DATASOURCE_USERNAME=${CATALOGO_DB_USER}
+      - SPRING_DATASOURCE_PASSWORD=${CATALOGO_DB_PASS}
+      # Configuración de RabbitMQ (Inyectada al microservicio)
       - SPRING_RABBITMQ_HOST=shared-rabbitmq
       - SPRING_RABBITMQ_PORT=5672
-      - SPRING_RABBITMQ_USERNAME=guest
-      - SPRING_RABBITMQ_PASSWORD=guest
+      - SPRING_RABBITMQ_USERNAME=${RABBIT_USER}
+      - SPRING_RABBITMQ_PASSWORD=${RABBIT_PASS}
+      # Seguridad (Keycloak) 
+      - SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI=http://keycloak-sso:8080/realms/videoclub/protocol/openid-connect/certs
+      - SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI=http://localhost:9090/realms/videoclub
     networks:
       - peliculas-net
 
@@ -385,8 +390,8 @@ services:
     image: mysql:8.4
     container_name: descuentos-mysql
     environment:
-      MYSQL_DATABASE: db_descuentos
-      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: ${DESCUENTOS_DB_NAME}
+      MYSQL_ROOT_PASSWORD: ${DESCUENTOS_DB_ROOT_PASS}
       MYSQL_ROOT_HOST: "%"
     volumes:
       # Mapeamos tu archivo local al directorio de inicialización de MySQL

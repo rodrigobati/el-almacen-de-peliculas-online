@@ -1,0 +1,37 @@
+services:
+  notificaciones-service:
+    build:
+      context: ../el-almacen-de-peliculas-online-notificaciones
+      dockerfile: Dockerfile
+    image: el-almacen-de-peliculas-online-notificaciones:latest
+    container_name: notificaciones-service
+    restart: unless-stopped
+    depends_on:
+      shared-rabbitmq:
+        condition: service_healthy
+    ports:
+      - "8084:8084"
+    environment:
+      SPRING_PROFILES_ACTIVE: docker,mailtrap
+      SERVER_PORT: 8084
+      SPRING_RABBITMQ_HOST: shared-rabbitmq
+      SPRING_RABBITMQ_PORT: 5672
+      SPRING_RABBITMQ_USERNAME: guest
+      SPRING_RABBITMQ_PASSWORD: guest
+      MAILTRAP_USERNAME: ${MAILTRAP_USERNAME}
+      MAILTRAP_PASSWORD: ${MAILTRAP_PASSWORD}
+    networks:
+      - peliculas-net
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "curl -fsS http://localhost:8084/actuator/health > /dev/null || exit 1",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 40s
+
+networks:
+  peliculas-net:
