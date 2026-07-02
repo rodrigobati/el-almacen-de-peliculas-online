@@ -8,6 +8,13 @@ import unrn.model.Actor;
 
 import java.util.List;
 
+/**
+ * Repositorio de infraestructura para consultar y guardar actores.
+ *
+ * Encapsula EntityManager y consultas JPA usadas por servicios administrativos,
+ * incluyendo busqueda por nombre, validacion de duplicados y conversion hacia el
+ * objeto de dominio Actor cuando la capa de aplicacion lo necesita.
+ */
 @Repository
 @Transactional(readOnly = true)
 public class ActorRepository {
@@ -15,6 +22,9 @@ public class ActorRepository {
     @PersistenceContext
     private EntityManager em;
 
+    /**
+     * Recupera actores por id y los convierte al modelo de dominio.
+     */
     public List<Actor> findAllById(List<Long> ids) {
         if (ids == null || ids.isEmpty()) {
             return List.of();
@@ -25,21 +35,30 @@ public class ActorRepository {
                 .setParameter("ids", ids)
                 .getResultList();
 
-        // 👇 acá convertimos Entity → dominio
+        // ðŸ‘‡ acÃ¡ convertimos Entity â†’ dominio
         return entidades.stream()
                 .map(ActorEntity::asDomain)
                 .toList();
     }
 
+    /**
+     * Recupera un actor por id y devuelve null si no existe.
+     */
     public Actor findById(Long id) {
         var ae = em.find(ActorEntity.class, id);
         return (ae == null) ? null : ae.asDomain();
     }
 
+    /**
+     * Recupera la entidad Actor para operaciones de persistencia.
+     */
     public ActorEntity findEntityById(Long id) {
         return em.find(ActorEntity.class, id);
     }
 
+    /**
+     * Detecta si ya existe un actor con ese nombre ignorando mayusculas.
+     */
     public boolean existsByNombreIgnoreCase(String nombre) {
         Long count = em
                 .createQuery(
@@ -50,6 +69,9 @@ public class ActorRepository {
         return count != null && count > 0;
     }
 
+    /**
+     * Busca entidades Actor por coincidencia parcial de nombre.
+     */
     public List<ActorEntity> buscarPorNombre(String q, Integer page, Integer size) {
         String normalized = q == null ? "" : q.trim().toLowerCase();
         String filter = "%" + normalized + "%";
@@ -67,6 +89,9 @@ public class ActorRepository {
         return query.getResultList();
     }
 
+    /**
+     * Persiste un actor nuevo y fuerza el flush para obtener su id.
+     */
     @Transactional
     public ActorEntity guardar(ActorEntity actorEntity) {
         em.persist(actorEntity);

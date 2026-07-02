@@ -9,16 +9,29 @@ import java.sql.Connection;
 import java.sql.Statement;
 import java.time.Instant;
 
+/**
+ * Runner manual para ejecutar ajustes de esquema bajo el perfil migrate.
+ *
+ * Se usa como herramienta operacional controlada cuando hay que aplicar cambios de
+ * base que no forman parte del flujo normal de la aplicacion. No debe confundirse
+ * con la logica de negocio ni con los repositorios del catalogo.
+ */
 @Component
 @Profile("migrate")
 public class SchemaMigrator implements CommandLineRunner {
 
     private final DataSource ds;
 
+    /**
+     * Inicializa una instancia de SchemaMigrator con los datos necesarios.
+     */
     public SchemaMigrator(DataSource ds) {
         this.ds = ds;
     }
 
+    /**
+     * Ejecuta la tarea inicial cuando Spring invoca este componente.
+     */
     @Override
     public void run(String... args) throws Exception {
         String backupName = "pelicula_backup_" + Instant.now().getEpochSecond();

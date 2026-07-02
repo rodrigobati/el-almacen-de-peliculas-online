@@ -8,18 +8,31 @@ import unrn.model.*;
 import java.time.LocalDate;
 import java.util.List;
 
+/**
+ * Cargador inicial de datos de demostracion para el catalogo.
+ *
+ * Al iniciar la aplicacion inserta peliculas base cuando el repositorio esta vacio,
+ * usando el mismo repositorio que el resto de la vertical. Sirve para desarrollo y
+ * demos, no para migraciones de datos productivas.
+ */
 @Component
 public class DataLoader implements CommandLineRunner {
 
     private final PeliculaRepository repo;
 
+    /**
+     * Inicializa una instancia de DataLoader con los datos necesarios.
+     */
     public DataLoader(PeliculaRepository repo) {
         this.repo = repo;
     }
 
+    /**
+     * Ejecuta la tarea inicial cuando Spring invoca este componente.
+     */
     @Override
     public void run(String... args) throws Exception {
-        // Sólo poblar si no existe una película conocida
+        // SÃƒÂ³lo poblar si no existe una pelÃƒÂ­cula conocida
         if (repo.existePorTitulo("Blade Runner")) {
             System.out.println("DataLoader: datos ya presentes, no se insertan ejemplos.");
             return;
@@ -32,7 +45,7 @@ public class DataLoader implements CommandLineRunner {
                     List.of(new Director("Ridley Scott")),
                     9999.99,
                     new Formato("BLURAY"),
-                    new Genero("Ciencia Ficción"),
+                    new Genero("Ciencia FicciÃƒÂ³n"),
                     "Neo-noir sci-fi classic",
                     List.of(new Actor("Harrison Ford"), new Actor("Rutger Hauer")),
                     "https://www.themoviedb.org/t/p/w600_and_h900_bestv2/63N9uy8nd9j7Eog2axPQ8lbr3Wj.jpg",
@@ -71,14 +84,14 @@ public class DataLoader implements CommandLineRunner {
             var guardada3 = repo.guardar(godf);
             System.out.println("DataLoader: insertada 'The Godfather' id=" + guardada3.id());
 
-            // Más ejemplos para el front-end
+            // Mas ejemplos para el front-end.
             var matrix = new Pelicula(
                     "The Matrix",
                     Condicion.NUEVO,
                     List.of(new Director("Lana Wachowski")),
                     11999.0,
                     new Formato("BLURAY"),
-                    new Genero("Ciencia Ficción"),
+                    new Genero("Ciencia FicciÃƒÂ³n"),
                     "Reality and choice",
                     List.of(new Actor("Keanu Reeves"), new Actor("Laurence Fishburne")),
                     "https://www.themoviedb.org/t/p/w600_and_h900_bestv2/p96dm7sCMn4VYAStA6siNz30G1r.jpg",
@@ -123,7 +136,7 @@ public class DataLoader implements CommandLineRunner {
                     List.of(new Director("Christopher Nolan")),
                     14999.0,
                     new Formato("BLURAY"),
-                    new Genero("Ciencia Ficción"),
+                    new Genero("Ciencia FicciÃƒÂ³n"),
                     "Dream heist",
                     List.of(new Actor("Leonardo DiCaprio"), new Actor("Joseph Gordon-Levitt")),
                     "https://www.themoviedb.org/t/p/w600_and_h900_bestv2/ljsZTbVsrQSqZgWeep2B1QiDKuh.jpg",

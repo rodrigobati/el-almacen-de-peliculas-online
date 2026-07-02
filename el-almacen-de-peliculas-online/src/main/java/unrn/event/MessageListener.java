@@ -14,6 +14,13 @@ import org.springframework.stereotype.Service;
 import unrn.infra.persistence.PeliculaRepository;
 import unrn.model.Pelicula;
 
+/**
+ * Listener RabbitMQ para eventos externos que impactan datos de peliculas.
+ *
+ * Consume eventos genericos de pelicula y eventos de rating, aplica reintentos y
+ * actualiza el catalogo cuando llega nueva informacion desde otras verticales. Es
+ * una pieza de integracion, no un endpoint HTTP.
+ */
 @Service
 public class MessageListener {
 
@@ -22,10 +29,16 @@ public class MessageListener {
 
     private final PeliculaRepository peliculaRepository;
 
+    /**
+     * Inicializa una instancia de MessageListener con los datos necesarios.
+     */
     public MessageListener(PeliculaRepository peliculaRepository) {
         this.peliculaRepository = peliculaRepository;
     }
 
+    /**
+     * Procesa eventos de pelicula recibidos por RabbitMQ.
+     */
     @RabbitListener(bindings = @QueueBinding(value = @Queue(value = "${rabbitmq.event.movie.queue.name}", durable = "true"), exchange = @Exchange(value = "${rabbitmq.event.exchange.name}", type = "topic"), key = "${rabbitmq.event.movie.routing.key}"))
     @Retryable(maxAttempts = 3, backoff = @Backoff(delay = 5000))
     public void handleMovieEvent(Event<String, Pelicula> event) {
@@ -41,11 +54,11 @@ public class MessageListener {
 
                 pelicula.actualizarRating(newRating);
                 peliculaRepository.actualizar(id, pelicula);
-                log.info("Película {} actualizada con nuevo rating {}", id, newRating);
+                log.info("PelÃ­cula {} actualizada con nuevo rating {}", id, newRating);
                 break;
 
             case DELETE:
-                // Si en el futuro se requiere eliminación, implementarla aquí.
+                // Si en el futuro se requiere eliminaciÃ³n, implementarla aquÃ­.
                 break;
 
             default:
@@ -53,14 +66,17 @@ public class MessageListener {
         }
     }
 
+    /**
+     * Registra la recuperacion luego de agotar reintentos de procesamiento.
+     */
     @Recover
     public void recover(Exception e, Event<String, Pelicula> event) {
-        log.info("Recover: no se pudo procesar el evento después de reintentos: {}", event.getData());
+        log.info("Recover: no se pudo procesar el evento despuÃ©s de reintentos: {}", event.getData());
     }
 
     /**
-     * Escucha eventos de actualización de rating desde la vertical Rating.
-     * Actualiza el ratingPromedio y totalRatings en la película del catálogo.
+     * Escucha eventos de actualizaciÃ³n de rating desde la vertical Rating.
+     * Actualiza el ratingPromedio y totalRatings en la pelÃ­cula del catÃ¡logo.
      */
     @RabbitListener(bindings = @QueueBinding(value = @Queue(value = "rating.catalogo.queue", durable = "true"), exchange = @Exchange(value = "${rabbitmq.event.exchange.name}", type = "topic"), key = "RatingActualizadoEvent.#"))
     @Retryable(maxAttempts = 3, backoff = @Backoff(delay = 5000))
@@ -79,13 +95,16 @@ public class MessageListener {
         pelicula.actualizarRatingPromedio(ratingPromedio, totalRatings);
         peliculaRepository.actualizar(peliculaId, pelicula);
 
-        log.info("Película {} actualizada: ratingPromedio={}, totalRatings={}",
+        log.info("PelÃ­cula {} actualizada: ratingPromedio={}, totalRatings={}",
                 peliculaId, ratingPromedio, totalRatings);
     }
 
+    /**
+     * Registra la recuperacion luego de fallar el procesamiento de rating.
+     */
     @Recover
     public void recoverRating(Exception e, Event<String, RatingActualizadoEvent> event) {
-        log.error("Recover: no se pudo procesar el evento de rating después de reintentos: {}",
+        log.error("Recover: no se pudo procesar el evento de rating despuÃ©s de reintentos: {}",
                 event.getData(), e);
     }
 }

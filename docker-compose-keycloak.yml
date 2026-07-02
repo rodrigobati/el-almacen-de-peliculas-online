@@ -42,3 +42,4 @@ services:
 
 networks:
   peliculas-net:
+    external: true

@@ -18,8 +18,16 @@ import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.web.SecurityFilterChain;
 
+import java.util.Arrays;
 import java.util.List;
 
+/**
+ * Configuracion central de seguridad HTTP y validacion JWT.
+ *
+ * Define que endpoints son publicos, cuales requieren rol ADMIN, como se decodifica
+ * el token emitido por Keycloak y como se convierten sus roles a authorities de
+ * Spring. Tambien lee desde properties los issuers aceptados por ambiente.
+ */
 @Configuration
 @EnableMethodSecurity
 public class SecurityConfig {
@@ -33,6 +41,12 @@ public class SecurityConfig {
     @Value("${security.keycloak.client-id:}")
     private String keycloakClientId;
 
+    @Value("${security.keycloak.allowed-issuers:${spring.security.oauth2.resourceserver.jwt.issuer-uri}}")
+    private String allowedIssuersProperty;
+
+    /**
+     * Define las reglas HTTP de seguridad para endpoints publicos y administrados.
+     */
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
@@ -66,6 +80,9 @@ public class SecurityConfig {
         return http.build();
     }
 
+    /**
+     * Construye el decodificador JWT y valida emisores permitidos.
+     */
     @Bean
     public JwtDecoder jwtDecoder() {
         NimbusJwtDecoder jwtDecoder;
@@ -76,9 +93,7 @@ public class SecurityConfig {
         }
 
         OAuth2TokenValidator<Jwt> withTimestamp = new JwtTimestampValidator();
-        List<String> allowedIssuers = List.of(
-                "http://keycloak-sso:8080/realms/videoclub",
-                "http://localhost:9090/realms/videoclub");
+        List<String> allowedIssuers = allowedIssuers();
         OAuth2TokenValidator<Jwt> withIssuers = jwt -> {
             String issuer = jwt.getIssuer() == null ? null : jwt.getIssuer().toString();
             if (issuer != null && allowedIssuers.contains(issuer)) {
@@ -92,6 +107,19 @@ public class SecurityConfig {
         return jwtDecoder;
     }
 
+    /**
+     * Lee desde properties que emisores de Keycloak puede aceptar el backend.
+     */
+    private List<String> allowedIssuers() {
+        return Arrays.stream(allowedIssuersProperty.split(","))
+                .map(String::trim)
+                .filter(issuer -> !issuer.isBlank())
+                .toList();
+    }
+
+    /**
+     * Configura la conversion de claims JWT a authorities de Spring Security.
+     */
     @Bean
     public JwtAuthenticationConverter jwtAuthenticationConverter() {
         JwtAuthenticationConverter converter = new JwtAuthenticationConverter();

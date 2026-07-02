@@ -7,6 +7,12 @@ import unrn.model.Actor;
 import unrn.model.Director;
 import unrn.model.Pelicula;
 
+/**
+ * DTO publico con el detalle de una pelicula visible en la tienda.
+ *
+ * Reune informacion de exhibicion como titulo, directores, actores, genero, formato,
+ * sinopsis, imagen, precio y rating, ocultando stock/version y cualquier dato interno.
+ */
 public record DetallePeliculaDTO(
                 Long id,
                 String titulo,
@@ -23,6 +29,9 @@ public record DetallePeliculaDTO(
                 Double ratingPromedio,
                 Integer totalRatings) {
 
+        /**
+         * Construye un DTO a partir del objeto de origen recibido.
+         */
         public static DetallePeliculaDTO from(Pelicula p) {
                 return new DetallePeliculaDTO(
                                 p.id(),

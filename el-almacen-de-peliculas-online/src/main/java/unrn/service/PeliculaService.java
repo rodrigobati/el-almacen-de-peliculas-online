@@ -7,6 +7,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import unrn.dto.AdminPeliculaDTO;
 import unrn.dto.DetallePeliculaDTO;
 import unrn.dto.PeliculaRequest;
 import unrn.event.movie.MovieEventEnvelope;
@@ -24,24 +25,38 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+/**
+ * Servicio de aplicacion que orquesta los casos de uso principales de peliculas.
+ *
+ * Crea, actualiza, retira, lista y busca peliculas combinando validaciones de
+ * entrada, resolucion de actores/directores, persistencia y publicacion de eventos
+ * de catalogo. Es la capa que traduce pedidos de API en cambios de negocio.
+ */
 @Service
 public class PeliculaService {
 
-    static final String ERROR_DIRECTOR_INEXISTENTE = "Algún director no existe";
-    static final String ERROR_ACTOR_INEXISTENTE = "Algún actor no existe";
-    static final String ERROR_PELICULA_INEXISTENTE = "La película no existe";
+    static final String ERROR_DIRECTOR_INEXISTENTE = "AlgÃºn director no existe";
+    static final String ERROR_ACTOR_INEXISTENTE = "AlgÃºn actor no existe";
+    static final String ERROR_PELICULA_INEXISTENTE = "La pelÃ­cula no existe";
     static final int MAX_SIZE = 100;
     static final Set<String> SORT_ALLOWLIST = Set.of("titulo", "precio", "fechaSalida", "genero", "formato",
             "condicion");
-    static final String ERROR_PAGE_INVALIDA = "El parámetro 'page' debe ser mayor o igual a 0";
-    static final String ERROR_SIZE_INVALIDA = "El parámetro 'size' debe estar entre 1 y " + MAX_SIZE;
-    static final String ERROR_SORT_INVALIDO = "El parámetro 'sort' no es válido";
+    static final String ERROR_PAGE_INVALIDA = "El parÃ¡metro 'page' debe ser mayor o igual a 0";
+    static final String ERROR_SIZE_INVALIDA = "El parÃ¡metro 'size' debe estar entre 1 y " + MAX_SIZE;
+    static final String ERROR_SORT_INVALIDO = "El parÃ¡metro 'sort' no es vÃ¡lido";
+    static final String ERROR_STOCK_REQUERIDO = "El stock es requerido";
+    static final String ERROR_STOCK_INVALIDO = "El stock debe ser un numero entero mayor o igual a cero";
+    static final String ERROR_VERSION_REQUERIDA = "La version es requerida";
+    static final String ERROR_VERSION_INVALIDA = "La version debe ser mayor o igual a cero";
 
     private final DirectorRepository directorRepository;
     private final ActorRepository actorRepository;
     private final PeliculaRepository peliculaRepository;
     private final MovieEventPublisher eventPublisher;
 
+    /**
+     * Inicializa una instancia de PeliculaService con los datos necesarios.
+     */
     public PeliculaService(DirectorRepository directorRepository,
             ActorRepository actorRepository,
             PeliculaRepository peliculaRepository,
@@ -55,6 +70,9 @@ public class PeliculaService {
     // -------------------------
     // CREAR
     // -------------------------
+    /**
+     * Crea una pelicula, la persiste y publica el evento correspondiente.
+     */
     @Transactional
     public void crearPelicula(PeliculaRequest request) {
         var directores = obtenerDirectoresDesdeIds(request.directoresIds());
@@ -81,11 +99,14 @@ public class PeliculaService {
     // -------------------------
     // EDITAR
     // -------------------------
+    /**
+     * Actualiza una pelicula existente y publica el evento correspondiente.
+     */
     @Transactional
     public void actualizarPelicula(Long id, PeliculaRequest request) {
         var existente = peliculaRepository.porId(id);
         if (existente == null) {
-            throw new RuntimeException(ERROR_PELICULA_INEXISTENTE);
+            throw new PeliculaNotFoundException(ERROR_PELICULA_INEXISTENTE);
         }
 
         var directores = obtenerDirectoresDesdeIds(request.directoresIds());
@@ -109,14 +130,33 @@ public class PeliculaService {
         eventPublisher.publishAfterCommit(MovieEventEnvelope.updated(payload));
     }
 
+    /**
+     * Actualiza el stock disponible validando la version esperada.
+     */
+    @Transactional
+    public AdminPeliculaDTO actualizarStock(Long id, BigDecimal stockDisponible, Long version) {
+        BigDecimal stockNormalizado = normalizarStock(stockDisponible);
+        long expectedVersion = normalizarVersion(version);
+
+        var actualizada = peliculaRepository.actualizarStock(id, stockNormalizado, expectedVersion);
+        if (actualizada == null) {
+            throw new PeliculaNotFoundException(ERROR_PELICULA_INEXISTENTE);
+        }
+
+        return AdminPeliculaDTO.from(actualizada);
+    }
+
     // -------------------------
     // ELIMINAR
     // -------------------------
+    /**
+     * Retira una pelicula existente y publica el evento de retiro.
+     */
     @Transactional
     public void eliminar(Long id) {
         var eliminada = peliculaRepository.eliminar(id);
         if (eliminada == null) {
-            throw new RuntimeException(ERROR_PELICULA_INEXISTENTE);
+            throw new PeliculaNotFoundException(ERROR_PELICULA_INEXISTENTE);
         }
 
         var payload = payloadDesde(eliminada);
@@ -126,11 +166,17 @@ public class PeliculaService {
     // -------------------------
     // LISTAR
     // -------------------------
+    /**
+     * Lista todas las peliculas activas disponibles en catalogo.
+     */
     @Transactional(readOnly = true)
     public List<Pelicula> listarTodas() {
         return peliculaRepository.listarTodos();
     }
 
+    /**
+     * Busca peliculas con filtros, orden y paginacion validada.
+     */
     @Transactional(readOnly = true)
     public Page<Pelicula> buscarPaginado(
             String q,
@@ -171,6 +217,9 @@ public class PeliculaService {
         return new PageImpl<>(result.getItems(), pageable, result.getTotal());
     }
 
+    /**
+     * Busca peliculas y las transforma al DTO publico de detalle.
+     */
     @Transactional(readOnly = true)
     public Page<DetallePeliculaDTO> buscarPaginadoDetalle(
             String q,
@@ -191,6 +240,32 @@ public class PeliculaService {
                 page, size, sort, asc).map(DetallePeliculaDTO::from);
     }
 
+    /**
+     * Busca peliculas y las transforma al DTO administrativo.
+     */
+    @Transactional(readOnly = true)
+    public Page<AdminPeliculaDTO> buscarPaginadoDetalleAdmin(
+            String q,
+            String genero,
+            String formato,
+            String condicion,
+            String actor,
+            String director,
+            BigDecimal minPrecio,
+            BigDecimal maxPrecio,
+            LocalDate desde,
+            LocalDate hasta,
+            int page,
+            int size,
+            String sort,
+            boolean asc) {
+        return buscarPaginado(q, genero, formato, condicion, actor, director, minPrecio, maxPrecio, desde, hasta,
+                page, size, sort, asc).map(AdminPeliculaDTO::from);
+    }
+
+    /**
+     * Arma el payload de evento a partir de una pelicula de dominio.
+     */
     private MovieEventPayload payloadDesde(Pelicula pelicula) {
         return new MovieEventPayload(
                 pelicula.id(),
@@ -200,6 +275,9 @@ public class PeliculaService {
                 pelicula.version());
     }
 
+    /**
+     * Valida pagina, tamanio y campo de ordenamiento permitidos.
+     */
     private void assertParametrosPaginacionYOrdenValidos(int page, int size, String sort) {
         if (page < 0) {
             throw new CatalogoQueryValidationException(
@@ -221,9 +299,50 @@ public class PeliculaService {
         }
     }
 
-    // -------------------------
-    // HELPERS
-    // -------------------------
+    /**
+     * Valida y normaliza el stock recibido desde la API admin.
+     */
+    private BigDecimal normalizarStock(BigDecimal stockDisponible) {
+        if (stockDisponible == null) {
+            throw new CatalogoQueryValidationException(
+                    "STOCK_REQUIRED",
+                    ERROR_STOCK_REQUERIDO,
+                    Map.of("field", "stockDisponible", "rule", "required"));
+        }
+        if (stockDisponible.compareTo(BigDecimal.ZERO) < 0 || stockDisponible.stripTrailingZeros().scale() > 0) {
+            throw new CatalogoQueryValidationException(
+                    "INVALID_STOCK",
+                    ERROR_STOCK_INVALIDO,
+                    Map.of("field", "stockDisponible", "value", stockDisponible, "rule", "integer >= 0"));
+        }
+        return stockDisponible.setScale(2);
+    }
+
+    /**
+     * Valida la version esperada recibida desde la API admin.
+     */
+    private long normalizarVersion(Long version) {
+        if (version == null) {
+            throw new CatalogoQueryValidationException(
+                    "VERSION_REQUIRED",
+                    ERROR_VERSION_REQUERIDA,
+                    Map.of("field", "version", "rule", "required"));
+        }
+        if (version < 0) {
+            throw new CatalogoQueryValidationException(
+                    "INVALID_VERSION",
+                    ERROR_VERSION_INVALIDA,
+                    Map.of("field", "version", "value", version, "rule", ">= 0"));
+        }
+        return version;
+    }
+
+    /**
+     * -------------------------
+     * HELPERS
+     * -------------------------
+     * Resuelve directores de dominio a partir de sus identificadores.
+     */
     private List<Director> obtenerDirectoresDesdeIds(List<Long> directoresIds) {
         if (directoresIds == null || directoresIds.isEmpty()) {
             return List.of();
@@ -238,6 +357,9 @@ public class PeliculaService {
         return List.copyOf(directores);
     }
 
+    /**
+     * Resuelve actores de dominio a partir de sus identificadores.
+     */
     private List<Actor> obtenerActoresDesdeIds(List<Long> actoresIds) {
         if (actoresIds == null || actoresIds.isEmpty()) {
             return List.of();

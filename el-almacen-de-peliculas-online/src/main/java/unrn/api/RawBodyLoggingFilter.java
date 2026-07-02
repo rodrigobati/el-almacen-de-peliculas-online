@@ -12,11 +12,21 @@ import org.springframework.web.util.ContentCachingRequestWrapper;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
+/**
+ * Filtro HTTP de diagnostico para capturar el body crudo del alta admin de peliculas.
+ *
+ * Solo actua sobre POST /api/admin/peliculas. Envuelve el request para que el body
+ * pueda ser leido por el controlador y, al final del pipeline, registra en logs el
+ * contenido recibido junto con content type y longitud.
+ */
 public class RawBodyLoggingFilter extends OncePerRequestFilter {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RawBodyLoggingFilter.class);
     private static final String TARGET_PATH = "/api/admin/peliculas";
 
+    /**
+     * Intercepta requests objetivo y conserva el body para registrarlo luego.
+     */
     @Override
     protected void doFilterInternal(
             HttpServletRequest request,
@@ -36,6 +46,9 @@ public class RawBodyLoggingFilter extends OncePerRequestFilter {
         }
     }
 
+    /**
+     * Detecta si el request POST de alta de pelicula debe registrarse.
+     */
     private boolean isTargetRequest(HttpServletRequest request) {
         if (!"POST".equalsIgnoreCase(request.getMethod())) {
             return false;
@@ -44,6 +57,9 @@ public class RawBodyLoggingFilter extends OncePerRequestFilter {
         return TARGET_PATH.equals(uri);
     }
 
+    /**
+     * Registra el cuerpo crudo capturado para diagnosticar requests admin.
+     */
     private void logRequestBody(ContentCachingRequestWrapper request) {
         byte[] body = request.getContentAsByteArray();
         String contentType = request.getContentType();
@@ -62,6 +78,9 @@ public class RawBodyLoggingFilter extends OncePerRequestFilter {
         );
     }
 
+    /**
+     * Escapa saltos, tabs y barras para escribir el body en una sola linea de log.
+     */
     private String escapeForLog(String value) {
         return value
                 .replace("\\", "\\\\")

@@ -7,6 +7,13 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Entidad JPA principal para almacenar peliculas en la base de datos.
+ *
+ * Mapea los atributos persistidos del catalogo, sus relaciones con actores,
+ * directores, genero, formato y condicion, y reglas cercanas a la persistencia como
+ * versionado, retiro logico y descuento seguro de stock.
+ */
 @Entity
 @Table(name = "pelicula")
 @NamedQueries({
@@ -21,6 +28,7 @@ import java.util.List;
 public class PeliculaEntity {
 
     static final String ERROR_STOCK_NEGATIVO = "El stock no puede quedar en negativo";
+    static final String ERROR_CANTIDAD_INVALIDA = "La cantidad debe ser mayor a cero";
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
@@ -79,9 +87,15 @@ public class PeliculaEntity {
     @Column(name = "version", nullable = false)
     long version;
 
+    /**
+     * Inicializa una instancia de PeliculaEntity con los datos necesarios.
+     */
     protected PeliculaEntity() {
     } // JPA
 
+    /**
+     * Inicializa una instancia de PeliculaEntity con los datos necesarios.
+     */
     public PeliculaEntity(String titulo, CondicionEntity condicion, BigDecimal precio, FormatoEntity formato,
             GeneroEntity genero,
             String sinopsis, String imagenUrl, LocalDate fechaSalida,
@@ -105,6 +119,9 @@ public class PeliculaEntity {
         this.stockDisponible = new BigDecimal("100.00");
     }
 
+    /**
+     * Convierte la entidad de persistencia al modelo de dominio.
+     */
     public unrn.model.Pelicula asDomain() {
         var d = new java.util.ArrayList<unrn.model.Director>();
         for (var de : this.directores)
@@ -126,7 +143,8 @@ public class PeliculaEntity {
                 this.fechaSalida,
                 this.rating,
                 this.activa,
-                this.version);
+                this.version,
+                this.stockDisponible);
 
         // Si hay datos de rating comunitario, actualizarlos
         if (this.ratingPromedio != null && this.totalRatings != null) {
@@ -136,23 +154,55 @@ public class PeliculaEntity {
         return pelicula;
     }
 
+    /**
+     * Devuelve el valor de id.
+     */
     public Long id() {
         return id;
     }
 
+    /**
+     * Devuelve el valor de stockDisponible.
+     */
     public BigDecimal stockDisponible() {
         return stockDisponible;
     }
 
+    /**
+     * Devuelve el valor de version.
+     */
+    public long version() {
+        return version;
+    }
+
+    /**
+     * Indica si la pelicula sigue activa para venta y consulta.
+     */
     public boolean estaActiva() {
         return activa;
     }
 
+    /**
+     * Descuenta stock validando cantidad positiva y saldo suficiente.
+     */
     public void descontarStock(BigDecimal cantidad) {
+        if (cantidad == null || cantidad.compareTo(BigDecimal.ZERO) <= 0) {
+            throw new RuntimeException(ERROR_CANTIDAD_INVALIDA);
+        }
         BigDecimal nuevoStock = stockDisponible.subtract(cantidad);
         if (nuevoStock.compareTo(BigDecimal.ZERO) < 0) {
             throw new RuntimeException(ERROR_STOCK_NEGATIVO);
         }
         this.stockDisponible = nuevoStock;
+    }
+
+    /**
+     * Reemplaza el stock disponible validando que no sea negativo.
+     */
+    public void actualizarStockDisponible(BigDecimal stockDisponible) {
+        if (stockDisponible == null || stockDisponible.compareTo(BigDecimal.ZERO) < 0) {
+            throw new RuntimeException(ERROR_STOCK_NEGATIVO);
+        }
+        this.stockDisponible = stockDisponible;
     }
 }

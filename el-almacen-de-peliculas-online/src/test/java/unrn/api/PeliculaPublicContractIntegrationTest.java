@@ -6,13 +6,16 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.RequestPostProcessor;
 import unrn.app.Application;
 import unrn.config.JwtRoleConverter;
 import unrn.dto.PeliculaRequest;
+import unrn.event.movie.MovieEventPublisher;
 import unrn.service.ActorService;
 import unrn.service.DirectorService;
 import unrn.service.PeliculaService;
@@ -32,6 +35,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
                 "spring.rabbitmq.listener.direct.auto-startup=false"
 })
 @AutoConfigureMockMvc
+@ActiveProfiles("test")
 class PeliculaPublicContractIntegrationTest {
 
         @Autowired
@@ -48,6 +52,9 @@ class PeliculaPublicContractIntegrationTest {
 
         @Autowired
         private PeliculaService peliculaService;
+
+        @MockBean
+        private MovieEventPublisher movieEventPublisher;
 
         @BeforeEach
         void beforeEach() {

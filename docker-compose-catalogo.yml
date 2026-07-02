@@ -34,7 +34,7 @@ services:
       start_period: 20s
 
   catalogo-backend:
-    build: 
+    build:
       context: ./el-almacen-de-peliculas-online
       dockerfile: Dockerfile
     image: el-almacen-de-peliculas-online-backend:latest
@@ -50,7 +50,7 @@ services:
     ports:
       - "8081:8080"
     environment:
-      - SPRING_PROFILES_ACTIVE= docker
+      - SPRING_PROFILES_ACTIVE=docker
       - SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI=http://keycloak-sso:8080/realms/videoclub/protocol/openid-connect/certs
       - SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI=http://localhost:9090/realms/videoclub
       - SPRING_SQL_INIT_MODE=never
@@ -69,3 +69,4 @@ services:
 
 networks:
   peliculas-net:
+    external: true

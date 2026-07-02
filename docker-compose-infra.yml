@@ -45,3 +45,4 @@ volumes:
 
 networks:
   peliculas-net:
+    external: true

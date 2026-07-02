@@ -3,23 +3,37 @@ package unrn.api;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import unrn.dto.DetallePeliculaDTO;
+import unrn.dto.ActualizarStockRequest;
+import unrn.dto.AdminPeliculaDTO;
 import unrn.dto.PeliculaRequest;
 import unrn.service.PeliculaService;
 
+/**
+ * Controlador REST administrativo para gestionar peliculas del catalogo.
+ *
+ * Agrupa los endpoints protegidos de listado, alta, edicion, retiro logico y
+ * actualizacion de stock. Su responsabilidad es recibir requests admin y delegar
+ * en PeliculaService las reglas de negocio, eventos y persistencia.
+ */
 @RestController
 @RequestMapping("/api/admin/peliculas")
 public class PeliculaAdminController {
 
     private final PeliculaService peliculaService;
 
+    /**
+     * Inicializa una instancia de PeliculaAdminController con los datos necesarios.
+     */
     public PeliculaAdminController(PeliculaService peliculaService) {
         this.peliculaService = peliculaService;
     }
 
     // LISTAR
+    /**
+     * Lista peliculas para administracion incluyendo stock y version.
+     */
     @GetMapping
-    public ResponseEntity<PageResponse<DetallePeliculaDTO>> listar(
+    public ResponseEntity<PageResponse<AdminPeliculaDTO>> listar(
             @RequestParam(required = false) String q,
             @RequestParam(required = false) String genero,
             @RequestParam(required = false) String formato,
@@ -38,7 +52,7 @@ public class PeliculaAdminController {
         java.time.LocalDate d = (desde == null || desde.isBlank()) ? null : java.time.LocalDate.parse(desde);
         java.time.LocalDate h = (hasta == null || hasta.isBlank()) ? null : java.time.LocalDate.parse(hasta);
 
-        var pageResult = peliculaService.buscarPaginadoDetalle(
+        var pageResult = peliculaService.buscarPaginadoDetalleAdmin(
                 q,
                 genero,
                 formato,
@@ -64,6 +78,9 @@ public class PeliculaAdminController {
     }
 
     // CREAR
+    /**
+     * Crea una pelicula desde la API administrativa.
+     */
     @PostMapping
     public ResponseEntity<Void> crear(@RequestBody PeliculaRequest request) {
         peliculaService.crearPelicula(request);
@@ -71,6 +88,9 @@ public class PeliculaAdminController {
     }
 
     // EDITAR
+    /**
+     * Actualiza los datos editables de una pelicula desde la API admin.
+     */
     @PutMapping("/{id}")
     public ResponseEntity<Void> actualizar(
             @PathVariable Long id,
@@ -80,7 +100,22 @@ public class PeliculaAdminController {
         return ResponseEntity.noContent().build();
     }
 
+    /**
+     * Actualiza el stock disponible validando la version esperada.
+     */
+    @PatchMapping("/{id}/stock")
+    public ResponseEntity<AdminPeliculaDTO> actualizarStock(
+            @PathVariable Long id,
+            @RequestBody ActualizarStockRequest request) {
+
+        var response = peliculaService.actualizarStock(id, request.stockDisponible(), request.version());
+        return ResponseEntity.ok(response);
+    }
+
     // ELIMINAR
+    /**
+     * Elimina logicamente la pelicula indicada desde la API admin.
+     */
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> eliminar(@PathVariable Long id) {
         peliculaService.eliminar(id);

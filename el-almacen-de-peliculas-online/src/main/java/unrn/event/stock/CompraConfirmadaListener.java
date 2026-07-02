@@ -3,22 +3,34 @@ package unrn.event.stock;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
+/**
+ * Listener legado para compras confirmadas que descuenta o rechaza stock.
+ *
+ * Esta desactivado por property salvo que se habilite explicitamente. Permite
+ * conservar compatibilidad con el evento directo de ventas mientras el flujo nuevo
+ * usa solicitudes de validacion y resultados publicados por outbox.
+ */
 @Component
+@ConditionalOnProperty(name = "catalogo.stock.legacy-compra-confirmada-listener.enabled", havingValue = "true", matchIfMissing = false)
 public class CompraConfirmadaListener {
 
     private static final Logger log = LoggerFactory.getLogger(CompraConfirmadaListener.class);
 
     private final ProcesarCompraConfirmadaService procesarCompraConfirmadaService;
-    private final StockRechazadoPublisher stockRechazadoPublisher;
 
-    public CompraConfirmadaListener(ProcesarCompraConfirmadaService procesarCompraConfirmadaService,
-            StockRechazadoPublisher stockRechazadoPublisher) {
+    /**
+     * Inicializa una instancia de CompraConfirmadaListener con los datos necesarios.
+     */
+    public CompraConfirmadaListener(ProcesarCompraConfirmadaService procesarCompraConfirmadaService) {
         this.procesarCompraConfirmadaService = procesarCompraConfirmadaService;
-        this.stockRechazadoPublisher = stockRechazadoPublisher;
     }
 
+    /**
+     * Consume eventos legacy de compra confirmada y delega su procesamiento.
+     */
     @RabbitListener(queues = "catalogo.q.ventas-compra-confirmada")
     public void onCompraConfirmada(CompraConfirmadaEvent event) {
         try {
@@ -29,16 +41,13 @@ public class CompraConfirmadaListener {
                 return;
             }
 
-            if (resultado.tieneRechazo()) {
-                stockRechazadoPublisher.publicarAfterCommit(resultado.rechazoEvent());
-                log.info("Compra {} rechazada por stock en catálogo", event.compraId());
-                return;
-            }
-
-            log.info("Compra {} procesada correctamente en catálogo", event.compraId());
+            log.info("Compra {} procesada en catalogo; resultado registrado en outbox", event.compraId());
         } catch (RuntimeException ex) {
             log.error("Error procesando compra confirmada eventId={} compraId={} mensaje={}",
-                    event.eventId(), event.compraId(), ex.getMessage());
+                    event != null ? event.eventId() : "null",
+                    event != null ? event.compraId() : null,
+                    ex.getMessage());
+            throw ex;
         }
     }
 }

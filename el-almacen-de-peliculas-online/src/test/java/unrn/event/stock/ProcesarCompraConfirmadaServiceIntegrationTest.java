@@ -22,6 +22,11 @@ import unrn.model.Pelicula;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -32,6 +37,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @TestPropertySource(properties = {
         "spring.rabbitmq.listener.simple.auto-startup=false",
         "spring.rabbitmq.listener.direct.auto-startup=false",
+        "catalogo.outbox.scheduler.enabled=false",
         "spring.security.oauth2.resourceserver.jwt.jwk-set-uri=http://localhost/mock-jwks"
 })
 class ProcesarCompraConfirmadaServiceIntegrationTest {
@@ -55,6 +61,7 @@ class ProcesarCompraConfirmadaServiceIntegrationTest {
 
     @BeforeEach
     void beforeEach() {
+        jdbcTemplate.execute("DELETE FROM catalogo_outbox_event");
         jdbcTemplate.execute("DELETE FROM eventos_procesados");
         jdbcTemplate.execute("DELETE FROM pelicula_actor");
         jdbcTemplate.execute("DELETE FROM pelicula_director");
@@ -104,6 +111,8 @@ class ProcesarCompraConfirmadaServiceIntegrationTest {
                 "El stock debe disminuir según la cantidad comprada");
         assertEquals(1L, eventoProcesadoRepository.count(),
                 "Debe registrarse el eventId como procesado");
+        assertEquals(1, contarOutboxPorTipo("StockValidationAcceptedEvent"),
+                "Debe registrarse el accepted en outbox");
     }
 
     @Test
@@ -130,6 +139,8 @@ class ProcesarCompraConfirmadaServiceIntegrationTest {
                 "El stock debe disminuir una sola vez en 10 unidades");
         assertEquals(1L, eventoProcesadoRepository.count(),
                 "Debe existir un solo registro en eventos_procesados para el eventId");
+        assertEquals(1, contarOutboxPorTipo("StockValidationAcceptedEvent"),
+                "El duplicado no debe generar otro accepted en outbox");
     }
 
     @Test
@@ -158,5 +169,124 @@ class ProcesarCompraConfirmadaServiceIntegrationTest {
         PeliculaEntity peliculaPersistida = entityManager.find(PeliculaEntity.class, peliculaId);
         assertEquals(new BigDecimal("100.00"), peliculaPersistida.stockDisponible(),
                 "Ante rechazo no se debe descontar stock");
+        assertEquals(1, contarOutboxPorTipo("StockRechazadoEvent"),
+                "Debe registrarse el rechazo en outbox");
     }
+
+    @Test
+    @DisplayName("ProcesarCompraConfirmada cantidadInvalida generaRechazo y noModificaStock")
+    void procesarCompraConfirmada_cantidadInvalida_generaRechazoYNoModificaStock() {
+        // Setup: cantidad negativa no debe aumentar stock
+        CompraConfirmadaEvent event = new CompraConfirmadaEvent(
+                "evento-cantidad-invalida-1",
+                14L,
+                "cliente-cantidad-invalida",
+                java.time.Instant.now(),
+                List.of(new CompraConfirmadaEvent.ItemCompraConfirmada(peliculaId, -5)));
+
+        // Ejercitacion: procesar compra con cantidad invalida
+        var resultado = procesarCompraConfirmadaService.procesar(event);
+
+        // Verificacion: rechazo informado, stock sin cambios y evento marcado como procesado
+        assertFalse(resultado.duplicado(), "No debe marcarse duplicado en el primer intento");
+        assertTrue(resultado.tieneRechazo(), "Debe devolver evento de stock rechazado");
+        assertNotNull(resultado.rechazoEvent(), "El evento de rechazo no debe ser nulo");
+        assertEquals(ProcesarCompraConfirmadaService.MOTIVO_CANTIDAD_INVALIDA, resultado.rechazoEvent().motivo(),
+                "El motivo debe indicar cantidad invalida");
+        assertEquals(1, resultado.rechazoEvent().detalles().size(),
+                "Debe informar el item invalido en el detalle de rechazo");
+        assertEquals(-5, resultado.rechazoEvent().detalles().get(0).solicitado(),
+                "El detalle debe preservar la cantidad solicitada invalida");
+        assertEquals(1L, eventoProcesadoRepository.count(),
+                "El evento rechazado debe marcarse como procesado para idempotencia");
+
+        PeliculaEntity peliculaPersistida = entityManager.find(PeliculaEntity.class, peliculaId);
+        assertEquals(new BigDecimal("100.00"), peliculaPersistida.stockDisponible(),
+                "Ante cantidad invalida no se debe modificar stock");
+        assertEquals(1, contarOutboxPorTipo("StockRechazadoEvent"),
+                "Debe registrarse el rechazo en outbox");
+    }
+
+        @Test
+        @DisplayName("ProcesarCompraConfirmada solicitudesConcurrentes evitaSobreventa con bloqueoPesimista")
+        void procesarCompraConfirmada_solicitudesConcurrentes_evitaSobreventaConBloqueoPesimista() throws Exception {
+                // Setup: dos eventos distintos compiten por el mismo stock disponible
+                CompraConfirmadaEvent primerEvento = new CompraConfirmadaEvent(
+                                "evento-concurrente-1",
+                                12L,
+                                "cliente-a",
+                                java.time.Instant.now(),
+                                List.of(new CompraConfirmadaEvent.ItemCompraConfirmada(peliculaId, 70)));
+
+                CompraConfirmadaEvent segundoEvento = new CompraConfirmadaEvent(
+                                "evento-concurrente-2",
+                                13L,
+                                "cliente-b",
+                                java.time.Instant.now(),
+                                List.of(new CompraConfirmadaEvent.ItemCompraConfirmada(peliculaId, 70)));
+
+                ExecutorService executor = Executors.newFixedThreadPool(2);
+                CountDownLatch ready = new CountDownLatch(2);
+                CountDownLatch start = new CountDownLatch(1);
+
+                try {
+                        Future<ProcesarCompraConfirmadaService.ResultadoProcesamiento> primerResultadoFuture = executor.submit(() -> {
+                                ready.countDown();
+                                start.await(5, TimeUnit.SECONDS);
+                                return procesarCompraConfirmadaService.procesar(primerEvento);
+                        });
+
+                        Future<ProcesarCompraConfirmadaService.ResultadoProcesamiento> segundoResultadoFuture = executor.submit(() -> {
+                                ready.countDown();
+                                start.await(5, TimeUnit.SECONDS);
+                                return procesarCompraConfirmadaService.procesar(segundoEvento);
+                        });
+
+                        ready.await(5, TimeUnit.SECONDS);
+                        start.countDown();
+
+                        var primerResultado = primerResultadoFuture.get(10, TimeUnit.SECONDS);
+                        var segundoResultado = segundoResultadoFuture.get(10, TimeUnit.SECONDS);
+
+                        // Verificación: no hay sobreventa y solo un procesamiento descuenta stock
+                        int exitos = 0;
+                        int rechazos = 0;
+
+                        for (var resultado : List.of(primerResultado, segundoResultado)) {
+                                if (resultado.tieneRechazo()) {
+                                        rechazos++;
+                                } else if (!resultado.duplicado()) {
+                                        exitos++;
+                                }
+                        }
+
+                        PeliculaEntity peliculaPersistida = entityManager.find(PeliculaEntity.class, peliculaId);
+
+                        assertEquals(1, exitos,
+                                        "Solo una solicitud concurrente debe poder descontar stock");
+                        assertEquals(1, rechazos,
+                                        "La otra solicitud concurrente debe rechazarse por stock insuficiente");
+                        assertEquals(new BigDecimal("30.00"), peliculaPersistida.stockDisponible(),
+                                        "El stock final debe ser consistente y nunca negativo");
+                        assertEquals(2L, eventoProcesadoRepository.count(),
+                                        "Cada eventId distinto debe registrarse una sola vez");
+                        assertEquals(2, contarOutboxPendientes(),
+                                        "Cada resultado concurrente debe quedar registrado en outbox");
+                } finally {
+                        executor.shutdownNow();
+                }
+        }
+
+        private int contarOutboxPorTipo(String eventType) {
+                return jdbcTemplate.queryForObject(
+                                "SELECT COUNT(*) FROM catalogo_outbox_event WHERE event_type=? AND status='PENDING'",
+                                Integer.class,
+                                eventType);
+        }
+
+        private int contarOutboxPendientes() {
+                return jdbcTemplate.queryForObject(
+                                "SELECT COUNT(*) FROM catalogo_outbox_event WHERE status='PENDING'",
+                                Integer.class);
+        }
 }

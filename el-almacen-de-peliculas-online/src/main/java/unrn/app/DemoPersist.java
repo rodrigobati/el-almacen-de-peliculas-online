@@ -6,7 +6,16 @@ import unrn.infra.persistence.PeliculaRepository;
 import java.time.LocalDate;
 import java.util.List;
 
+/**
+ * Utilidad de consola para probar persistencia de peliculas manualmente.
+ *
+ * Permite crear datos y verificar el mapeo contra la base durante desarrollo,
+ * separada del arranque Spring Boot principal y de los endpoints HTTP.
+ */
 public class DemoPersist {
+    /**
+     * Punto de entrada para ejecutar esta aplicacion.
+     */
     public static void main(String[] args) {
         PeliculaRepository repo = new PeliculaRepository();
 
@@ -16,7 +25,7 @@ public class DemoPersist {
                 List.of(new Director("Ridley Scott")),
                 9999.99,
                 new Formato("BLURAY"),
-                new Genero("Ciencia Ficción"),
+                new Genero("Ciencia FicciÃ³n"),
                 "Neo-noir sci-fi classic",
                 List.of(new Actor("Harrison Ford"), new Actor("Rutger Hauer")),
                 "https://example.com/br.jpg",

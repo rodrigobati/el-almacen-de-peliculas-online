@@ -1,4 +1,4 @@
-name: almacen-peliculas-online  # Nombre del proyecto global
+name: almacen-peliculas-online # Nombre del proyecto global
 
 include:
   - path: ./docker-compose-infra.yml
@@ -13,5 +13,4 @@ include:
 
 networks:
   peliculas-net:
-    driver: bridge
-    name: peliculas-net
+    external: true

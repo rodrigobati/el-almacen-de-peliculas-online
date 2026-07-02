@@ -7,6 +7,7 @@ import org.springframework.transaction.annotation.Transactional;
 import unrn.model.Actor;
 import unrn.model.Director;
 import unrn.model.Pelicula;
+import unrn.service.PeliculaStockVersionConflictException;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -20,6 +21,13 @@ import jakarta.persistence.criteria.Path;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 
+/**
+ * Repositorio principal de peliculas y adaptador entre dominio y persistencia.
+ *
+ * Contiene las consultas de catalogo, filtros, paginacion, alta, edicion, retiro
+ * logico y actualizacion de stock. Tambien resuelve entidades relacionadas para
+ * traducir entre Pelicula de dominio y PeliculaEntity almacenada en la base.
+ */
 @Repository
 @Transactional(readOnly = true)
 public class PeliculaRepository {
@@ -27,6 +35,9 @@ public class PeliculaRepository {
     @PersistenceContext
     private EntityManager em;
 
+    /**
+     * Persiste una pelicula nueva reutilizando o creando sus datos catalogo.
+     */
     @Transactional
     public Pelicula guardar(Pelicula p) {
         var directores = new ArrayList<DirectorEntity>();
@@ -45,7 +56,7 @@ public class PeliculaRepository {
             actores.add(ae);
         }
 
-        // find or create catalog entries
+        // Busca o crea las entidades de catalogo normalizadas.
         CondicionEntity ce = findCondicionPorNombre(p.condicion().toString());
         if (ce == null) {
             ce = new CondicionEntity(p.condicion().toString());
@@ -79,46 +90,88 @@ public class PeliculaRepository {
         return pe.asDomain();
     }
 
+    /**
+     * Busca una pelicula por id y devuelve null si no existe.
+     */
     public Pelicula porId(Long id) {
         PeliculaEntity pe = em.find(PeliculaEntity.class, id);
         return (pe == null) ? null : pe.asDomain();
     }
 
+    /**
+     * Actualiza el stock disponible validando la version esperada.
+     */
+    @Transactional
+    public Pelicula actualizarStock(Long id, BigDecimal stockDisponible, long expectedVersion) {
+        PeliculaEntity pe = em.find(PeliculaEntity.class, id);
+        if (pe == null) {
+            return null;
+        }
+        if (pe.version() != expectedVersion) {
+            throw new PeliculaStockVersionConflictException(id, expectedVersion, pe.version());
+        }
+
+        pe.actualizarStockDisponible(stockDisponible);
+        em.flush();
+        return pe.asDomain();
+    }
+
+    /**
+     * Busca peliculas por coincidencia parcial de titulo.
+     */
     public java.util.List<Pelicula> buscarPorTitulo(String q) {
         var list = em.createNamedQuery("PeliculaEntity.buscarPorTitulo", PeliculaEntity.class)
                 .setParameter("q", q).getResultList();
         return list.stream().map(PeliculaEntity::asDomain).toList();
     }
 
+    /**
+     * Busca peliculas por genero exacto ignorando mayusculas.
+     */
     public java.util.List<Pelicula> buscarPorGenero(String genero) {
         var list = em.createNamedQuery("PeliculaEntity.buscarPorGenero", PeliculaEntity.class)
                 .setParameter("genero", genero).getResultList();
         return list.stream().map(PeliculaEntity::asDomain).toList();
     }
 
+    /**
+     * Busca peliculas por coincidencia parcial del nombre de actor.
+     */
     public java.util.List<Pelicula> buscarPorActor(String actor) {
         var list = em.createNamedQuery("PeliculaEntity.buscarPorActor", PeliculaEntity.class)
                 .setParameter("actor", actor).getResultList();
         return list.stream().map(PeliculaEntity::asDomain).toList();
     }
 
+    /**
+     * Busca peliculas por coincidencia parcial del nombre de director.
+     */
     public java.util.List<Pelicula> buscarPorDirector(String director) {
         var list = em.createNamedQuery("PeliculaEntity.buscarPorDirector", PeliculaEntity.class)
                 .setParameter("director", director).getResultList();
         return list.stream().map(PeliculaEntity::asDomain).toList();
     }
 
+    /**
+     * Cuenta peliculas asociadas a un genero exacto.
+     */
     public long contarPorGenero(String genero) {
         return em.createNamedQuery("PeliculaEntity.contarPorGenero", Long.class)
                 .setParameter("genero", genero).getSingleResult();
     }
 
+    /**
+     * Detecta si ya existe una pelicula con ese titulo en catalogo.
+     */
     public boolean existePorTitulo(String titulo) {
         long c = em.createNamedQuery("PeliculaEntity.existePorTitulo", Long.class)
                 .setParameter("titulo", titulo).getSingleResult();
         return c > 0;
     }
 
+    /**
+     * Busca peliculas con filtros, orden y paginacion validada.
+     */
     public PageResult<Pelicula> buscarPaginado(
             String q,
             String genero,
@@ -194,6 +247,9 @@ public class PeliculaRepository {
         return new PageResult<>(items, total, page, size);
     }
 
+    /**
+     * Construye los predicados dinamicos para filtrar peliculas.
+     */
     private List<Predicate> buildPredicates(
             CriteriaBuilder cb,
             Root<PeliculaEntity> root,
@@ -247,6 +303,9 @@ public class PeliculaRepository {
         return preds;
     }
 
+    /**
+     * Resuelve el path JPA que corresponde al campo de ordenamiento solicitado.
+     */
     private Path<?> resolveSortPath(Root<PeliculaEntity> root, String sortField) {
         String normalized = (sortField == null || sortField.isBlank()) ? "titulo" : sortField;
         return switch (normalized) {
@@ -259,6 +318,9 @@ public class PeliculaRepository {
         };
     }
 
+    /**
+     * Busca peliculas cuyo precio esta dentro del rango recibido.
+     */
     public java.util.List<Pelicula> buscarPorPrecioEntre(java.math.BigDecimal min, java.math.BigDecimal max) {
         var list = em
                 .createQuery(
@@ -270,6 +332,9 @@ public class PeliculaRepository {
         return list.stream().map(PeliculaEntity::asDomain).toList();
     }
 
+    /**
+     * Busca peliculas cuya fecha de salida cae dentro del rango recibido.
+     */
     public java.util.List<Pelicula> buscarPorFechaSalidaEntre(java.time.LocalDate desde, java.time.LocalDate hasta) {
         var list = em.createQuery(
                 "SELECT p FROM PeliculaEntity p WHERE p.fechaSalida BETWEEN :d AND :h ORDER BY p.fechaSalida DESC",
@@ -280,6 +345,9 @@ public class PeliculaRepository {
         return list.stream().map(PeliculaEntity::asDomain).toList();
     }
 
+    /**
+     * Busca peliculas combinando filtros opcionales de catalogo.
+     */
     public java.util.List<Pelicula> buscarDinamico(String titulo, String genero, String formato, String condicion,
             java.time.LocalDate desde, java.time.LocalDate hasta,
             java.math.BigDecimal minPrecio, java.math.BigDecimal maxPrecio) {
@@ -313,6 +381,9 @@ public class PeliculaRepository {
         return results.stream().map(PeliculaEntity::asDomain).toList();
     }
 
+    /**
+     * Lista nombres de generos disponibles para filtros del catalogo.
+     */
     public java.util.List<String> listarGeneros() {
         var cb = em.getCriteriaBuilder();
         var cq = cb.createQuery(GeneroEntity.class);
@@ -322,6 +393,9 @@ public class PeliculaRepository {
         return list.stream().map(g -> g.nombre).toList();
     }
 
+    /**
+     * Busca un director persistido por nombre para reutilizarlo al guardar peliculas.
+     */
     private DirectorEntity findDirectorPorNombre(String nombre) {
         var cb = em.getCriteriaBuilder();
         var cq = cb.createQuery(DirectorEntity.class);
@@ -331,6 +405,9 @@ public class PeliculaRepository {
         return list.isEmpty() ? null : list.get(0);
     }
 
+    /**
+     * Busca un actor persistido por nombre para reutilizarlo al guardar peliculas.
+     */
     private ActorEntity findActorPorNombre(String nombre) {
         var cb = em.getCriteriaBuilder();
         var cq = cb.createQuery(ActorEntity.class);
@@ -340,6 +417,9 @@ public class PeliculaRepository {
         return list.isEmpty() ? null : list.get(0);
     }
 
+    /**
+     * Busca una condicion persistida por nombre para reutilizarla al guardar peliculas.
+     */
     private CondicionEntity findCondicionPorNombre(String nombre) {
         var cb = em.getCriteriaBuilder();
         var cq = cb.createQuery(CondicionEntity.class);
@@ -349,6 +429,9 @@ public class PeliculaRepository {
         return list.isEmpty() ? null : list.get(0);
     }
 
+    /**
+     * Busca un formato persistido por nombre para reutilizarlo al guardar peliculas.
+     */
     private FormatoEntity findFormatoPorNombre(String nombre) {
         var cb = em.getCriteriaBuilder();
         var cq = cb.createQuery(FormatoEntity.class);
@@ -358,6 +441,9 @@ public class PeliculaRepository {
         return list.isEmpty() ? null : list.get(0);
     }
 
+    /**
+     * Busca un genero persistido por nombre para reutilizarlo al guardar peliculas.
+     */
     private GeneroEntity findGeneroPorNombre(String nombre) {
         var cb = em.getCriteriaBuilder();
         var cq = cb.createQuery(GeneroEntity.class);
@@ -367,6 +453,9 @@ public class PeliculaRepository {
         return list.isEmpty() ? null : list.get(0);
     }
 
+    /**
+     * Marca la pelicula como inactiva e incrementa su version.
+     */
     @Transactional
     public Pelicula eliminar(Long id) {
         PeliculaEntity pe = em.find(PeliculaEntity.class, id);
@@ -379,6 +468,9 @@ public class PeliculaRepository {
         return pe.asDomain();
     }
 
+    /**
+     * Lista peliculas activas ordenadas por titulo para vistas de catalogo.
+     */
     public List<Pelicula> listarTodos() {
         var list = em
                 .createQuery("SELECT p FROM PeliculaEntity p WHERE p.activa = true ORDER BY p.titulo",
@@ -387,6 +479,9 @@ public class PeliculaRepository {
         return list.stream().map(PeliculaEntity::asDomain).toList();
     }
 
+    /**
+     * Actualiza los datos persistidos de una pelicula y aumenta su version.
+     */
     @Transactional
     public Pelicula actualizar(Long id, Pelicula p) {
         PeliculaEntity pe = em.find(PeliculaEntity.class, id);

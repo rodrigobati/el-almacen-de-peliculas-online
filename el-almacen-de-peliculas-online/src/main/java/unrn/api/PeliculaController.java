@@ -14,6 +14,13 @@ import unrn.model.Pelicula;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
+/**
+ * Controlador REST publico del catalogo de peliculas.
+ *
+ * Atiende las consultas que consume la tienda online: detalle por id y busqueda
+ * paginada con filtros de genero, formato, condicion, actor, director, precio y
+ * fecha. Devuelve DTOs de lectura para no exponer el modelo ni entidades JPA.
+ */
 @RestController
 @RequestMapping("/peliculas")
 public class PeliculaController {
@@ -21,22 +28,31 @@ public class PeliculaController {
     private final PeliculaRepository repo;
     private final PeliculaService service;
 
+    /**
+     * Inicializa una instancia de PeliculaController con los datos necesarios.
+     */
     public PeliculaController(PeliculaRepository repo, PeliculaService service) {
         this.repo = repo;
         this.service = service;
     }
 
     // GET /api/peliculas/{id} -> detalle para la vista de React
+    /**
+     * Devuelve el detalle publico de una pelicula por id.
+     */
     @GetMapping("/{id}")
     public ResponseEntity<DetallePeliculaDTO> detalle(@PathVariable Long id) {
         Pelicula p = repo.porId(id);
         if (p == null)
-            throw new NotFound("Película no encontrada: id=" + id);
+            throw new NotFound("PelÃ­cula no encontrada: id=" + id);
         return ResponseEntity.ok(DetallePeliculaDTO.from(p));
     }
 
     // GET
     // /api/peliculas?q=blade&genero=DRAMA&actor=Ford&director=Scott&minPrecio=0&maxPrecio=10000&desde=1980-01-01&hasta=1990-12-31&page=0&size=12&sort=titulo&asc=true
+    /**
+     * Busca peliculas publicas con filtros, orden y paginacion.
+     */
     @GetMapping
     public ResponseEntity<PageResponse<DetallePeliculaDTO>> buscar(
             @RequestParam(name = "q", required = false) String q,
