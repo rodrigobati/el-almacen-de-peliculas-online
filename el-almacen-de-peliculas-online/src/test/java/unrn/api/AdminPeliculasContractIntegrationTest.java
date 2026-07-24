@@ -32,6 +32,13 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+/**
+ * Pruebas de contrato de la API administrativa de peliculas.
+ *
+ * Verifican que el listado admin mantenga la forma de PageResponse, respete orden,
+ * paginacion y validaciones, y que la actualizacion de stock conserve el contrato
+ * de versionado optimista usado por el backoffice.
+ */
 @SpringBootTest(classes = Application.class, properties = {
         "spring.security.oauth2.resourceserver.jwt.jwk-set-uri=http://localhost/jwks",
         "spring.rabbitmq.listener.simple.auto-startup=false",
@@ -78,14 +85,14 @@ class AdminPeliculasContractIntegrationTest {
         crearPelicula("Admin Contract 1", 55.0);
         crearPelicula("Admin Contract 2", 65.0);
 
-        // Ejercitación: Ejecutar la acción a probar
+        // EjercitaciÃ³n: Ejecutar la acciÃ³n a probar
         mockMvc.perform(get("/api/admin/peliculas")
                 .with(jwtAdminClaims())
                 .param("page", "0")
                 .param("size", "2")
                 .param("sort", "titulo")
                 .param("asc", "true"))
-                // Verificación: Verificar el resultado esperado
+                // VerificaciÃ³n: Verificar el resultado esperado
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.items").isArray())
                 .andExpect(jsonPath("$.total").isNumber())
@@ -101,7 +108,7 @@ class AdminPeliculasContractIntegrationTest {
     void listarAdmin_sinResultados_devuelveTotalPagesEnCero() throws Exception {
         // Setup: Preparar el escenario
 
-        // Ejercitación: Ejecutar la acción a probar
+        // EjercitaciÃ³n: Ejecutar la acciÃ³n a probar
         mockMvc.perform(get("/api/admin/peliculas")
                 .with(jwtAdminClaims())
                 .param("q", "NO_EXISTE_EN_CATALOGO")
@@ -109,7 +116,7 @@ class AdminPeliculasContractIntegrationTest {
                 .param("size", "2")
                 .param("sort", "titulo")
                 .param("asc", "true"))
-                // Verificación: Verificar el resultado esperado
+                // VerificaciÃ³n: Verificar el resultado esperado
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.items").isArray())
                 .andExpect(jsonPath("$.items.length()").value(0))
@@ -126,14 +133,14 @@ class AdminPeliculasContractIntegrationTest {
         crearPelicula("AAA", 10.0);
         crearPelicula("ZZZ", 10.0);
 
-        // Ejercitación: Ejecutar la acción a probar
+        // EjercitaciÃ³n: Ejecutar la acciÃ³n a probar
         mockMvc.perform(get("/api/admin/peliculas")
                 .with(jwtAdminClaims())
                 .param("sort", "titulo")
                 .param("asc", "false")
                 .param("page", "0")
                 .param("size", "2"))
-                // Verificación: Verificar el resultado esperado
+                // VerificaciÃ³n: Verificar el resultado esperado
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.items[0].titulo").value("ZZZ"));
     }
@@ -143,14 +150,14 @@ class AdminPeliculasContractIntegrationTest {
     void listarAdmin_pageNegativo_devuelve400() throws Exception {
         // Setup: Preparar el escenario
 
-        // Ejercitación: Ejecutar la acción a probar
+        // EjercitaciÃ³n: Ejecutar la acciÃ³n a probar
         mockMvc.perform(get("/api/admin/peliculas")
                 .with(jwtAdminClaims())
                 .param("page", "-1")
                 .param("size", "12")
                 .param("sort", "titulo")
                 .param("asc", "true"))
-                // Verificación: Verificar el resultado esperado
+                // VerificaciÃ³n: Verificar el resultado esperado
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.code").value("INVALID_PAGE"))
                 .andExpect(jsonPath("$.message").isString());
@@ -161,14 +168,14 @@ class AdminPeliculasContractIntegrationTest {
     void listarAdmin_sizeCero_devuelve400() throws Exception {
         // Setup: Preparar el escenario
 
-        // Ejercitación: Ejecutar la acción a probar
+        // EjercitaciÃ³n: Ejecutar la acciÃ³n a probar
         mockMvc.perform(get("/api/admin/peliculas")
                 .with(jwtAdminClaims())
                 .param("page", "0")
                 .param("size", "0")
                 .param("sort", "titulo")
                 .param("asc", "true"))
-                // Verificación: Verificar el resultado esperado
+                // VerificaciÃ³n: Verificar el resultado esperado
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.code").value("INVALID_SIZE"))
                 .andExpect(jsonPath("$.message").isString());
@@ -179,14 +186,14 @@ class AdminPeliculasContractIntegrationTest {
     void listarAdmin_sizeExcesivo_devuelve400() throws Exception {
         // Setup: Preparar el escenario
 
-        // Ejercitación: Ejecutar la acción a probar
+        // EjercitaciÃ³n: Ejecutar la acciÃ³n a probar
         mockMvc.perform(get("/api/admin/peliculas")
                 .with(jwtAdminClaims())
                 .param("page", "0")
                 .param("size", "101")
                 .param("sort", "titulo")
                 .param("asc", "true"))
-                // Verificación: Verificar el resultado esperado
+                // VerificaciÃ³n: Verificar el resultado esperado
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.code").value("INVALID_SIZE"))
                 .andExpect(jsonPath("$.message").isString());
@@ -197,14 +204,14 @@ class AdminPeliculasContractIntegrationTest {
     void listarAdmin_sortInvalido_devuelve400() throws Exception {
         // Setup: Preparar el escenario
 
-        // Ejercitación: Ejecutar la acción a probar
+        // EjercitaciÃ³n: Ejecutar la acciÃ³n a probar
         mockMvc.perform(get("/api/admin/peliculas")
                 .with(jwtAdminClaims())
                 .param("page", "0")
                 .param("size", "12")
                 .param("sort", "campoNoPermitido")
                 .param("asc", "true"))
-                // Verificación: Verificar el resultado esperado
+                // VerificaciÃ³n: Verificar el resultado esperado
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.code").value("INVALID_SORT"))
                 .andExpect(jsonPath("$.message").isString());

@@ -17,6 +17,13 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+/**
+ * Guardrail de contratos DTO expuestos por la API.
+ *
+ * Protege nombres, componentes y tipos de records para detectar cambios accidentales
+ * que podrian romper al frontend o a otras verticales que consumen las respuestas
+ * del catalogo.
+ */
 @JsonTest(properties = {
         "spring.autoconfigure.exclude=" +
                 "org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration," +

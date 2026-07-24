@@ -8,14 +8,20 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+/**
+ * Pruebas del objeto de dominio Catalogo.
+ *
+ * Cubren la construccion con colecciones validas, el rechazo de peliculas nulas,
+ * la obtencion de categorias y el ordenamiento o filtrado de peliculas.
+ */
 class CatalogoTest {
 
     @Test
     @DisplayName("constructor listaNula lanzaExcepcion")
     void constructor_listaNula_lanzaExcepcion() {
-        // Setup & ejercitación
+        // Setup & ejercitaciÃ³n
         var ex = assertThrows(RuntimeException.class, () -> new Catalogo(null));
-        // Verificación
+        // VerificaciÃ³n
         assertEquals(Catalogo.ERROR_PELICULAS_NULAS, ex.getMessage());
     }
 
@@ -24,7 +30,7 @@ class CatalogoTest {
     void constructor_listaConNulos_lanzaExcepcion() {
         // Setup
         var lista = java.util.Arrays.asList((Pelicula) null);
-        // Ejercitación & Verificación
+        // EjercitaciÃ³n & VerificaciÃ³n
         var ex = assertThrows(RuntimeException.class, () -> new Catalogo(lista));
         assertEquals(Catalogo.ERROR_PELICULA_NULA, ex.getMessage());
     }
@@ -40,10 +46,10 @@ class CatalogoTest {
         var p3 = new Pelicula("C", new Condicion("nuevo"), List.of(new Director("D")), 1.0, new Formato("F"),
                 new Genero("Comedia"), "s", List.of(new Actor("a")), "i", LocalDate.of(2019, 1, 1), 0);
         var catalogo = new Catalogo(List.of(p1, p2, p3));
-        // Ejercitación
+        // EjercitaciÃ³n
         var titulos = catalogo.titulosDeCategorias();
-        // Verificación
-        assertEquals(List.of("Accion", "Comedia"), titulos, "Los títulos únicos deben estar ordenados ascendente");
+        // VerificaciÃ³n
+        assertEquals(List.of("Accion", "Comedia"), titulos, "Los tÃ­tulos Ãºnicos deben estar ordenados ascendente");
     }
 
     @Test
@@ -51,7 +57,7 @@ class CatalogoTest {
     void filtrarPorCategoria_categoriaNula_lanzaExcepcion() {
         // Setup
         var catalogo = new Catalogo(List.of());
-        // Ejercitación & Verificación
+        // EjercitaciÃ³n & VerificaciÃ³n
         var ex = assertThrows(RuntimeException.class, () -> catalogo.filtrarPorCategoria(null));
         assertEquals(Catalogo.ERROR_CATEGORIA_NULA, ex.getMessage());
     }
@@ -68,15 +74,15 @@ class CatalogoTest {
         var p3 = new Pelicula("Beta", new Condicion("nuevo"), List.of(new Director("D")), 1.0, new Formato("F"), genero,
                 "s", List.of(new Actor("a")), "i", LocalDate.of(2021, 1, 1), 0);
         var catalogo = new Catalogo(List.of(p1, p2, p3));
-        // Ejercitación
+        // EjercitaciÃ³n
         var ordenadas = catalogo.filtrarPorCategoria(new Categoria("Drama"));
-        // Verificación: p2 (2021 Alpha) y p3 (2021 Beta) — mismas fechas, desempata por
+        // VerificaciÃ³n: p2 (2021 Alpha) y p3 (2021 Beta) â€” mismas fechas, desempata por
         // titulo asc -> Alpha, Beta
-        assertEquals(3, ordenadas.size(), "Debe devolver las 3 películas de la categoría");
+        assertEquals(3, ordenadas.size(), "Debe devolver las 3 pelÃ­culas de la categorÃ­a");
         assertEquals("Alpha", ordenadas.get(0).titulo(),
-                "El primer título debe ser Alpha (fecha mayor y desempate por título)");
-        assertEquals("Beta", ordenadas.get(1).titulo(), "El segundo título debe ser Beta (desempate por título)");
-        assertEquals("Zeta", ordenadas.get(2).titulo(), "El tercer título debe ser Zeta (fecha más vieja)");
+                "El primer tÃ­tulo debe ser Alpha (fecha mayor y desempate por tÃ­tulo)");
+        assertEquals("Beta", ordenadas.get(1).titulo(), "El segundo tÃ­tulo debe ser Beta (desempate por tÃ­tulo)");
+        assertEquals("Zeta", ordenadas.get(2).titulo(), "El tercer tÃ­tulo debe ser Zeta (fecha mÃ¡s vieja)");
     }
 
     @Test
@@ -90,9 +96,9 @@ class CatalogoTest {
         var p3 = new Pelicula("C", new Condicion("nuevo"), List.of(new Director("D")), 1.0, new Formato("F"),
                 new Genero("G"), "s", List.of(new Actor("a")), "i", LocalDate.of(2019, 1, 1), 0);
         var catalogo = new Catalogo(List.of(p1, p2, p3));
-        // Ejercitación
+        // EjercitaciÃ³n
         var ordenadas = catalogo.peliculasOrdenadasPorFechaDesc();
-        // Verificación
+        // VerificaciÃ³n
         assertEquals(List.of("B", "C", "A"), ordenadas.stream().map(Pelicula::titulo).toList(),
                 "El orden esperado no coincide");
     }

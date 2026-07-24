@@ -10,6 +10,12 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+/**
+ * Pruebas unitarias de la entidad persistente PeliculaEntity.
+ *
+ * Cubren reglas cercanas a la base como descuento de stock, rechazo de cantidades
+ * invalidas, proteccion contra stock negativo y conservacion del estado persistido.
+ */
 class PeliculaEntityTest {
     @Test
     @DisplayName("Version cero se normaliza a uno en el dominio")

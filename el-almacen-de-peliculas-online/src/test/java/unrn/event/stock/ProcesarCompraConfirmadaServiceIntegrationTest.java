@@ -33,6 +33,13 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+/**
+ * Pruebas de integracion del procesamiento transaccional de compras y stock.
+ *
+ * Cubren idempotencia por eventId, validacion de cantidades, peliculas inexistentes,
+ * stock insuficiente, descuento con lock y registro de eventos aceptados o rechazados
+ * en el outbox.
+ */
 @SpringBootTest(classes = Application.class)
 @TestPropertySource(properties = {
         "spring.rabbitmq.listener.simple.auto-startup=false",
@@ -78,7 +85,7 @@ class ProcesarCompraConfirmadaServiceIntegrationTest {
                 List.of(new Director("Lana Wachowski")),
                 100.00,
                 new Formato("BluRay"),
-                new Genero("Ciencia ficción"),
+                new Genero("Ciencia ficciÃ³n"),
                 "Sinopsis",
                 List.of(new Actor("Keanu Reeves")),
                 "",
@@ -91,7 +98,7 @@ class ProcesarCompraConfirmadaServiceIntegrationTest {
     @Test
     @DisplayName("ProcesarCompraConfirmada caminoExitoso descuentaStock y noGeneraRechazo")
     void procesarCompraConfirmada_caminoExitoso_descuentaStockYNoGeneraRechazo() {
-        // Setup: evento válido con stock suficiente
+        // Setup: evento vÃ¡lido con stock suficiente
         CompraConfirmadaEvent event = new CompraConfirmadaEvent(
                 "evento-ok-1",
                 9L,
@@ -99,16 +106,16 @@ class ProcesarCompraConfirmadaServiceIntegrationTest {
                 java.time.Instant.now(),
                 List.of(new CompraConfirmadaEvent.ItemCompraConfirmada(peliculaId, 5)));
 
-        // Ejercitación: procesar una sola vez
+        // EjercitaciÃ³n: procesar una sola vez
         var resultado = procesarCompraConfirmadaService.procesar(event);
 
-        // Verificación: descuento de stock, sin rechazo, evento procesado registrado
+        // VerificaciÃ³n: descuento de stock, sin rechazo, evento procesado registrado
         PeliculaEntity peliculaPersistida = entityManager.find(PeliculaEntity.class, peliculaId);
 
         assertFalse(resultado.duplicado(), "El primer procesamiento no debe ser duplicado");
         assertFalse(resultado.tieneRechazo(), "En camino exitoso no debe existir rechazo");
         assertEquals(new BigDecimal("95.00"), peliculaPersistida.stockDisponible(),
-                "El stock debe disminuir según la cantidad comprada");
+                "El stock debe disminuir segÃºn la cantidad comprada");
         assertEquals(1L, eventoProcesadoRepository.count(),
                 "Debe registrarse el eventId como procesado");
         assertEquals(1, contarOutboxPorTipo("StockValidationAcceptedEvent"),
@@ -126,11 +133,11 @@ class ProcesarCompraConfirmadaServiceIntegrationTest {
                 java.time.Instant.now(),
                 List.of(new CompraConfirmadaEvent.ItemCompraConfirmada(peliculaId, 10)));
 
-        // Ejercitación: procesar dos veces el mismo evento
+        // EjercitaciÃ³n: procesar dos veces el mismo evento
         var primerResultado = procesarCompraConfirmadaService.procesar(event);
         var segundoResultado = procesarCompraConfirmadaService.procesar(event);
 
-        // Verificación: un solo descuento y evento procesado único
+        // VerificaciÃ³n: un solo descuento y evento procesado Ãºnico
         PeliculaEntity peliculaPersistida = entityManager.find(PeliculaEntity.class, peliculaId);
 
         assertFalse(primerResultado.duplicado(), "El primer procesamiento no debe considerarse duplicado");
@@ -146,7 +153,7 @@ class ProcesarCompraConfirmadaServiceIntegrationTest {
     @Test
     @DisplayName("ProcesarCompraConfirmada stockInsuficiente generaRechazo y registraEvento")
     void procesarCompraConfirmada_stockInsuficiente_generaRechazoYRegistraEvento() {
-        // Setup: solicitar más stock del disponible
+        // Setup: solicitar mÃ¡s stock del disponible
         CompraConfirmadaEvent event = new CompraConfirmadaEvent(
                 "evento-rechazo-1",
                 11L,
@@ -154,10 +161,10 @@ class ProcesarCompraConfirmadaServiceIntegrationTest {
                 java.time.Instant.now(),
                 List.of(new CompraConfirmadaEvent.ItemCompraConfirmada(peliculaId, 1000)));
 
-        // Ejercitación: procesar compra insuficiente
+        // EjercitaciÃ³n: procesar compra insuficiente
         var resultado = procesarCompraConfirmadaService.procesar(event);
 
-        // Verificación: rechazo informado y evento marcado como procesado
+        // VerificaciÃ³n: rechazo informado y evento marcado como procesado
         assertFalse(resultado.duplicado(), "No debe marcarse duplicado en el primer intento");
         assertTrue(resultado.tieneRechazo(), "Debe devolver evento de stock rechazado");
         assertNotNull(resultado.rechazoEvent(), "El evento de rechazo no debe ser nulo");
@@ -248,7 +255,7 @@ class ProcesarCompraConfirmadaServiceIntegrationTest {
                         var primerResultado = primerResultadoFuture.get(10, TimeUnit.SECONDS);
                         var segundoResultado = segundoResultadoFuture.get(10, TimeUnit.SECONDS);
 
-                        // Verificación: no hay sobreventa y solo un procesamiento descuenta stock
+                        // VerificaciÃ³n: no hay sobreventa y solo un procesamiento descuenta stock
                         int exitos = 0;
                         int rechazos = 0;
 

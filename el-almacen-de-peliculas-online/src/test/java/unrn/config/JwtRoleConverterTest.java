@@ -15,6 +15,13 @@ import java.util.stream.Collectors;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+/**
+ * Pruebas unitarias del conversor de roles JWT de Keycloak.
+ *
+ * Validan la normalizacion a authorities ROLE_*, la lectura de realm_access y
+ * resource_access, y la estrategia que prioriza client-id configurado, azp o merge
+ * de roles disponibles.
+ */
 class JwtRoleConverterTest {
 
     @Test
@@ -26,13 +33,13 @@ class JwtRoleConverterTest {
                 List.of("admin", "ROLE_ADMIN"),
                 Map.of("web", Map.of("roles", List.of("admin", "client"))));
 
-        // Ejercitación: Ejecutar la acción a probar
+        // EjercitaciÃ³n: Ejecutar la acciÃ³n a probar
         Collection<GrantedAuthority> authorities = converter.convert(jwt);
         Set<String> authorityValues = authorities.stream()
                 .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.toSet());
 
-        // Verificación: Verificar el resultado esperado
+        // VerificaciÃ³n: Verificar el resultado esperado
         assertTrue(authorityValues.contains("ROLE_ADMIN"),
                 "Debe mapear admin y ROLE_ADMIN a ROLE_ADMIN");
         assertTrue(authorityValues.contains("ROLE_CLIENT"),
@@ -53,12 +60,12 @@ class JwtRoleConverterTest {
                         "web", Map.of("roles", List.of("admin")),
                         "other", Map.of("roles", List.of("client"))));
 
-        // Ejercitación: Ejecutar la acción a probar
+        // EjercitaciÃ³n: Ejecutar la acciÃ³n a probar
         Set<String> authorities = converter.convert(jwt).stream()
                 .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.toSet());
 
-        // Verificación: Verificar el resultado esperado
+        // VerificaciÃ³n: Verificar el resultado esperado
         assertEquals(Set.of("ROLE_ADMIN"), authorities,
                 "Debe usar primero security.keycloak.client-id para resource_access");
     }
@@ -75,12 +82,12 @@ class JwtRoleConverterTest {
                         "mobile-app", Map.of("roles", List.of("admin")),
                         "other", Map.of("roles", List.of("client"))));
 
-        // Ejercitación: Ejecutar la acción a probar
+        // EjercitaciÃ³n: Ejecutar la acciÃ³n a probar
         Set<String> authorities = converter.convert(jwt).stream()
                 .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.toSet());
 
-        // Verificación: Verificar el resultado esperado
+        // VerificaciÃ³n: Verificar el resultado esperado
         assertEquals(Set.of("ROLE_ADMIN"), authorities,
                 "Debe usar azp cuando no hay client-id configurado");
     }
@@ -97,12 +104,12 @@ class JwtRoleConverterTest {
                         "web", Map.of("roles", List.of("admin")),
                         "mobile", Map.of("roles", List.of("client", "ROLE_ADMIN"))));
 
-        // Ejercitación: Ejecutar la acción a probar
+        // EjercitaciÃ³n: Ejecutar la acciÃ³n a probar
         Set<String> authorities = converter.convert(jwt).stream()
                 .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.toSet());
 
-        // Verificación: Verificar el resultado esperado
+        // VerificaciÃ³n: Verificar el resultado esperado
         assertEquals(Set.of("ROLE_ADMIN", "ROLE_CLIENT"), authorities,
                 "Debe unir roles de todos los clientes si no hay client-id ni azp");
     }

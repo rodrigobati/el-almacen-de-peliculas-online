@@ -13,6 +13,12 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
 import unrn.app.Application;
 
+/**
+ * Pruebas de integracion del servicio administrativo de actores.
+ *
+ * Validan altas, busquedas, normalizacion de paginacion y rechazo de nombres vacios
+ * o duplicados antes de exponer actores al backoffice.
+ */
 @SpringBootTest(classes = Application.class, properties = {
         "spring.security.oauth2.resourceserver.jwt.jwk-set-uri=http://localhost/jwks",
         "spring.rabbitmq.listener.simple.auto-startup=false",
@@ -29,10 +35,10 @@ class ActorServiceTest {
         // Setup
         String nombre = "Actor Test " + System.nanoTime();
 
-        // Ejercitación
+        // EjercitaciÃ³n
         var creado = actorService.crear(nombre);
 
-        // Verificación
+        // VerificaciÃ³n
         assertNotNull(creado.id(), "El actor creado debe tener id");
         assertEquals(nombre, creado.nombre(), "El nombre del actor creado debe coincidir");
     }
@@ -43,12 +49,12 @@ class ActorServiceTest {
         // Setup
         String nombre = "   ";
 
-        // Ejercitación
+        // EjercitaciÃ³n
         var ex = assertThrows(ValidationRuntimeException.class, () -> actorService.crear(nombre));
 
-        // Verificación
+        // VerificaciÃ³n
         assertEquals(ActorService.ERROR_NOMBRE_REQUERIDO, ex.getMessage(),
-                "El mensaje debe coincidir con la constante de validación");
+                "El mensaje debe coincidir con la constante de validaciÃ³n");
     }
 
     @Test
@@ -58,10 +64,10 @@ class ActorServiceTest {
         String base = "Duplicado Actor " + System.nanoTime();
         actorService.crear(base.toLowerCase());
 
-        // Ejercitación
+        // EjercitaciÃ³n
         var ex = assertThrows(ValidationRuntimeException.class, () -> actorService.crear(base.toUpperCase()));
 
-        // Verificación
+        // VerificaciÃ³n
         assertEquals(ActorService.ERROR_NOMBRE_DUPLICADO, ex.getMessage(),
                 "El mensaje debe coincidir con la constante de duplicado");
     }
@@ -74,12 +80,12 @@ class ActorServiceTest {
         actorService.crear(token + " Uno");
         actorService.crear("Otro " + System.nanoTime());
 
-        // Ejercitación
+        // EjercitaciÃ³n
         var resultado = actorService.buscar(token, null, null);
 
-        // Verificación
+        // VerificaciÃ³n
         assertTrue(resultado.stream().anyMatch(item -> item.nombre().contains(token)),
-                "La búsqueda debe incluir el actor que contiene el texto buscado");
+                "La bÃºsqueda debe incluir el actor que contiene el texto buscado");
         assertTrue(resultado.stream().allMatch(item -> item.nombre().toLowerCase().contains(token.toLowerCase())),
                 "Todos los resultados deben respetar el filtro por texto");
     }
@@ -90,11 +96,11 @@ class ActorServiceTest {
         // Setup
         String q = "NoExisteActor_" + System.nanoTime();
 
-        // Ejercitación
+        // EjercitaciÃ³n
         var resultado = actorService.buscar(q, null, null);
 
-        // Verificación
-        assertTrue(resultado.isEmpty(), "Sin coincidencias el listado debe ser vacío");
+        // VerificaciÃ³n
+        assertTrue(resultado.isEmpty(), "Sin coincidencias el listado debe ser vacÃ­o");
     }
 
     @Test
@@ -104,11 +110,11 @@ class ActorServiceTest {
         String nombre = "Actor Paginado " + System.nanoTime();
         actorService.crear(nombre);
 
-        // Ejercitación
+        // EjercitaciÃ³n
         var resultado = assertDoesNotThrow(() -> actorService.buscar("Actor", -7, 0),
-                "El servicio no debe lanzar excepción con paginación inválida");
+                "El servicio no debe lanzar excepciÃ³n con paginaciÃ³n invÃ¡lida");
 
-        // Verificación
-        assertTrue(resultado != null, "La búsqueda debe devolver una lista válida");
+        // VerificaciÃ³n
+        assertTrue(resultado != null, "La bÃºsqueda debe devolver una lista vÃ¡lida");
     }
 }

@@ -15,6 +15,12 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+/**
+ * Pruebas de contrato para errores de validacion HTTP.
+ *
+ * Verifican que filtros invalidos, paginacion, ordenamiento y conflictos de stock
+ * respondan con codigos, mensajes y detalles estructurados esperados por clientes.
+ */
 @SpringBootTest(classes = Application.class, properties = {
         "spring.rabbitmq.listener.simple.auto-startup=false",
         "spring.rabbitmq.listener.direct.auto-startup=false"

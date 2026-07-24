@@ -11,6 +11,13 @@ import java.util.Properties;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
+/**
+ * Pruebas de contrato para la topologia RabbitMQ del flujo de stock.
+ *
+ * Protegen nombres de exchanges, colas y routing keys usados para recibir
+ * solicitudes de validacion de stock desde ventas y evitar desalineaciones de
+ * integracion entre verticales.
+ */
 class RabbitMqStockValidationRoutingContractTest {
 
     @Test
@@ -24,7 +31,7 @@ class RabbitMqStockValidationRoutingContractTest {
             properties.load(input);
         }
 
-        // Ejercitación y Verificación: request flow ventas -> catalogo
+        // EjercitaciÃ³n y VerificaciÃ³n: request flow ventas -> catalogo
         assertEquals(RabbitMQConfig.VENTAS_EVENTS_EXCHANGE,
                 properties.getProperty("rabbitmq.ventas.events.exchange"),
                 "El exchange request definido en catalogo debe coincidir con el contrato de ventas");
@@ -37,7 +44,7 @@ class RabbitMqStockValidationRoutingContractTest {
                         RabbitMQConfig.CATALOGO_STOCK_VALIDATION_REQUESTED_ROUTING_KEY),
                 "El routing key request definido en catalogo debe coincidir con el contrato");
 
-        // Verificación: result flow catalogo -> ventas sobre exchange compartido
+        // VerificaciÃ³n: result flow catalogo -> ventas sobre exchange compartido
         assertEquals("catalogo.events", properties.getProperty("rabbitmq.catalogo.events.exchange"),
                 "El exchange de resultados debe coincidir con el contrato");
         assertEquals("catalogo.stock.validation.accepted",

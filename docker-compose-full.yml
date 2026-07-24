@@ -274,15 +274,13 @@ services:
     environment:
       SPRING_PROFILES_ACTIVE: docker
       SERVER_PORT: 8083
-<<<<<<< Updated upstream
+
       VENTAS_DATASOURCE_USERNAME: root
       VENTAS_DATASOURCE_PASSWORD: root
       SPRING_JPA_HIBERNATE_DDL_AUTO: update
       SPRING_DATASOURCE_URL: jdbc:mysql://catalogo-mysql:3306/almacen_ventas?createDatabaseIfNotExist=true
-=======
       VENTAS_DATASOURCE_USERNAME: ${VENTAS_DB_USER}
       VENTAS_DATASOURCE_PASSWORD: ${VENTAS_DB_PASS}
->>>>>>> Stashed changes
     networks:
       - peliculas-net
     healthcheck:

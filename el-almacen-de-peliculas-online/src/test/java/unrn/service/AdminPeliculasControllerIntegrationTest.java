@@ -23,6 +23,12 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+/**
+ * Pruebas de integracion del controlador administrativo de peliculas.
+ *
+ * Cubren alta, edicion, retiro y respuestas HTTP del backoffice, verificando que el
+ * controlador delegue en servicios y respete el contrato esperado por la interfaz admin.
+ */
 @SpringBootTest(classes = Application.class, properties = {
         "spring.security.oauth2.resourceserver.jwt.jwk-set-uri=http://localhost/jwks",
         "spring.rabbitmq.listener.simple.auto-startup=false",
@@ -76,7 +82,7 @@ class AdminPeliculasControllerIntegrationTest {
                 .andReturn();
         long actorId = extraerId(actResult);
 
-        // Ejercitación: crear una pelicula con los ids reales creados
+        // EjercitaciÃ³n: crear una pelicula con los ids reales creados
         String peliculaJson = "{\"titulo\":\"Peli Test\",\"condicion\":\"NUEVO\",\"directoresIds\":[" + directorId
                 + "],\"precio\":100.0,\"formato\":\"DVD\",\"genero\":\"DRAMA\",\"sinopsis\":\"x\",\"actoresIds\":["
                 + actorId + "],\"imagenUrl\":\"\",\"fechaSalida\":\"2020-01-01\",\"rating\":5}";
@@ -85,7 +91,7 @@ class AdminPeliculasControllerIntegrationTest {
                 .content(peliculaJson))
                 .andExpect(status().isCreated());
 
-        // Verificación: obtener la pagina admin y comprobar estructura
+        // VerificaciÃ³n: obtener la pagina admin y comprobar estructura
         mockMvc.perform(get("/api/admin/peliculas").param("size", "10"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.items.length()", is(1)))

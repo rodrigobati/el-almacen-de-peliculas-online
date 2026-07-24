@@ -29,6 +29,12 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+/**
+ * Pruebas de contrato de la API publica de peliculas.
+ *
+ * Cubren la forma de respuesta del listado publico, las validaciones de parametros
+ * de busqueda y la compatibilidad de filtros basicos con el listado administrativo.
+ */
 @SpringBootTest(classes = Application.class, properties = {
                 "spring.security.oauth2.resourceserver.jwt.jwk-set-uri=http://localhost/jwks",
                 "spring.rabbitmq.listener.simple.auto-startup=false",
@@ -75,13 +81,13 @@ class PeliculaPublicContractIntegrationTest {
                 crearPelicula("Publica Contract 1", 50.0);
                 crearPelicula("Publica Contract 2", 75.0);
 
-                // Ejercitación: Ejecutar la acción a probar
+                // EjercitaciÃ³n: Ejecutar la acciÃ³n a probar
                 mockMvc.perform(get("/peliculas")
                                 .param("page", "0")
                                 .param("size", "2")
                                 .param("sort", "titulo")
                                 .param("asc", "true"))
-                                // Verificación: Verificar el resultado esperado
+                                // VerificaciÃ³n: Verificar el resultado esperado
                                 .andExpect(status().isOk())
                                 .andExpect(jsonPath("$.items").isArray())
                                 .andExpect(jsonPath("$.total").isNumber())
@@ -95,14 +101,14 @@ class PeliculaPublicContractIntegrationTest {
         void listarPublico_sinResultados_devuelveTotalPagesEnCero() throws Exception {
                 // Setup: Preparar el escenario
 
-                // Ejercitación: Ejecutar la acción a probar
+                // EjercitaciÃ³n: Ejecutar la acciÃ³n a probar
                 mockMvc.perform(get("/peliculas")
                                 .param("q", "NO_EXISTE_EN_CATALOGO")
                                 .param("page", "0")
                                 .param("size", "2")
                                 .param("sort", "titulo")
                                 .param("asc", "true"))
-                                // Verificación: Verificar el resultado esperado
+                                // VerificaciÃ³n: Verificar el resultado esperado
                                 .andExpect(status().isOk())
                                 .andExpect(jsonPath("$.items").isArray())
                                 .andExpect(jsonPath("$.items.length()").value(0))
@@ -118,14 +124,14 @@ class PeliculaPublicContractIntegrationTest {
                 // Setup: Preparar el escenario
                 crearPelicula("Parity Contract", 90.0);
 
-                // Ejercitación: Ejecutar la acción a probar
+                // EjercitaciÃ³n: Ejecutar la acciÃ³n a probar
                 mockMvc.perform(get("/peliculas")
                                 .param("q", "Parity")
                                 .param("page", "0")
                                 .param("size", "2")
                                 .param("sort", "titulo")
                                 .param("asc", "true"))
-                                // Verificación: Verificar el resultado esperado
+                                // VerificaciÃ³n: Verificar el resultado esperado
                                 .andExpect(status().isOk())
                                 .andExpect(jsonPath("$.items").isArray())
                                 .andExpect(jsonPath("$.total").isNumber())
@@ -153,13 +159,13 @@ class PeliculaPublicContractIntegrationTest {
         void listarPublico_pageNegativo_devuelve400() throws Exception {
                 // Setup: Preparar el escenario
 
-                // Ejercitación: Ejecutar la acción a probar
+                // EjercitaciÃ³n: Ejecutar la acciÃ³n a probar
                 mockMvc.perform(get("/peliculas")
                                 .param("page", "-1")
                                 .param("size", "12")
                                 .param("sort", "titulo")
                                 .param("asc", "true"))
-                                // Verificación: Verificar el resultado esperado
+                                // VerificaciÃ³n: Verificar el resultado esperado
                                 .andExpect(status().isBadRequest())
                                 .andExpect(jsonPath("$.code").value("INVALID_PAGE"))
                                 .andExpect(jsonPath("$.message").isString());
@@ -170,13 +176,13 @@ class PeliculaPublicContractIntegrationTest {
         void listarPublico_sizeCero_devuelve400() throws Exception {
                 // Setup: Preparar el escenario
 
-                // Ejercitación: Ejecutar la acción a probar
+                // EjercitaciÃ³n: Ejecutar la acciÃ³n a probar
                 mockMvc.perform(get("/peliculas")
                                 .param("page", "0")
                                 .param("size", "0")
                                 .param("sort", "titulo")
                                 .param("asc", "true"))
-                                // Verificación: Verificar el resultado esperado
+                                // VerificaciÃ³n: Verificar el resultado esperado
                                 .andExpect(status().isBadRequest())
                                 .andExpect(jsonPath("$.code").value("INVALID_SIZE"))
                                 .andExpect(jsonPath("$.message").isString());
@@ -187,13 +193,13 @@ class PeliculaPublicContractIntegrationTest {
         void listarPublico_sizeExcesivo_devuelve400() throws Exception {
                 // Setup: Preparar el escenario
 
-                // Ejercitación: Ejecutar la acción a probar
+                // EjercitaciÃ³n: Ejecutar la acciÃ³n a probar
                 mockMvc.perform(get("/peliculas")
                                 .param("page", "0")
                                 .param("size", "101")
                                 .param("sort", "titulo")
                                 .param("asc", "true"))
-                                // Verificación: Verificar el resultado esperado
+                                // VerificaciÃ³n: Verificar el resultado esperado
                                 .andExpect(status().isBadRequest())
                                 .andExpect(jsonPath("$.code").value("INVALID_SIZE"))
                                 .andExpect(jsonPath("$.message").isString());
@@ -204,13 +210,13 @@ class PeliculaPublicContractIntegrationTest {
         void listarPublico_sortInvalido_devuelve400() throws Exception {
                 // Setup: Preparar el escenario
 
-                // Ejercitación: Ejecutar la acción a probar
+                // EjercitaciÃ³n: Ejecutar la acciÃ³n a probar
                 mockMvc.perform(get("/peliculas")
                                 .param("page", "0")
                                 .param("size", "12")
                                 .param("sort", "campoNoPermitido")
                                 .param("asc", "true"))
-                                // Verificación: Verificar el resultado esperado
+                                // VerificaciÃ³n: Verificar el resultado esperado
                                 .andExpect(status().isBadRequest())
                                 .andExpect(jsonPath("$.code").value("INVALID_SORT"))
                                 .andExpect(jsonPath("$.message").isString());

@@ -12,6 +12,12 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+/**
+ * Pruebas de contrato de los eventos del flujo de validacion de stock.
+ *
+ * Verifican que los records de solicitud, aceptacion y rechazo mantengan estructura,
+ * valores y detalles compatibles con los mensajes intercambiados con ventas.
+ */
 class StockValidationContractsTest {
 
     private final ObjectMapper objectMapper = new ObjectMapper().findAndRegisterModules();
@@ -34,10 +40,10 @@ class StockValidationContractsTest {
                 }
                 """;
 
-        // Ejercitación: deserializar en catalogo
+        // EjercitaciÃ³n: deserializar en catalogo
         StockValidationRequestedEvent event = objectMapper.readValue(json, StockValidationRequestedEvent.class);
 
-        // Verificación: correlacion, compra y shape minimo de items
+        // VerificaciÃ³n: correlacion, compra y shape minimo de items
         assertEquals("evt-req-2", event.eventId(), "eventId debe preservarse");
         assertEquals(99L, event.compraId(), "compraId debe preservarse");
         assertEquals(1, event.items().size(), "Debe conservar items");
@@ -55,11 +61,11 @@ class StockValidationContractsTest {
                 100L,
                 Instant.parse("2026-06-09T13:00:00Z"));
 
-        // Ejercitación: serializar a JSON
+        // EjercitaciÃ³n: serializar a JSON
         String json = objectMapper.writeValueAsString(event);
         JsonNode root = objectMapper.readTree(json);
 
-        // Verificación: contrato de accepted
+        // VerificaciÃ³n: contrato de accepted
         assertTrue(root.has("eventId"), "El contrato accepted debe incluir eventId");
         assertTrue(root.has("compraId"), "El contrato accepted debe incluir compraId");
         assertTrue(root.has("occurredAt"), "El contrato accepted debe incluir occurredAt");
@@ -77,12 +83,12 @@ class StockValidationContractsTest {
                 "STOCK_INSUFICIENTE",
                 List.of(new StockRechazadoEvent.DetalleStockRechazado(20L, 5, "1")));
 
-        // Ejercitación: serializar a JSON
+        // EjercitaciÃ³n: serializar a JSON
         String json = objectMapper.writeValueAsString(event);
         JsonNode root = objectMapper.readTree(json);
         JsonNode detalle = root.get("detalles").get(0);
 
-        // Verificación: contrato de rechazo compatible con ventas
+        // VerificaciÃ³n: contrato de rechazo compatible con ventas
         assertTrue(root.has("eventId"), "El contrato rechazado debe incluir eventId");
         assertTrue(root.has("compraId"), "El contrato rechazado debe incluir compraId");
         assertTrue(root.has("motivo"), "El contrato rechazado debe incluir motivo");

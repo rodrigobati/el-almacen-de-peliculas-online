@@ -29,6 +29,12 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
+/**
+ * Pruebas de integracion del listener de solicitudes de validacion de stock.
+ *
+ * Aseguran que el mensaje recibido desde RabbitMQ se adapte al modelo interno de
+ * compra y delegue correctamente el procesamiento transaccional del stock.
+ */
 @SpringBootTest(classes = Application.class)
 @TestPropertySource(properties = {
         "spring.rabbitmq.listener.simple.auto-startup=false",

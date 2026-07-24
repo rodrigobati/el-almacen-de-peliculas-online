@@ -15,6 +15,12 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.hamcrest.Matchers.is;
 
+/**
+ * Pruebas de integracion de los endpoints administrativos de actores y directores.
+ *
+ * Cubren creacion, busqueda, duplicados y validaciones HTTP para las personas que
+ * luego se asocian a peliculas desde el backoffice.
+ */
 @SpringBootTest(classes = Application.class, properties = {
         "spring.security.oauth2.resourceserver.jwt.jwk-set-uri=http://localhost/jwks",
         "spring.rabbitmq.listener.simple.auto-startup=false",
@@ -32,7 +38,7 @@ class AdminPersonasControllerIntegrationTest {
         // Setup
         String nombre = "Director API " + System.nanoTime();
 
-        // Ejercitación y Verificación
+        // EjercitaciÃ³n y VerificaciÃ³n
         mockMvc.perform(post("/api/admin/directores")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("{\"nombre\":\"" + nombre + "\"}"))
@@ -47,7 +53,7 @@ class AdminPersonasControllerIntegrationTest {
         // Setup
         String payload = "{\"nombre\":\"  \"}";
 
-        // Ejercitación y Verificación
+        // EjercitaciÃ³n y VerificaciÃ³n
         mockMvc.perform(post("/api/admin/directores")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(payload))
@@ -65,7 +71,7 @@ class AdminPersonasControllerIntegrationTest {
                 .content("{\"nombre\":\"" + base.toLowerCase() + "\"}"))
                 .andExpect(status().isCreated());
 
-        // Ejercitación y Verificación
+        // EjercitaciÃ³n y VerificaciÃ³n
         mockMvc.perform(post("/api/admin/directores")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("{\"nombre\":\"" + base.toUpperCase() + "\"}"))
@@ -88,7 +94,7 @@ class AdminPersonasControllerIntegrationTest {
                 .content("{\"nombre\":\"Otro Director " + System.nanoTime() + "\"}"))
                 .andExpect(status().isCreated());
 
-        // Ejercitación y Verificación
+        // EjercitaciÃ³n y VerificaciÃ³n
         mockMvc.perform(get("/api/admin/directores").param("q", token))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].nombre").value(org.hamcrest.Matchers.containsString(token)));
@@ -104,7 +110,7 @@ class AdminPersonasControllerIntegrationTest {
                 .content("{\"nombre\":\"" + nombre + "\"}"))
                 .andExpect(status().isCreated());
 
-        // Ejercitación y Verificación
+        // EjercitaciÃ³n y VerificaciÃ³n
         mockMvc.perform(get("/api/admin/directores").param("size", "15"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$").isArray());
@@ -116,7 +122,7 @@ class AdminPersonasControllerIntegrationTest {
         // Setup
         String nombre = "Actor API " + System.nanoTime();
 
-        // Ejercitación y Verificación
+        // EjercitaciÃ³n y VerificaciÃ³n
         mockMvc.perform(post("/api/admin/actores")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("{\"nombre\":\"" + nombre + "\"}"))
@@ -131,7 +137,7 @@ class AdminPersonasControllerIntegrationTest {
         // Setup
         String payload = "{\"nombre\":\"  \"}";
 
-        // Ejercitación y Verificación
+        // EjercitaciÃ³n y VerificaciÃ³n
         mockMvc.perform(post("/api/admin/actores")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(payload))
@@ -149,7 +155,7 @@ class AdminPersonasControllerIntegrationTest {
                 .content("{\"nombre\":\"" + base.toLowerCase() + "\"}"))
                 .andExpect(status().isCreated());
 
-        // Ejercitación y Verificación
+        // EjercitaciÃ³n y VerificaciÃ³n
         mockMvc.perform(post("/api/admin/actores")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("{\"nombre\":\"" + base.toUpperCase() + "\"}"))
@@ -172,7 +178,7 @@ class AdminPersonasControllerIntegrationTest {
                 .content("{\"nombre\":\"Otro Actor " + System.nanoTime() + "\"}"))
                 .andExpect(status().isCreated());
 
-        // Ejercitación y Verificación
+        // EjercitaciÃ³n y VerificaciÃ³n
         mockMvc.perform(get("/api/admin/actores").param("q", token))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].nombre").value(org.hamcrest.Matchers.containsString(token)));
@@ -188,7 +194,7 @@ class AdminPersonasControllerIntegrationTest {
                 .content("{\"nombre\":\"" + nombre + "\"}"))
                 .andExpect(status().isCreated());
 
-        // Ejercitación y Verificación
+        // EjercitaciÃ³n y VerificaciÃ³n
         mockMvc.perform(get("/api/admin/actores").param("size", "15"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$").isArray());
@@ -200,7 +206,7 @@ class AdminPersonasControllerIntegrationTest {
         // Setup
         String q = "NoExisteActorApi_" + System.nanoTime();
 
-        // Ejercitación y Verificación
+        // EjercitaciÃ³n y VerificaciÃ³n
         mockMvc.perform(get("/api/admin/actores").param("q", q).param("size", "15"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()", is(0)));

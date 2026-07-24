@@ -13,6 +13,12 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+/**
+ * Pruebas del scheduler que publica resultados pendientes del outbox de stock.
+ *
+ * Verifican publicacion de eventos aceptados y rechazados, marcado de publicados,
+ * registro de fallos y respeto del limite de reintentos configurado.
+ */
 class StockValidationResultOutboxPublisherSchedulerTest {
 
     @Test

@@ -11,11 +11,17 @@ import unrn.infra.persistence.PeliculaRepository;
 import java.time.LocalDate;
 import java.util.List;
 
+/**
+ * Pruebas del servicio de aplicacion de peliculas.
+ *
+ * Verifican que la capa de servicio coordine consultas, DTOs y reglas de catalogo
+ * sin romper el contrato usado por controladores y repositorios.
+ */
 class PeliculaServiceTest {
     /*
      * @Test
      * 
-     * @DisplayName("crear con DTO válido crea película correctamente")
+     * @DisplayName("crear con DTO vÃ¡lido crea pelÃ­cula correctamente")
      * void crear_dtoValido_creaPelicula() {
      * // Setup
      * var repository = new TestPeliculaRepository();
@@ -27,7 +33,7 @@ class PeliculaServiceTest {
      * 29.99,
      * "DVD",
      * "Drama",
-     * "Una película sobre la mafia",
+     * "Una pelÃ­cula sobre la mafia",
      * List.of("Marlon Brando", "Al Pacino"),
      * "url-imagen",
      * LocalDate.of(1972, 3, 24),
@@ -39,7 +45,7 @@ class PeliculaServiceTest {
      * 
      * // Verificar
      * var peliculaCreada = repository.ultimaPeliculaGuardada;
-     * assertNotNull(peliculaCreada, "La película debe ser guardada");
+     * assertNotNull(peliculaCreada, "La pelÃ­cula debe ser guardada");
      * assertEquals("El Padrino", peliculaCreada.titulo());
      * assertEquals("nuevo", peliculaCreada.condicion().valor());
      * assertEquals(29.99, peliculaCreada.precio());
@@ -55,7 +61,7 @@ class PeliculaServiceTest {
      * a.nombre().equals("Al Pacino")));
      * }
      * 
-     * // Repositorio de prueba que guarda la última película
+     * // Repositorio de prueba que guarda la Ãºltima pelÃ­cula
      * private static class TestPeliculaRepository extends PeliculaRepository {
      * Pelicula ultimaPeliculaGuardada;
      * 

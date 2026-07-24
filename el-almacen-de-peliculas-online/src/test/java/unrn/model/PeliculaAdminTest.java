@@ -8,6 +8,12 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+/**
+ * Pruebas de reglas administrativas sobre Pelicula.
+ *
+ * Verifican actualizacion de datos, retiro logico, versionado y restricciones que
+ * protegen el estado administrable de una pelicula del catalogo.
+ */
 class PeliculaAdminTest {
 
     @Test
@@ -16,7 +22,7 @@ class PeliculaAdminTest {
         // Setup: Preparar el escenario
         String titulo = " ";
 
-        // Ejercitación: Ejecutar la acción a probar
+        // EjercitaciÃ³n: Ejecutar la acciÃ³n a probar
         var ex = assertThrows(RuntimeException.class, () -> new Pelicula(
                 titulo,
                 new Condicion("nuevo"),
@@ -30,7 +36,7 @@ class PeliculaAdminTest {
                 LocalDate.now(),
                 5));
 
-        // Verificación: Verificar el resultado esperado
+        // VerificaciÃ³n: Verificar el resultado esperado
         assertEquals(Pelicula.ERROR_TITULO, ex.getMessage(), "El mensaje de error no coincide");
     }
 
@@ -40,7 +46,7 @@ class PeliculaAdminTest {
         // Setup: Preparar el escenario
         double precio = 0.0;
 
-        // Ejercitación: Ejecutar la acción a probar
+        // EjercitaciÃ³n: Ejecutar la acciÃ³n a probar
         var ex = assertThrows(RuntimeException.class, () -> new Pelicula(
                 "Titulo",
                 new Condicion("nuevo"),
@@ -54,7 +60,7 @@ class PeliculaAdminTest {
                 LocalDate.now(),
                 5));
 
-        // Verificación: Verificar el resultado esperado
+        // VerificaciÃ³n: Verificar el resultado esperado
         assertEquals(Pelicula.ERROR_PRECIO, ex.getMessage(), "El mensaje de error no coincide");
     }
 
@@ -75,10 +81,10 @@ class PeliculaAdminTest {
                 LocalDate.now(),
                 5);
 
-        // Ejercitación: Ejecutar la acción a probar
+        // EjercitaciÃ³n: Ejecutar la acciÃ³n a probar
         pelicula.retirar();
 
-        // Verificación: Verificar el resultado esperado
-        assertFalse(pelicula.activa(), "La película debería quedar inactiva");
+        // VerificaciÃ³n: Verificar el resultado esperado
+        assertFalse(pelicula.activa(), "La pelÃ­cula deberÃ­a quedar inactiva");
     }
 }

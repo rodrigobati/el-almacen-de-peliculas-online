@@ -22,6 +22,12 @@ import static org.springframework.security.test.web.servlet.setup.SecurityMockMv
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+/**
+ * Pruebas de seguridad del endpoint administrativo de peliculas.
+ *
+ * Verifican que las reglas de Spring Security usen claims JWT y roles ADMIN para
+ * permitir o rechazar el acceso al backoffice de catalogo.
+ */
 @SpringBootTest(classes = Application.class)
 @TestPropertySource(properties = {
                 "spring.security.oauth2.resourceserver.jwt.issuer-uri=http://localhost:9090/realms/videoclub",
@@ -42,7 +48,7 @@ class AdminPeliculasSecurityIntegrationTest {
                                 .apply(springSecurity())
                                 .build();
 
-                // Sin autenticación -> 401
+                // Sin autenticaciÃ³n -> 401
                 mockMvc.perform(get("/api/admin/peliculas"))
                                 .andExpect(status().isUnauthorized());
 

@@ -14,6 +14,12 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+/**
+ * Guardrail de serializacion para respuestas comunes de la API.
+ *
+ * Asegura que PageResponse y ApiError mantengan campos obligatorios y tipos JSON
+ * estables, evitando cambios silenciosos en contratos compartidos con clientes.
+ */
 @SpringBootTest(classes = Application.class)
 @ActiveProfiles("test")
 public class ResponseContractGuardrailTest {
