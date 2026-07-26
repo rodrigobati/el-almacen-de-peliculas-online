@@ -13,7 +13,6 @@ services:
       MYSQL_ROOT_PASSWORD: ${DESCUENTOS_DB_ROOT_PASS}
       MYSQL_ROOT_HOST: "%"
     volumes:
-      # Mapeamos tu archivo local al directorio de inicialización de MySQL
       - ../el-almacen-de-peliculas-online-descuentos/sql/import.sql:/docker-entrypoint-initdb.d/import.sql
     networks:
       - peliculas-net
