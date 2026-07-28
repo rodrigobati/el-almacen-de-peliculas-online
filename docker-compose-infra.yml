@@ -1,0 +1,48 @@
+services:
+  keycloak-postgres:
+    image: postgres:16.3
+    container_name: keycloak-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${KC_DB_NAME}
+      POSTGRES_USER: ${KC_DB_USER}
+      POSTGRES_PASSWORD: ${KC_DB_PASS}
+    volumes:
+      - postgres-keycloak-data:/var/lib/postgresql/data
+    networks:
+      - peliculas-net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U keycloak"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  shared-rabbitmq:
+    image: rabbitmq:3.13-management
+    container_name: shared-rabbitmq
+    restart: unless-stopped
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBIT_USER}
+      RABBITMQ_DEFAULT_PASS: ${RABBIT_PASS}
+    ports:
+      - "5672:5672" # Puerto AMQP
+      - "15672:15672" # Puerto Management UI
+    volumes:
+      - rabbitmq-data:/var/lib/rabbitmq
+    networks:
+      - peliculas-net
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
+volumes:
+  postgres-keycloak-data:
+  rabbitmq-data:
+
+networks:
+  peliculas-net:
+    external: true

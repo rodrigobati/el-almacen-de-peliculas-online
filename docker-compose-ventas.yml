@@ -1,0 +1,77 @@
+volumes:
+  ventas-mongodb-data:
+
+services:
+  # MongoDB para historial documental de compras (RT-10)
+  ventas-mongodb:
+    image: mongo:7
+    container_name: ventas-mongodb
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    volumes:
+      - ventas-mongodb-data:/data/db
+    networks:
+      - peliculas-net
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping').ok"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  # UI web para inspeccionar MongoDB de ventas
+  ventas-mongo-express:
+    image: mongo-express:1.0.2
+    container_name: ventas-mongo-express
+    restart: unless-stopped
+    depends_on:
+      ventas-mongodb:
+        condition: service_healthy
+    ports:
+      - "8086:8081"
+    environment:
+      ME_CONFIG_MONGODB_URL: mongodb://ventas-mongodb:27017/
+      ME_CONFIG_BASICAUTH: "false"
+    networks:
+      - peliculas-net
+  ventas-service:
+    build:
+      context: ../el-almacen-de-peliculas-online-ventas
+      dockerfile: Dockerfile
+    image: el-almacen-de-peliculas-online-ventas:latest
+    container_name: ventas-service
+    restart: unless-stopped
+    depends_on:
+      catalogo-mysql:
+        condition: service_healthy
+      shared-rabbitmq:
+        condition: service_healthy
+      keycloak:
+        condition: service_healthy
+    ports:
+      - "8083:8083"
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      SERVER_PORT: 8083
+      VENTAS_DATASOURCE_USERNAME: ${VENTAS_DB_USER}
+      VENTAS_DATASOURCE_PASSWORD: ${VENTAS_DB_PASS}
+      VENTAS_MONGODB_URI: mongodb://ventas-mongodb:27017/almacen_ventas_historial
+      SPRING_MONGODB_URI: mongodb://ventas-mongodb:27017/almacen_ventas_historial
+      VENTAS_HISTORIAL_MONGODB_ENABLED: "true"
+    networks:
+      - peliculas-net
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "curl -fsS http://localhost:8083/actuator/health > /dev/null || curl -fsS http://localhost:8083/carrito > /dev/null",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 40s
+
+networks:
+  peliculas-net:
+    external: true

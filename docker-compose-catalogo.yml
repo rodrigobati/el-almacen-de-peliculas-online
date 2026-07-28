@@ -1,0 +1,72 @@
+volumes:
+  catalogo-mysql-data:
+
+services:
+  catalogo-mysql:
+    image: mysql:8.4
+    container_name: catalogo-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: ${CATALOGO_DB_NAME}
+      MYSQL_USER: ${CATALOGO_DB_USER}
+      MYSQL_PASSWORD: ${CATALOGO_DB_PASS}
+      MYSQL_ROOT_PASSWORD: ${CATALOGO_DB_ROOT_PASS}
+    ports:
+      - "3307:3306"
+    volumes:
+      - catalogo-mysql-data:/var/lib/mysql
+    networks:
+      - peliculas-net
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "mysqladmin",
+          "ping",
+          "-h",
+          "localhost",
+          "-u${CATALOGO_DB_USER}",
+          "-p${CATALOGO_DB_PASS}",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
+  catalogo-backend:
+    build:
+      context: ./el-almacen-de-peliculas-online
+      dockerfile: Dockerfile
+    image: el-almacen-de-peliculas-online-backend:latest
+    container_name: catalogo-backend
+    restart: unless-stopped
+    depends_on:
+      catalogo-mysql:
+        condition: service_healthy
+      shared-rabbitmq:
+        condition: service_healthy
+      keycloak:
+        condition: service_healthy
+    ports:
+      - "8081:8080"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI=http://keycloak-sso:8080/realms/videoclub/protocol/openid-connect/certs
+      - SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI=http://localhost:9090/realms/videoclub
+      - SPRING_SQL_INIT_MODE=never
+    networks:
+      - peliculas-net
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "curl -fsS http://localhost:8080/actuator/health > /dev/null || curl -fsS http://localhost:8080/categorias > /dev/null",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 40s
+
+networks:
+  peliculas-net:
+    external: true

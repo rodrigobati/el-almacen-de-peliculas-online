@@ -9,16 +9,29 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.Statement;
 
+/**
+ * Runner de diagnostico para inspeccionar el esquema de base de datos.
+ *
+ * Solo se activa con el perfil inspect y permite revisar tablas, columnas u otros
+ * metadatos desde el datasource configurado. Esta pensado para soporte tecnico de
+ * ambientes, no para atender requests de la API.
+ */
 @Component
 @Profile("inspect")
 public class SchemaInspector implements CommandLineRunner {
 
     private final DataSource ds;
 
+    /**
+     * Inicializa una instancia de SchemaInspector con los datos necesarios.
+     */
     public SchemaInspector(DataSource ds) {
         this.ds = ds;
     }
 
+    /**
+     * Ejecuta la tarea inicial cuando Spring invoca este componente.
+     */
     @Override
     public void run(String... args) throws Exception {
         try (Connection c = ds.getConnection(); Statement s = c.createStatement()) {

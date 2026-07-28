@@ -12,6 +12,12 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import unrn.app.Application;
 
+/**
+ * Pruebas de integracion del repositorio JPA de peliculas.
+ *
+ * Validan guardado, conversion entre entidad y dominio, consultas, filtros y reglas
+ * de persistencia que sostienen las busquedas del catalogo.
+ */
 @SpringBootTest(classes = Application.class, properties = {
         "spring.security.oauth2.resourceserver.jwt.jwk-set-uri=http://localhost/jwks",
         "spring.rabbitmq.listener.simple.auto-startup=false",
@@ -27,7 +33,7 @@ class PeliculaRepositoryIntegrationTest {
     void guardar_recuperar_pelicula() {
         var p = samplePelicula();
         var guardada = repo.guardar(p);
-        assertNotNull(guardada, "La película guardada no debe ser nula");
+        assertNotNull(guardada, "La pelÃ­cula guardada no debe ser nula");
         assertNotNull(guardada.id(), "El id devuelto no debe ser nulo");
 
         var found = repo.porId(guardada.id());
@@ -44,14 +50,14 @@ class PeliculaRepositoryIntegrationTest {
         var retirada = repo.guardar(samplePelicula("Retirada " + System.nanoTime()));
         repo.eliminar(retirada.id());
 
-        // Ejercitación
+        // EjercitaciÃ³n
         var items = repo.listarTodos();
 
-        // Verificación
+        // VerificaciÃ³n
         assertTrue(items.stream().anyMatch(p -> p.id().equals(activa.id())),
-                "La película activa debe aparecer en el listado");
+                "La pelÃ­cula activa debe aparecer en el listado");
         assertFalse(items.stream().anyMatch(p -> p.id().equals(retirada.id())),
-                "La película retirada no debe aparecer en el listado");
+                "La pelÃ­cula retirada no debe aparecer en el listado");
     }
 
     @Test
@@ -63,7 +69,7 @@ class PeliculaRepositoryIntegrationTest {
         var retirada = repo.guardar(samplePelicula(token + " Retirada"));
         repo.eliminar(retirada.id());
 
-        // Ejercitación
+        // EjercitaciÃ³n
         var page = repo.buscarPaginado(
                 token,
                 null,
@@ -80,11 +86,11 @@ class PeliculaRepositoryIntegrationTest {
                 "titulo",
                 true);
 
-        // Verificación
+        // VerificaciÃ³n
         assertTrue(page.getItems().stream().anyMatch(p -> p.id().equals(activa.id())),
-                "La película activa debe estar presente");
+                "La pelÃ­cula activa debe estar presente");
         assertFalse(page.getItems().stream().anyMatch(p -> p.id().equals(retirada.id())),
-                "La película retirada debe quedar excluida");
+                "La pelÃ­cula retirada debe quedar excluida");
     }
 
     private Pelicula samplePelicula() {

@@ -1,0 +1,67 @@
+volumes:
+  rating-mysql-data:
+
+services:
+  rating-mysql:
+    image: mysql:8.0
+    container_name: rating-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: ${RATING_DB_NAME}
+      MYSQL_USER: ${RATING_DB_USER}
+      MYSQL_PASSWORD: ${RATING_DB_PASS}
+      MYSQL_ROOT_PASSWORD: ${RATING_DB_ROOT_PASS}
+    ports:
+      - "3308:3306"
+    volumes:
+      - rating-mysql-data:/var/lib/mysql
+    networks:
+      - peliculas-net
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "mysqladmin",
+          "ping",
+          "-h",
+          "localhost",
+          "-urating_user",
+          "-psecret",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
+  rating-service:
+    build:
+      context: ../el-almacen-de-peliculas-online-rating
+      dockerfile: Dockerfile
+    image: el-almacen-de-peliculas-online-rating:latest
+    container_name: rating-service
+    restart: unless-stopped
+    depends_on:
+      rating-mysql:
+        condition: service_healthy
+      shared-rabbitmq:
+        condition: service_healthy
+      keycloak:
+        condition: service_healthy
+    ports:
+      - "8082:8082"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI=http://keycloak-sso:8080/realms/videoclub/protocol/openid-connect/certs
+      - SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI=http://localhost:9090/realms/videoclub
+    networks:
+      - peliculas-net
+    healthcheck:
+      test: ["CMD-SHELL", "bash -c '</dev/tcp/127.0.0.1/8082'"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 40s
+
+networks:
+  peliculas-net:
+    external: true

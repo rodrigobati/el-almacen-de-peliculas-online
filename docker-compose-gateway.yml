@@ -1,0 +1,35 @@
+services:
+  api-gateway:
+    build:
+      context: ../el-almacen-de-peliculas-online-apigateway
+      dockerfile: Dockerfile
+    image: api-gateway:latest
+    container_name: api-gateway
+    restart: unless-stopped
+    depends_on:
+      catalogo-backend:
+        condition: service_healthy
+      rating-service:
+        condition: service_healthy
+      ventas-service:
+        condition: service_healthy
+      descuentos-service:
+        condition: service_healthy
+      keycloak:
+        condition: service_healthy
+    ports:
+      - "9500:9500"
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+    networks:
+      - peliculas-net
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9500/actuator/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+networks:
+  peliculas-net:
+    external: true

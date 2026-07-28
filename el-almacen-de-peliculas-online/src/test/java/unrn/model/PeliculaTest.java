@@ -9,9 +9,15 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+/**
+ * Pruebas del agregado de dominio Pelicula.
+ *
+ * Cubren construccion valida, validaciones de campos obligatorios, rating, stock,
+ * actualizacion de datos y reglas de estado activo del catalogo.
+ */
 class PeliculaTest {
     @Test
-    @DisplayName("El detalle completo de la película contiene todos los datos relevantes")
+    @DisplayName("El detalle completo de la pelÃ­cula contiene todos los datos relevantes")
     void detalleCompleto_devuelveDatosEsperados() {
         // Setup: crear modelo con Value Objects
         var pelicula = new Pelicula(
@@ -20,23 +26,23 @@ class PeliculaTest {
                 List.of(new Director("Lana Wachowski"), new Director("Lilly Wachowski")),
                 1500.0,
                 new Formato("Blu-ray"),
-                new Genero("Ciencia Ficción"),
+                new Genero("Ciencia FicciÃ³n"),
                 "Un hacker descubre la verdad sobre su realidad.",
                 List.of(new Actor("Keanu Reeves"), new Actor("Carrie-Anne Moss")),
                 "https://ejemplo.com/matrix.jpg",
                 LocalDate.of(1999, 3, 31),
                 5);
 
-        // Ejercitación: transformar a DTO
+        // EjercitaciÃ³n: transformar a DTO
         var detalle = DetallePeliculaDTO.from(pelicula);
 
-        // Verificación: todos los campos primitivos/strings están presentes
-        assertEquals("Matrix", detalle.titulo(), "El título esperado debe coincidir");
-        assertEquals("nuevo", detalle.condicion(), "La condición debe ser 'nuevo'");
+        // VerificaciÃ³n: todos los campos primitivos/strings estÃ¡n presentes
+        assertEquals("Matrix", detalle.titulo(), "El tÃ­tulo esperado debe coincidir");
+        assertEquals("nuevo", detalle.condicion(), "La condiciÃ³n debe ser 'nuevo'");
         assertEquals(List.of("Lana Wachowski", "Lilly Wachowski"), detalle.directores(), "Los directores no coinciden");
         assertEquals(1500.0, detalle.precio(), "El precio no coincide");
         assertEquals("Blu-ray", detalle.formato(), "El formato no coincide");
-        assertEquals("Ciencia Ficción", detalle.genero(), "El género no coincide");
+        assertEquals("Ciencia FicciÃ³n", detalle.genero(), "El gÃ©nero no coincide");
         assertEquals("Un hacker descubre la verdad sobre su realidad.", detalle.sinopsis(), "La sinopsis no coincide");
         assertEquals(List.of("Keanu Reeves", "Carrie-Anne Moss"), detalle.actores(), "Los actores no coinciden");
         assertEquals("https://ejemplo.com/matrix.jpg", detalle.imagenUrl(), "La URL de la imagen no coincide");
@@ -44,16 +50,16 @@ class PeliculaTest {
     }
 
     @Test
-    @DisplayName("No permite crear película con título vacío")
+    @DisplayName("No permite crear pelÃ­cula con tÃ­tulo vacÃ­o")
     void constructor_tituloVacio_lanzaExcepcion() {
-        // Setup: parámetros válidos excepto el título
+        // Setup: parÃ¡metros vÃ¡lidos excepto el tÃ­tulo
         var ex = assertThrows(RuntimeException.class, () -> new Pelicula(
                 "",
                 new Condicion("nuevo"),
                 List.of(new Director("Director")),
                 1000.0,
                 new Formato("DVD"),
-                new Genero("Acción"),
+                new Genero("AcciÃ³n"),
                 "Sinopsis",
                 List.of(new Actor("Actor")),
                 "url",
@@ -63,7 +69,7 @@ class PeliculaTest {
     }
 
     @Test
-    @DisplayName("No permite crear película con precio negativo")
+    @DisplayName("No permite crear pelÃ­cula con precio negativo")
     void constructor_precioNegativo_lanzaExcepcion() {
         var ex = assertThrows(RuntimeException.class, () -> new Pelicula(
                 "Titulo",
@@ -71,7 +77,7 @@ class PeliculaTest {
                 List.of(new Director("Director")),
                 -10.0,
                 new Formato("DVD"),
-                new Genero("Acción"),
+                new Genero("AcciÃ³n"),
                 "Sinopsis",
                 List.of(new Actor("Actor")),
                 "url",
@@ -81,7 +87,7 @@ class PeliculaTest {
     }
 
     @Test
-    @DisplayName("No permite crear Condicion inválida")
+    @DisplayName("No permite crear Condicion invÃ¡lida")
     void constructor_condicionInvalida_lanzaExcepcion() {
         var ex = assertThrows(RuntimeException.class, () -> new Condicion("reparado"));
         assertEquals(Condicion.ERROR_CONDICION, ex.getMessage());
@@ -90,7 +96,7 @@ class PeliculaTest {
     @Test
     @DisplayName("Permite version cero para pelicula persistida")
     void constructor_versionCero_permiteInstanciacion() {
-        // Setup: parámetros válidos con version cero
+        // Setup: parÃ¡metros vÃ¡lidos con version cero
         var pelicula = new Pelicula(
                 1L,
                 "Titulo",
@@ -98,7 +104,7 @@ class PeliculaTest {
                 List.of(new Director("Director")),
                 100.0,
                 new Formato("DVD"),
-                new Genero("Acción"),
+                new Genero("AcciÃ³n"),
                 "Sinopsis",
                 List.of(new Actor("Actor")),
                 "url",
@@ -107,17 +113,17 @@ class PeliculaTest {
                 true,
                 0L);
 
-        // Ejercitación: consultar version
+        // EjercitaciÃ³n: consultar version
         var version = pelicula.version();
 
-        // Verificación: se acepta version cero
-        assertEquals(0L, version, "La versión debe permitir el valor cero");
+        // VerificaciÃ³n: se acepta version cero
+        assertEquals(0L, version, "La versiÃ³n debe permitir el valor cero");
     }
 
     @Test
     @DisplayName("No permite version negativa en pelicula persistida")
     void constructor_versionNegativa_lanzaExcepcion() {
-        // Setup: parámetros válidos excepto version negativa
+        // Setup: parÃ¡metros vÃ¡lidos excepto version negativa
         var ex = assertThrows(RuntimeException.class, () -> new Pelicula(
                 1L,
                 "Titulo",
@@ -125,7 +131,7 @@ class PeliculaTest {
                 List.of(new Director("Director")),
                 100.0,
                 new Formato("DVD"),
-                new Genero("Acción"),
+                new Genero("AcciÃ³n"),
                 "Sinopsis",
                 List.of(new Actor("Actor")),
                 "url",
@@ -134,7 +140,7 @@ class PeliculaTest {
                 true,
                 -1L));
 
-        // Verificación: mensaje de error consistente
+        // VerificaciÃ³n: mensaje de error consistente
         assertEquals(Pelicula.ERROR_VERSION_INVALIDA, ex.getMessage(),
                 "El mensaje de error debe indicar version invalida");
     }

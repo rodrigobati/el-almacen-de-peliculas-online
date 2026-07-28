@@ -13,6 +13,12 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
 import unrn.app.Application;
 
+/**
+ * Pruebas de integracion del servicio administrativo de directores.
+ *
+ * Validan altas, busquedas, normalizacion de paginacion y rechazo de nombres vacios
+ * o duplicados antes de asociar directores a peliculas.
+ */
 @SpringBootTest(classes = Application.class, properties = {
         "spring.security.oauth2.resourceserver.jwt.jwk-set-uri=http://localhost/jwks",
         "spring.rabbitmq.listener.simple.auto-startup=false",
@@ -29,10 +35,10 @@ class DirectorServiceTest {
         // Setup
         String nombre = "Director Test " + System.nanoTime();
 
-        // Ejercitación
+        // EjercitaciÃ³n
         var creado = directorService.crear(nombre);
 
-        // Verificación
+        // VerificaciÃ³n
         assertNotNull(creado.id(), "El director creado debe tener id");
         assertEquals(nombre, creado.nombre(), "El nombre del director creado debe coincidir");
     }
@@ -43,12 +49,12 @@ class DirectorServiceTest {
         // Setup
         String nombre = "   ";
 
-        // Ejercitación
+        // EjercitaciÃ³n
         var ex = assertThrows(ValidationRuntimeException.class, () -> directorService.crear(nombre));
 
-        // Verificación
+        // VerificaciÃ³n
         assertEquals(DirectorService.ERROR_NOMBRE_REQUERIDO, ex.getMessage(),
-                "El mensaje debe coincidir con la constante de validación");
+                "El mensaje debe coincidir con la constante de validaciÃ³n");
     }
 
     @Test
@@ -58,10 +64,10 @@ class DirectorServiceTest {
         String base = "Duplicado Director " + System.nanoTime();
         directorService.crear(base.toLowerCase());
 
-        // Ejercitación
+        // EjercitaciÃ³n
         var ex = assertThrows(ValidationRuntimeException.class, () -> directorService.crear(base.toUpperCase()));
 
-        // Verificación
+        // VerificaciÃ³n
         assertEquals(DirectorService.ERROR_NOMBRE_DUPLICADO, ex.getMessage(),
                 "El mensaje debe coincidir con la constante de duplicado");
     }
@@ -74,12 +80,12 @@ class DirectorServiceTest {
         directorService.crear(token + " Uno");
         directorService.crear("Otro " + System.nanoTime());
 
-        // Ejercitación
+        // EjercitaciÃ³n
         var resultado = directorService.buscar(token, null, null);
 
-        // Verificación
+        // VerificaciÃ³n
         assertTrue(resultado.stream().anyMatch(item -> item.nombre().contains(token)),
-                "La búsqueda debe incluir el director que contiene el texto buscado");
+                "La bÃºsqueda debe incluir el director que contiene el texto buscado");
         assertTrue(resultado.stream().allMatch(item -> item.nombre().toLowerCase().contains(token.toLowerCase())),
                 "Todos los resultados deben respetar el filtro por texto");
     }
@@ -90,11 +96,11 @@ class DirectorServiceTest {
         // Setup
         String q = "NoExisteDirector_" + System.nanoTime();
 
-        // Ejercitación
+        // EjercitaciÃ³n
         var resultado = directorService.buscar(q, null, null);
 
-        // Verificación
-        assertTrue(resultado.isEmpty(), "Sin coincidencias el listado debe ser vacío");
+        // VerificaciÃ³n
+        assertTrue(resultado.isEmpty(), "Sin coincidencias el listado debe ser vacÃ­o");
     }
 
     @Test
@@ -104,11 +110,11 @@ class DirectorServiceTest {
         String nombre = "Director Paginado " + System.nanoTime();
         directorService.crear(nombre);
 
-        // Ejercitación
+        // EjercitaciÃ³n
         var resultado = assertDoesNotThrow(() -> directorService.buscar("Director", -5, 0),
-                "El servicio no debe lanzar excepción con paginación inválida");
+                "El servicio no debe lanzar excepciÃ³n con paginaciÃ³n invÃ¡lida");
 
-        // Verificación
-        assertTrue(resultado != null, "La búsqueda debe devolver una lista válida");
+        // VerificaciÃ³n
+        assertTrue(resultado != null, "La bÃºsqueda debe devolver una lista vÃ¡lida");
     }
 }

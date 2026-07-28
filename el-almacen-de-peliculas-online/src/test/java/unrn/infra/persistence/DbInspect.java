@@ -5,6 +5,13 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.Statement;
 
+/**
+ * Utilidad de prueba para inspeccionar rapidamente el estado de la base.
+ *
+ * Se mantiene en test scope como apoyo diagnostico cuando hace falta revisar tablas
+ * o datos durante integraciones de persistencia, sin formar parte de la aplicacion
+ * productiva.
+ */
 public class DbInspect {
     public static void main(String[] args) throws Exception {
         String url = "jdbc:mysql://127.0.0.1:3306/almacen-peliculas-peliculas?useSSL=false&serverTimezone=UTC";

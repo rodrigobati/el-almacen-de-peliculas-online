@@ -1,0 +1,45 @@
+services:
+  keycloak:
+    image: quay.io/keycloak/keycloak:25.0
+    container_name: keycloak-sso
+    restart: unless-stopped
+    entrypoint: ["/bin/bash", "-lc"]
+    command:
+      [
+        "/opt/keycloak/bin/kc.sh import --file=/opt/keycloak/data/import/realm-export.json --override true && exec /opt/keycloak/bin/kc.sh start-dev",
+      ]
+    environment:
+      KEYCLOAK_ADMIN: ${KC_ADMIN_USER}
+      KEYCLOAK_ADMIN_PASSWORD: ${KC_ADMIN_PASS}
+      KC_HTTP_PORT: 8080
+      KC_DB: postgres
+      KC_DB_URL_HOST: keycloak-postgres
+      KC_DB_URL_DATABASE: ${KC_DB_USER}
+      KC_DB_USERNAME: ${KC_DB_USER}
+      KC_DB_PASSWORD: ${KC_DB_PASS}
+      KC_HEALTH_ENABLED: "true"
+      KC_HOSTNAME_STRICT: false
+      KC_HOSTNAME_STRICT_HTTPS: false
+      KC_HTTP_RELATIVE_PATH: /
+    ports:
+      - "9090:8080"
+    volumes:
+      - ../el-almacen-de-peliculas-online-keycloak/docker/keycloak/realm-export.json:/opt/keycloak/data/import/realm-export.json:ro
+      - ../el-almacen-de-peliculas-online-keycloak/docker/keycloak/realm-export-extras.json:/opt/keycloak/data/import/realm-export-extras.json:ro
+    networks:
+      peliculas-net:
+        aliases:
+          - keycloak-sso
+    depends_on:
+      keycloak-postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "/bin/bash -c '</dev/tcp/127.0.0.1/8080'"]
+      interval: 10s
+      timeout: 3s
+      retries: 20
+      start_period: 40s
+
+networks:
+  peliculas-net:
+    external: true

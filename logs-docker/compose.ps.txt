@@ -1,0 +1,11 @@
+﻿NAME                 IMAGE                                                                     COMMAND                  SERVICE              CREATED        STATUS                      PORTS
+api-gateway          api-gateway:latest                                                        "java -jar app.jar"      api-gateway          17 hours ago   Exited (143) 16 hours ago   
+catalogo-backend     sha256:c9477089864f0fe297df35393fa305b76f5caacf55b4c71cc02682ac48d1e049   "java -jar app.jar"      catalogo-backend     17 hours ago   Exited (143) 16 hours ago   
+catalogo-mysql       mysql:8.4                                                                 "docker-entrypoint.sÔÇª"   catalogo-mysql       17 hours ago   Exited (0) 16 hours ago     
+keycloak-postgres    postgres:16.3                                                             "docker-entrypoint.sÔÇª"   keycloak-postgres    17 hours ago   Exited (0) 16 hours ago     
+keycloak-sso         quay.io/keycloak/keycloak:25.0                                            "/bin/bash -lc '/optÔÇª"   keycloak             17 hours ago   Exited (143) 16 hours ago   
+peliculas-frontend   sha256:c5474fce2f4f721e65bae07cb5213dedbbcbbd686de29d301d5dce7643b1efff   "/docker-entrypoint.ÔÇª"   peliculas-frontend   17 hours ago   Exited (0) 16 hours ago     
+rating-mysql         mysql:8.0                                                                 "docker-entrypoint.sÔÇª"   rating-mysql         17 hours ago   Exited (0) 16 hours ago     
+rating-service       sha256:53e4cabc393eb272523dd9e162ca5369047bc8598212032f70bb4eb21c40f27e   "java -jar /app/app.ÔÇª"   rating-service       17 hours ago   Exited (143) 16 hours ago   
+shared-rabbitmq      rabbitmq:3.13-management                                                  "docker-entrypoint.sÔÇª"   shared-rabbitmq      17 hours ago   Exited (0) 16 hours ago     
+ventas-service       sha256:1cf0ee84348a8752f73480bc51656dca23d18e8e016720a8ee0339defcb1e8d5   "java -jar /app/app.ÔÇª"   ventas-service       17 hours ago   Exited (143) 16 hours ago   

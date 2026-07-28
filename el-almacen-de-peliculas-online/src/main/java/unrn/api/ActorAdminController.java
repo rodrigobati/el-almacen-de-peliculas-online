@@ -14,16 +14,29 @@ import unrn.service.ActorService;
 
 import java.util.List;
 
+/**
+ * Controlador REST de backoffice para actores.
+ *
+ * Expone endpoints protegidos para buscar actores por nombre y crear nuevos
+ * actores reutilizables en el alta o edicion de peliculas. Delega las reglas de
+ * negocio en ActorService y solo traduce el contrato HTTP a DTOs administrativos.
+ */
 @RestController
 @RequestMapping("/api/admin/actores")
 public class ActorAdminController {
 
     private final ActorService actorService;
 
+    /**
+     * Inicializa una instancia de ActorAdminController con los datos necesarios.
+     */
     public ActorAdminController(ActorService actorService) {
         this.actorService = actorService;
     }
 
+    /**
+     * Busca actores para administracion por nombre y paginacion opcional.
+     */
     @GetMapping
     public ResponseEntity<List<ActorAdminDTO>> listar(
             @RequestParam(required = false) String q,
@@ -33,6 +46,9 @@ public class ActorAdminController {
         return ResponseEntity.ok(actorService.buscar(q, page, size));
     }
 
+    /**
+     * Crea un actor desde la API administrativa.
+     */
     @PostMapping
     public ResponseEntity<ActorAdminDTO> crear(@RequestBody NombreRequest request) {
         ActorAdminDTO creado = actorService.crear(request.nombre());

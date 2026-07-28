@@ -1,0 +1,16 @@
+name: almacen-peliculas-online # Nombre del proyecto global
+
+include:
+  - path: ./docker-compose-infra.yml
+  - path: ./docker-compose-keycloak.yml
+  - path: ./docker-compose-catalogo.yml
+  - path: ./docker-compose-rating.yml
+  - path: ./docker-compose-ventas.yml
+  - path: ./docker-compose-descuentos.yml
+  - path: ./docker-compose-notificaciones.yml
+  - path: ./docker-compose-gateway.yml
+  - path: ./docker-compose-frontend.yml
+
+networks:
+  peliculas-net:
+    external: true

@@ -1,0 +1,365 @@
+﻿name: el-almacen-de-peliculas-online
+services:
+  api-gateway:
+    build:
+      context: C:\Users\pelud\OneDrive\Documentos\UNRN\Taller de Tecnolog├¡as y Producci├│n de Software\el-almacen-de-peliculas-online-apigateway
+      dockerfile: Dockerfile
+    container_name: api-gateway
+    depends_on:
+      catalogo-backend:
+        condition: service_healthy
+        required: true
+      keycloak:
+        condition: service_healthy
+        required: true
+      rating-service:
+        condition: service_healthy
+        required: true
+      ventas-service:
+        condition: service_healthy
+        required: true
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+    healthcheck:
+      test:
+        - CMD
+        - curl
+        - -f
+        - http://localhost:9500/actuator/health
+      timeout: 5s
+      interval: 10s
+      retries: 5
+      start_period: 30s
+    image: api-gateway:latest
+    networks:
+      peliculas-net: null
+    ports:
+      - mode: ingress
+        target: 9500
+        published: "9500"
+        protocol: tcp
+    restart: unless-stopped
+  catalogo-backend:
+    build:
+      context: C:\Users\pelud\OneDrive\Documentos\UNRN\Taller de Tecnolog├¡as y Producci├│n de Software\el-almacen-de-peliculas-online\el-almacen-de-peliculas-online
+      dockerfile: Dockerfile
+    container_name: catalogo-backend
+    depends_on:
+      catalogo-mysql:
+        condition: service_healthy
+        required: true
+      keycloak:
+        condition: service_healthy
+        required: true
+      shared-rabbitmq:
+        condition: service_healthy
+        required: true
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      SPRING_SQL_INIT_MODE: never
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - curl -fsS http://localhost:8080/actuator/health > /dev/null || curl -fsS http://localhost:8080/categorias > /dev/null
+      timeout: 5s
+      interval: 10s
+      retries: 5
+      start_period: 40s
+    image: el-almacen-de-peliculas-online-backend:latest
+    networks:
+      peliculas-net: null
+    ports:
+      - mode: ingress
+        target: 8080
+        published: "8081"
+        protocol: tcp
+    restart: unless-stopped
+  catalogo-mysql:
+    container_name: catalogo-mysql
+    environment:
+      MYSQL_DATABASE: almacen_peliculas
+      MYSQL_PASSWORD: almacen
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_USER: almacen
+    healthcheck:
+      test:
+        - CMD
+        - mysqladmin
+        - ping
+        - -h
+        - localhost
+        - -ualmacen
+        - -palmacen
+      timeout: 5s
+      interval: 10s
+      retries: 5
+      start_period: 20s
+    image: mysql:8.4
+    networks:
+      peliculas-net: null
+    ports:
+      - mode: ingress
+        target: 3306
+        published: "3307"
+        protocol: tcp
+    restart: unless-stopped
+    volumes:
+      - type: volume
+        source: catalogo-mysql-data
+        target: /var/lib/mysql
+        volume: {}
+  keycloak:
+    command:
+      - /opt/keycloak/bin/kc.sh import --file=/opt/keycloak/data/import/realm-export.json --override true && exec /opt/keycloak/bin/kc.sh start-dev
+    container_name: keycloak-sso
+    depends_on:
+      keycloak-postgres:
+        condition: service_healthy
+        required: true
+    entrypoint:
+      - /bin/bash
+      - -lc
+    environment:
+      KC_DB: postgres
+      KC_DB_PASSWORD: keycloak
+      KC_DB_URL_DATABASE: keycloak
+      KC_DB_URL_HOST: keycloak-postgres
+      KC_DB_USERNAME: keycloak
+      KC_HEALTH_ENABLED: "true"
+      KC_HTTP_PORT: "8080"
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - /bin/bash -c '</dev/tcp/127.0.0.1/8080'
+      timeout: 3s
+      interval: 10s
+      retries: 20
+      start_period: 40s
+    image: quay.io/keycloak/keycloak:25.0
+    networks:
+      peliculas-net:
+        aliases:
+          - keycloak-sso
+    ports:
+      - mode: ingress
+        target: 8080
+        published: "9090"
+        protocol: tcp
+    restart: unless-stopped
+    volumes:
+      - type: bind
+        source: C:\Users\pelud\OneDrive\Documentos\UNRN\Taller de Tecnolog├¡as y Producci├│n de Software\el-almacen-de-peliculas-online-keycloak\docker\keycloak\realm-export.json
+        target: /opt/keycloak/data/import/realm-export.json
+        read_only: true
+        bind:
+          create_host_path: true
+      - type: bind
+        source: C:\Users\pelud\OneDrive\Documentos\UNRN\Taller de Tecnolog├¡as y Producci├│n de Software\el-almacen-de-peliculas-online-keycloak\docker\keycloak\realm-export-extras.json
+        target: /opt/keycloak/data/import/realm-export-extras.json
+        read_only: true
+        bind:
+          create_host_path: true
+  keycloak-postgres:
+    container_name: keycloak-postgres
+    environment:
+      POSTGRES_DB: keycloak
+      POSTGRES_PASSWORD: keycloak
+      POSTGRES_USER: keycloak
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - pg_isready -U keycloak
+      timeout: 5s
+      interval: 10s
+      retries: 5
+      start_period: 10s
+    image: postgres:16.3
+    networks:
+      peliculas-net: null
+    restart: unless-stopped
+    volumes:
+      - type: volume
+        source: postgres-keycloak-data
+        target: /var/lib/postgresql/data
+        volume: {}
+  peliculas-frontend:
+    build:
+      context: C:\Users\pelud\OneDrive\Documentos\UNRN\Taller de Tecnolog├¡as y Producci├│n de Software\el-almacen-de-peliculas-online-front-end
+      dockerfile: Dockerfile
+      args:
+        VITE_API_BASE_URL: http://localhost:9500/api
+        VITE_VENTAS_API_BASE_URL: http://localhost:9500
+    container_name: peliculas-frontend
+    depends_on:
+      api-gateway:
+        condition: service_healthy
+        required: true
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - wget -q -O /dev/null http://127.0.0.1/ || exit 1
+      timeout: 5s
+      interval: 10s
+      retries: 3
+      start_period: 10s
+    image: peliculas-frontend:latest
+    networks:
+      peliculas-net: null
+    ports:
+      - mode: ingress
+        target: 80
+        published: "5173"
+        protocol: tcp
+    restart: unless-stopped
+  rating-mysql:
+    container_name: rating-mysql
+    environment:
+      MYSQL_DATABASE: almacen_peliculas_rating
+      MYSQL_PASSWORD: secret
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_USER: rating_user
+    healthcheck:
+      test:
+        - CMD
+        - mysqladmin
+        - ping
+        - -h
+        - localhost
+        - -urating_user
+        - -psecret
+      timeout: 5s
+      interval: 10s
+      retries: 5
+      start_period: 20s
+    image: mysql:8.0
+    networks:
+      peliculas-net: null
+    ports:
+      - mode: ingress
+        target: 3306
+        published: "3308"
+        protocol: tcp
+    restart: unless-stopped
+    volumes:
+      - type: volume
+        source: rating-mysql-data
+        target: /var/lib/mysql
+        volume: {}
+  rating-service:
+    build:
+      context: C:\Users\pelud\OneDrive\Documentos\UNRN\Taller de Tecnolog├¡as y Producci├│n de Software\el-almacen-de-peliculas-online-rating
+      dockerfile: Dockerfile
+    container_name: rating-service
+    depends_on:
+      keycloak:
+        condition: service_healthy
+        required: true
+      rating-mysql:
+        condition: service_healthy
+        required: true
+      shared-rabbitmq:
+        condition: service_healthy
+        required: true
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - curl -fsS http://localhost:8082/actuator/health > /dev/null || curl -fsS http://localhost:8082/api/ratings/pelicula/1 > /dev/null
+      timeout: 5s
+      interval: 10s
+      retries: 5
+      start_period: 40s
+    image: el-almacen-de-peliculas-online-rating:latest
+    networks:
+      peliculas-net: null
+    ports:
+      - mode: ingress
+        target: 8082
+        published: "8082"
+        protocol: tcp
+    restart: unless-stopped
+  shared-rabbitmq:
+    container_name: shared-rabbitmq
+    environment:
+      RABBITMQ_DEFAULT_PASS: guest
+      RABBITMQ_DEFAULT_USER: guest
+    healthcheck:
+      test:
+        - CMD
+        - rabbitmq-diagnostics
+        - ping
+      timeout: 5s
+      interval: 10s
+      retries: 5
+      start_period: 20s
+    image: rabbitmq:3.13-management
+    networks:
+      peliculas-net: null
+    ports:
+      - mode: ingress
+        target: 5672
+        published: "5672"
+        protocol: tcp
+      - mode: ingress
+        target: 15672
+        published: "15672"
+        protocol: tcp
+    restart: unless-stopped
+    volumes:
+      - type: volume
+        source: rabbitmq-data
+        target: /var/lib/rabbitmq
+        volume: {}
+  ventas-service:
+    build:
+      context: C:\Users\pelud\OneDrive\Documentos\UNRN\Taller de Tecnolog├¡as y Producci├│n de Software\el-almacen-de-peliculas-online-ventas
+      dockerfile: Dockerfile
+    container_name: ventas-service
+    depends_on:
+      catalogo-mysql:
+        condition: service_healthy
+        required: true
+      keycloak:
+        condition: service_healthy
+        required: true
+      shared-rabbitmq:
+        condition: service_healthy
+        required: true
+    environment:
+      SERVER_PORT: "8083"
+      SPRING_PROFILES_ACTIVE: docker
+      VENTAS_DATASOURCE_PASSWORD: root
+      VENTAS_DATASOURCE_USERNAME: root
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - curl -fsS http://localhost:8083/actuator/health > /dev/null || curl -fsS http://localhost:8083/carrito > /dev/null
+      timeout: 5s
+      interval: 10s
+      retries: 5
+      start_period: 40s
+    image: el-almacen-de-peliculas-online-ventas:latest
+    networks:
+      peliculas-net: null
+    ports:
+      - mode: ingress
+        target: 8083
+        published: "8083"
+        protocol: tcp
+    restart: unless-stopped
+networks:
+  peliculas-net:
+    name: el-almacen-de-peliculas-online_peliculas-net
+    driver: bridge
+volumes:
+  catalogo-mysql-data:
+    name: el-almacen-de-peliculas-online_catalogo-mysql-data
+  postgres-keycloak-data:
+    name: el-almacen-de-peliculas-online_postgres-keycloak-data
+  rabbitmq-data:
+    name: el-almacen-de-peliculas-online_rabbitmq-data
+  rating-mysql-data:
+    name: el-almacen-de-peliculas-online_rating-mysql-data

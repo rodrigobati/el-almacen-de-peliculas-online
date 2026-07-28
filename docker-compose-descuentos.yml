@@ -1,0 +1,65 @@
+volumes:
+  descuentos-mysql-data:
+
+services:
+  descuentos-mysql:
+    image: mysql:8.4
+    container_name: descuentos-mysql
+    command: --mysql-native-password=ON
+    environment:
+      MYSQL_DATABASE: ${DESCUENTOS_DB_NAME}
+      MYSQL_USER: ${CATALOGO_DB_USER}    
+      MYSQL_PASSWORD: ${CATALOGO_DB_PASS}
+      MYSQL_ROOT_PASSWORD: ${DESCUENTOS_DB_ROOT_PASS}
+      MYSQL_ROOT_HOST: "%"
+    volumes:
+      - ../el-almacen-de-peliculas-online-descuentos/sql/import.sql:/docker-entrypoint-initdb.d/import.sql
+    networks:
+      - peliculas-net
+    healthcheck:
+      test:
+        ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-proot"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  descuentos-service:
+    build:
+      context: ../el-almacen-de-peliculas-online-descuentos
+      dockerfile: Dockerfile
+    image: descuentos-service:workspace
+    container_name: descuentos-service
+    depends_on:
+      descuentos-mysql:
+        condition: service_healthy
+      shared-rabbitmq:
+        condition: service_healthy
+    ports:
+      - "8085:8085"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - SERVER_PORT=8085
+      # Configuración de Base de Datos
+      - SPRING_DATASOURCE_URL=jdbc:mysql://descuentos-mysql:3306/db_descuentos?createDatabaseIfNotExist=true&zeroDateTimeBehavior=convertToNull&allowPublicKeyRetrieval=true&useSSL=false
+      - SPRING_DATASOURCE_USERNAME=${CATALOGO_DB_USER}
+      - SPRING_DATASOURCE_PASSWORD=${CATALOGO_DB_PASS}
+      # Configuración de RabbitMQ (Inyectada al microservicio)
+      - SPRING_RABBITMQ_HOST=shared-rabbitmq
+      - SPRING_RABBITMQ_PORT=5672
+      - SPRING_RABBITMQ_USERNAME=${RABBIT_USER}
+      - SPRING_RABBITMQ_PASSWORD=${RABBIT_PASS}
+      # Seguridad (Keycloak) 
+      - SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI=http://keycloak-sso:8080/realms/videoclub/protocol/openid-connect/certs
+      - SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI=http://localhost:9090/realms/videoclub
+    networks:
+      - peliculas-net
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8085/actuator/health || [ $? -eq 22 ]"]
+      interval: 15s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+
+networks:
+  peliculas-net:
+    external: true

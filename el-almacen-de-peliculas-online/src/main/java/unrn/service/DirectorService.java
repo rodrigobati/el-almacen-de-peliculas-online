@@ -8,6 +8,13 @@ import unrn.infra.persistence.DirectorRepository;
 
 import java.util.List;
 
+/**
+ * Servicio de aplicacion para la administracion de directores.
+ *
+ * Encapsula las reglas de alta y busqueda que usa el backoffice: normaliza
+ * paginacion, valida nombres y rechaza duplicados. Asi los controladores quedan
+ * enfocados en HTTP y la persistencia queda detras del repositorio.
+ */
 @Service
 public class DirectorService {
 
@@ -18,10 +25,16 @@ public class DirectorService {
 
     private final DirectorRepository directorRepository;
 
+    /**
+     * Inicializa una instancia de DirectorService con los datos necesarios.
+     */
     public DirectorService(DirectorRepository directorRepository) {
         this.directorRepository = directorRepository;
     }
 
+    /**
+     * Busca directores por nombre para autocompletado o seleccion administrativa.
+     */
     @Transactional(readOnly = true)
     public List<DirectorAdminDTO> buscar(String q, Integer page, Integer size) {
         int pageNormalizada = normalizePage(page);
@@ -33,6 +46,9 @@ public class DirectorService {
                 .toList();
     }
 
+    /**
+     * Normaliza el valor recibido antes de usarlo.
+     */
     private int normalizePage(Integer page) {
         if (page == null || page < 0) {
             return DEFAULT_PAGE;
@@ -40,6 +56,9 @@ public class DirectorService {
         return page;
     }
 
+    /**
+     * Normaliza el valor recibido antes de usarlo.
+     */
     private int normalizeSize(Integer size) {
         if (size == null || size <= 0) {
             return DEFAULT_SIZE;
@@ -47,6 +66,9 @@ public class DirectorService {
         return size;
     }
 
+    /**
+     * Crea un director administrable luego de validar nombre y duplicados.
+     */
     @Transactional
     public DirectorAdminDTO crear(String nombre) {
         String nombreNormalizado = assertNombre(nombre);
@@ -57,6 +79,9 @@ public class DirectorService {
         return DirectorAdminDTO.from(guardado);
     }
 
+    /**
+     * Exige que el nombre del director administrado no sea nulo ni vacio.
+     */
     private String assertNombre(String nombre) {
         if (nombre == null || nombre.trim().isEmpty()) {
             throw new ValidationRuntimeException(ERROR_NOMBRE_REQUERIDO);
@@ -64,6 +89,9 @@ public class DirectorService {
         return nombre.trim();
     }
 
+    /**
+     * Impide crear directores duplicados ignorando mayusculas y minusculas.
+     */
     private void assertNoDuplicado(String nombre) {
         if (directorRepository.existsByNombreIgnoreCase(nombre)) {
             throw new ValidationRuntimeException(ERROR_NOMBRE_DUPLICADO);
