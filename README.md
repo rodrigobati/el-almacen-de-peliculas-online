@@ -1,5 +1,10 @@
 # el-almacen-de-peliculas-online
 
+Para levantar todo el proyecto hay que ubicarse en el directorio .\el-almacen-de-peliculas-online\ donde se encontrara el docker-compose.yml.
+
+cd .\el-almacen-de-peliculas-online\
+docker compose up
+
 ## Documentacion corta de vertical: Catalogo
 
 ### Proposito
